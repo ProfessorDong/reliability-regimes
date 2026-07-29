@@ -1,0 +1,6 @@
+__pycache__/
+*.pyc
+*.pkl
+!outputs/cwm_v1/chembl_fragment_pool.pkl
+*.log
+.ipynb_checkpoints/

@@ -1,0 +1,22 @@
+{
+  "drd2": {
+    "auc_wmga": 1.3402836772965323,
+    "auc_vanilla": 1.2968661202740617,
+    "auc_randtriage": 1.2977909509992245,
+    "wmga_minus_vanilla": 0.04341755702247063,
+    "p_wmga_vanilla": 0.00011667212005870705,
+    "wmga_minus_randtriage": 0.04249272629730772,
+    "p_wmga_randtriage": 5.436768990501659e-05,
+    "n_seeds": 25
+  },
+  "scd1": {
+    "auc_wmga": 1.1233312524347758,
+    "auc_vanilla": 1.115655250600926,
+    "auc_randtriage": 1.1180904348352878,
+    "wmga_minus_vanilla": 0.007676001833849728,
+    "p_wmga_vanilla": 0.10839735447555676,
+    "wmga_minus_randtriage": 0.005240817599487881,
+    "p_wmga_randtriage": 0.3568609604407486,
+    "n_seeds": 25
+  }
+}

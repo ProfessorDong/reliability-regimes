@@ -1,0 +1,220 @@
+{
+  "wm": {
+    "target": "drd3",
+    "mode": "wm",
+    "oracle_calls": 400,
+    "n_unique": 400,
+    "best_reward": 1.383662744557054,
+    "top10_mean": 1.3632397291214136,
+    "top100_mean": 1.3034243568423087,
+    "trajectory": [
+      [
+        40,
+        1.3821646761861208
+      ],
+      [
+        60,
+        1.3821646761861208
+      ],
+      [
+        80,
+        1.3821646761861208
+      ],
+      [
+        100,
+        1.3821646761861208
+      ],
+      [
+        120,
+        1.3821646761861208
+      ],
+      [
+        140,
+        1.3821646761861208
+      ],
+      [
+        160,
+        1.3821646761861208
+      ],
+      [
+        180,
+        1.3821646761861208
+      ],
+      [
+        200,
+        1.3821646761861208
+      ],
+      [
+        220,
+        1.3821646761861208
+      ],
+      [
+        240,
+        1.3821646761861208
+      ],
+      [
+        260,
+        1.3821646761861208
+      ],
+      [
+        280,
+        1.3821646761861208
+      ],
+      [
+        300,
+        1.3821646761861208
+      ],
+      [
+        320,
+        1.3821646761861208
+      ],
+      [
+        340,
+        1.3821646761861208
+      ],
+      [
+        360,
+        1.3821646761861208
+      ],
+      [
+        380,
+        1.3821646761861208
+      ],
+      [
+        400,
+        1.383662744557054
+      ]
+    ],
+    "top_smiles": [
+      "CC(C)(C)OC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(OCC(F)F)nc3CC2)CC1",
+      "CN1Cc2c(C(=O)N[C@H]3CC[C@H](CCN4CCc5sc(OCC(F)(F)F)nc5C4)CC3)cccc2C1=O",
+      "CN1Cc2c(C(=O)N[C@H]3CC[C@H](CCN4CCc5sc(OCC[18F])nc5C4)CC3)cccc2C1=O",
+      "COCC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(CCC(F)(F)F)nc3CC2)CC1",
+      "CC(C)C(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(CCC(F)(F)F)nc3CC2)CC1",
+      "Cc1ncc(OCC(=O)NC2CCC(CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)cn1",
+      "Cn1cc(CC(=O)NC2CCC(CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)c(F)n1",
+      "C[C@H](Oc1nc2c(s1)CCN(CC[C@H]1CC[C@H](NC(=O)Cc3cnn(C)n3)CC1)CC2)C(F)(F)F",
+      "O=C(CC1CC1)N[C@H]1CC[C@H](CCN2CCc3ccc(OC4CC(F)(F)C4)nc3CC2)CC1",
+      "COCC(=O)N[C@H]1CC[C@](F)(CCN2CCc3ccc(OC(C)(C)C)nc3CC2)CC1",
+      "Cc1cn2c(C(=O)N[C@H]3CC[C@H](CCN4CCc5nc(OCC(F)F)sc5CC4)CC3)cccc2n1",
+      "O=C(CO)N[C@H]1CC[C@H](CCN2CCc3ccc(CCC(F)(F)F)nc3CC2)CC1",
+      "CCOC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(OC4CC(F)(F)C4)nc3CC2)CC1",
+      "CCCC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(CCC(F)(F)F)nc3CC2)CC1",
+      "CC(C)(O)CC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(CCC(F)(F)F)nc3CC2)CC1",
+      "COCC(=O)N[C@H]1CC[C@](F)(CCN2CCc3ccc(OCC(F)F)nc3CC2)CC1",
+      "CC(C)(C)OC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(CCC(F)(F)F)nc3CC2)CC1",
+      "Cc1nc(CC(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(CCC(F)(F)F)nc4CC3)CC2)cs1",
+      "CCOC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(-c4cnn(C)c4)nc3CC2)CC1",
+      "Cn1ncc(CC(=O)N[C@H]2CC[C@H](CCN3CCc4sc(O[C@H]5C[C@H](F)C5)nc4C3)CC2)n1"
+    ]
+  },
+  "random": {
+    "target": "drd3",
+    "mode": "random",
+    "oracle_calls": 400,
+    "n_unique": 400,
+    "best_reward": 1.419371203573136,
+    "top10_mean": 1.3751329242318184,
+    "top100_mean": 1.315601825155786,
+    "trajectory": [
+      [
+        40,
+        1.3821646761861208
+      ],
+      [
+        60,
+        1.3821646761861208
+      ],
+      [
+        80,
+        1.3821646761861208
+      ],
+      [
+        100,
+        1.3821646761861208
+      ],
+      [
+        120,
+        1.3821646761861208
+      ],
+      [
+        140,
+        1.3821646761861208
+      ],
+      [
+        160,
+        1.3821646761861208
+      ],
+      [
+        180,
+        1.3821646761861208
+      ],
+      [
+        200,
+        1.3821646761861208
+      ],
+      [
+        220,
+        1.419371203573136
+      ],
+      [
+        240,
+        1.419371203573136
+      ],
+      [
+        260,
+        1.419371203573136
+      ],
+      [
+        280,
+        1.419371203573136
+      ],
+      [
+        300,
+        1.419371203573136
+      ],
+      [
+        320,
+        1.419371203573136
+      ],
+      [
+        340,
+        1.419371203573136
+      ],
+      [
+        360,
+        1.419371203573136
+      ],
+      [
+        380,
+        1.419371203573136
+      ],
+      [
+        400,
+        1.419371203573136
+      ]
+    ],
+    "top_smiles": [
+      "COc1ccc2c(n1)CCN(CC[C@H]1CC[C@H](NC(=O)c3cccc(F)c3)CC1)CC2",
+      "CC(C)(C)OC(=O)NC1CCC(CCN2CCc3ccc(OCC(F)F)nc3CC2)CC1",
+      "CN1Cc2c(C(=O)N[C@H]3CC[C@H](CCN4CCc5sc(OCC(F)(F)F)nc5C4)CC3)cccc2C1=O",
+      "CCOC(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(OCC(F)F)nc3CC2)CC1",
+      "Cc1ccc(C(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)cn1",
+      "COc1cc(CCC(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(C5CC(F)(F)C5)nc4CC3)CC2)on1",
+      "COc1cc(CCC(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)on1",
+      "Cc1ncc(C(=O)NC2CCC(CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)o1",
+      "Cn1cc2c(C(=O)N[C@H]3CC[C@H](CCN4CCc5ccc(OCC(F)F)nc5CC4)CC3)cccc2n1",
+      "C[C@H](Oc1ccc2c(n1)CCN(CCC1CCC(NC(=O)OC(C)(C)C)CC1)CC2)C(F)(F)F",
+      "Cn1cc(CC(=O)NC2CCC(CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)c(F)n1",
+      "COc1cccc(C(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)c1OC",
+      "C[C@H](Oc1nc2c(s1)CCN(CC[C@H]1CC[C@H](NC(=O)Cc3cnn(C)n3)CC1)CC2)C(F)(F)F",
+      "Cc1nc(C(=O)NC2CCC(CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)no1",
+      "CC(=O)C(=O)N[C@H]1CC[C@H](CCN2CCc3ccc(CC(C)F)nc3CC2)CC1",
+      "Cc1ncc(/C=C/C(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)cn1",
+      "COc1ccc2c(n1)CCN(CC[C@H]1CC[C@H](NC(=O)C3CCCCC3)CC1)CC2",
+      "N#Cc1ccc(C(=O)NC2CCC(CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)cn1",
+      "Cc1cn2c(C(=O)N[C@H]3CC[C@H](CCN4CCc5nc(OCC(F)F)sc5CC4)CC3)cccc2n1",
+      "Cc1ncc(CC(=O)N[C@H]2CC[C@H](CCN3CCc4ccc(OCC(F)F)nc4CC3)CC2)s1"
+    ]
+  }
+}

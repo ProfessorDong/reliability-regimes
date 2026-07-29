@@ -1,0 +1,5106 @@
+{
+  "config": {
+    "targets": [
+      "drd3",
+      "scd1",
+      "fads",
+      "nk1r",
+      "drd2"
+    ],
+    "wnov": [
+      0.0,
+      0.25,
+      0.5,
+      1.0,
+      2.0
+    ],
+    "seeds": 25,
+    "k": 10,
+    "budget": 250,
+    "out": "outputs/cwm_v1/frontier_v1_results.json"
+  },
+  "hp": {
+    "adm_thr": 0.2,
+    "expand_top": 30,
+    "neighbors_per": 40,
+    "eval_per_round": 12,
+    "beta": 1.5
+  },
+  "results": [
+    {
+      "target": "drd3",
+      "w_novelty": 0.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.28432882049852,
+          0.35516297887801707
+        ],
+        "uncertainty": [
+          0.5009039904183101,
+          0.12418743618707823
+        ],
+        "novelty_frac": [
+          0.13198692810457519,
+          0.27916218584393276
+        ],
+        "sim_to_seed": [
+          0.5890700620658115,
+          0.1114400746797077
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 9.233720720624165,
+          "uncertainty": 0.35599299363352693,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6290760869475317,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.521367662244128,
+          "uncertainty": 0.44747194991753236,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6637332192931396,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.329689344662206,
+          "uncertainty": 0.5098661196057293,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5694683432883995,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.745865124753479,
+          "uncertainty": 0.5335510648349198,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5727965013930255,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.57730501959876,
+          "uncertainty": 0.7945652295913946,
+          "novelty_frac": 0.29411764705882354,
+          "sim_to_seed": 0.5150468607715247,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.349561046251106,
+          "uncertainty": 0.7255686514259342,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.6294180005683608,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.61941323650929,
+          "uncertainty": 0.5986684881026613,
+          "novelty_frac": 0.2222222222222222,
+          "sim_to_seed": 0.4551516059888345,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.353907068129887,
+          "uncertainty": 0.5373399050488714,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5800224699098364,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.082127600560302,
+          "uncertainty": 0.4862092798291381,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.626337214742119,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.591536782095051,
+          "uncertainty": 0.6305682884550172,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.362578443691456,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.186936408320022,
+          "uncertainty": 0.5267756534810177,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.608910024921852,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.612992550755363,
+          "uncertainty": 0.5321075756068907,
+          "novelty_frac": 0.8333333333333334,
+          "sim_to_seed": 0.3342116939691192,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.276318777841677,
+          "uncertainty": 0.4166646098229128,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6386670023767432,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.631849293419709,
+          "uncertainty": 0.3008219094069454,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7247402076140663,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.589915108249997,
+          "uncertainty": 0.3412627575410055,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7039313146501024,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.426484524192308,
+          "uncertainty": 0.37278578099126225,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7144800472306807,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.3363679891677,
+          "uncertainty": 0.40512756963248375,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6826025790846546,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.47000719244898,
+          "uncertainty": 0.6577233126070058,
+          "novelty_frac": 0.7894736842105263,
+          "sim_to_seed": 0.3894508717189179,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.927631089849816,
+          "uncertainty": 0.5756434148557523,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6329386494768001,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.81136848820331,
+          "uncertainty": 0.6208954617349882,
+          "novelty_frac": 0.15789473684210525,
+          "sim_to_seed": 0.48535673474540725,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.626842935152277,
+          "uncertainty": 0.507560732800399,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5318186747498954,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.339909698067352,
+          "uncertainty": 0.515115623666042,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.689601606296761,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.403775477575437,
+          "uncertainty": 0.41402330758718087,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5498033100501382,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.295142426265738,
+          "uncertainty": 0.3196649555003271,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7252833822273632,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.768184947524938,
+          "uncertainty": 0.39662512477881434,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7113267059385564,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd3",
+      "w_novelty": 0.25,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.105917782720168,
+          0.4137928742376336
+        ],
+        "uncertainty": [
+          0.5973485973427949,
+          0.19813990381429283
+        ],
+        "novelty_frac": [
+          0.20315789473684212,
+          0.2738171192248875
+        ],
+        "sim_to_seed": [
+          0.5104386026230417,
+          0.09045517821144206
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.530478096826839,
+          "uncertainty": 0.49650675052631604,
+          "novelty_frac": 0.47368421052631576,
+          "sim_to_seed": 0.45308850519351024,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.652771026169546,
+          "uncertainty": 0.5136420522471895,
+          "novelty_frac": 0.16666666666666666,
+          "sim_to_seed": 0.4710910325768736,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.306363631965999,
+          "uncertainty": 0.6778458798541119,
+          "novelty_frac": 0.4,
+          "sim_to_seed": 0.43537308978527484,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.471834983672931,
+          "uncertainty": 0.42774670747744026,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5374105994587283,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.189720966936346,
+          "uncertainty": 0.807052877880168,
+          "novelty_frac": 0.45,
+          "sim_to_seed": 0.4224735850990748,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.703180521395664,
+          "uncertainty": 1.2005183954411633,
+          "novelty_frac": 0.6842105263157895,
+          "sim_to_seed": 0.38816010385857935,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.314757022229072,
+          "uncertainty": 0.5466184996443979,
+          "novelty_frac": 0.10526315789473684,
+          "sim_to_seed": 0.4792774702349404,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.241931408105732,
+          "uncertainty": 0.4838573871023272,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5625557610549248,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.191092404503102,
+          "uncertainty": 0.5369977056733786,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.522582041718558,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.461134832707739,
+          "uncertainty": 0.47301841405103523,
+          "novelty_frac": 0.1111111111111111,
+          "sim_to_seed": 0.5855352032546901,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.950832522208227,
+          "uncertainty": 0.9076889483194147,
+          "novelty_frac": 0.25,
+          "sim_to_seed": 0.4279002890403457,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.09199305099275,
+          "uncertainty": 0.9169311444194796,
+          "novelty_frac": 0.2222222222222222,
+          "sim_to_seed": 0.5010172482824025,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.382405928128803,
+          "uncertainty": 0.6157301498741359,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.46336821622140434,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.623328685948207,
+          "uncertainty": 0.3759592664450242,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6395189830707739,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.621399765938111,
+          "uncertainty": 0.36635520038475833,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6150905939183406,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.38408675497622,
+          "uncertainty": 0.4383477937787516,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.5844036000072406,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.301628146732089,
+          "uncertainty": 0.5854173112109446,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5297517315009798,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.41032040215898,
+          "uncertainty": 0.7925662264605119,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.3408935418792062,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.841078349542322,
+          "uncertainty": 0.7110672911046383,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5908255828411291,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.942919529725181,
+          "uncertainty": 0.6933065929121538,
+          "novelty_frac": 0.2631578947368421,
+          "sim_to_seed": 0.4823191424854365,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.957979746226632,
+          "uncertainty": 0.5918539497070772,
+          "novelty_frac": 0.8947368421052632,
+          "sim_to_seed": 0.32579684678398124,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.622773412918386,
+          "uncertainty": 0.4125411343585362,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6547534615544591,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.455876855263677,
+          "uncertainty": 0.40449498264274364,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6258027488371228,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.371749415090827,
+          "uncertainty": 0.4642889344746376,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.4928765602490471,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.626307107640836,
+          "uncertainty": 0.4933613375795372,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.6290991266690201,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd3",
+      "w_novelty": 0.5,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.109692516157851,
+          0.4202502276634431
+        ],
+        "uncertainty": [
+          0.5746880300553937,
+          0.15195442304798254
+        ],
+        "novelty_frac": [
+          0.42171929824561405,
+          0.37192562725205275
+        ],
+        "sim_to_seed": [
+          0.43275029613596133,
+          0.07970583532469126
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 9.26927357235721,
+          "uncertainty": 0.3835659911182499,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5061987464236799,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.09696775011228,
+          "uncertainty": 0.5241494825460312,
+          "novelty_frac": 0.42105263157894735,
+          "sim_to_seed": 0.48289168430354673,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.255775021377314,
+          "uncertainty": 0.5166096698996399,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5291040753937093,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.53974182828854,
+          "uncertainty": 0.49034939180344395,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3071854992789954,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.682921558495586,
+          "uncertainty": 0.9624808680092659,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.42030863709720717,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.46240714115341,
+          "uncertainty": 0.732053495882251,
+          "novelty_frac": 0.3,
+          "sim_to_seed": 0.4385602792699984,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.424567673401985,
+          "uncertainty": 0.5619347316374091,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.36118954901160294,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.245345330670226,
+          "uncertainty": 0.39178919457787087,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5271558468109603,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.981637936903025,
+          "uncertainty": 0.594691130326594,
+          "novelty_frac": 0.35,
+          "sim_to_seed": 0.4696835446671431,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.504249916931636,
+          "uncertainty": 0.9839461092547873,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.2590380116741104,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.305136960669326,
+          "uncertainty": 0.5255796802149562,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.48840385634363565,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.82049504945125,
+          "uncertainty": 0.5844904736280767,
+          "novelty_frac": 0.8421052631578947,
+          "sim_to_seed": 0.36374945148702986,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.205618268685186,
+          "uncertainty": 0.6102392210284833,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.507038536437125,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.068456974343071,
+          "uncertainty": 0.49506401897463387,
+          "novelty_frac": 0.6666666666666666,
+          "sim_to_seed": 0.4379050686913335,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.597176513757336,
+          "uncertainty": 0.48470486186807327,
+          "novelty_frac": 0.4,
+          "sim_to_seed": 0.4115457178849515,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.327139174008124,
+          "uncertainty": 0.44609909446323287,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5297570534776772,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.40272840517835,
+          "uncertainty": 0.35617044711157736,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5333514912536054,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.3353430667074,
+          "uncertainty": 0.5907736973155213,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.29650648418244735,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.635195064194653,
+          "uncertainty": 0.799542844215711,
+          "novelty_frac": 0.47368421052631576,
+          "sim_to_seed": 0.4056948802832093,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.089541139268812,
+          "uncertainty": 0.609987089227566,
+          "novelty_frac": 0.6,
+          "sim_to_seed": 0.40116658215466455,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.585130435149065,
+          "uncertainty": 0.5844320658320328,
+          "novelty_frac": 0.9473684210526315,
+          "sim_to_seed": 0.32305365165831695,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.304049196069517,
+          "uncertainty": 0.5574458813567494,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.45228648114402115,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.346306209213509,
+          "uncertainty": 0.4769529688077486,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.48741138959156227,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.217362219070164,
+          "uncertainty": 0.4996029343348053,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5136980393819528,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.039746498489347,
+          "uncertainty": 0.6045454079501329,
+          "novelty_frac": 0.8421052631578947,
+          "sim_to_seed": 0.36587284549654725,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd3",
+      "w_novelty": 1.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.707785352919862,
+          0.6023096387431406
+        ],
+        "uncertainty": [
+          0.7721418320899021,
+          0.23902363646527283
+        ],
+        "novelty_frac": [
+          0.7120000000000001,
+          0.3547618919782675
+        ],
+        "sim_to_seed": [
+          0.33660370955514757,
+          0.09431062098997677
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.402200146981524,
+          "uncertainty": 0.6133856489756744,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.37659709852924805,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.985834837393061,
+          "uncertainty": 1.0586318541847775,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.21793214153918467,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.203962943162306,
+          "uncertainty": 0.5637798316324699,
+          "novelty_frac": 0.65,
+          "sim_to_seed": 0.41806866554652683,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.793846318934422,
+          "uncertainty": 0.5949383058707287,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.29399697964488997,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.361900280378892,
+          "uncertainty": 1.2547417105604102,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18618518489927444,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.0631613169157,
+          "uncertainty": 0.925288172753566,
+          "novelty_frac": 0.3,
+          "sim_to_seed": 0.4589959751585056,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.293735675348868,
+          "uncertainty": 0.6424301301098264,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.3665966153847846,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.16998021551219,
+          "uncertainty": 0.6378922855338179,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2896723648165239,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.178484320707737,
+          "uncertainty": 0.5646242003201645,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.4550303693287871,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.58086972017704,
+          "uncertainty": 1.213438107480706,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18099218594946107,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.03833129135338,
+          "uncertainty": 1.1434303643298223,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.2304433380801834,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.637096723505866,
+          "uncertainty": 0.7134727421762378,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.277836392002191,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.052060308365848,
+          "uncertainty": 1.0325231517326559,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.3066628856704987,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.32179441253527,
+          "uncertainty": 0.4248245160425726,
+          "novelty_frac": 0.1,
+          "sim_to_seed": 0.4645977602070189,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.533252090814365,
+          "uncertainty": 0.5159322943798672,
+          "novelty_frac": 0.2,
+          "sim_to_seed": 0.4403720870677751,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.343643539779736,
+          "uncertainty": 0.5576716851779683,
+          "novelty_frac": 0.4,
+          "sim_to_seed": 0.4113793049605546,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.233480555504379,
+          "uncertainty": 0.5133174776378808,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.49935428483102273,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.456730870491269,
+          "uncertainty": 0.8168259098805251,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2852005718472778,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.875578152954151,
+          "uncertainty": 0.8855712195600262,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.3308886807784536,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.335321490210562,
+          "uncertainty": 0.6761436428213673,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.35828220463426336,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.438268388772292,
+          "uncertainty": 0.7160296492787839,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2933761033645598,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.16988424526385,
+          "uncertainty": 1.0197247334240689,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.218410128183744,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.927373687674113,
+          "uncertainty": 0.986874047586387,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.3114502646026009,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.473408054824102,
+          "uncertainty": 0.5031835171906482,
+          "novelty_frac": 0.1,
+          "sim_to_seed": 0.47720483587811174,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.824434235435605,
+          "uncertainty": 0.7288706036065971,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2655663159732473,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd3",
+      "w_novelty": 2.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.564002002814764,
+          0.7517266273576568
+        ],
+        "uncertainty": [
+          1.1414356009344686,
+          0.14878880640591874
+        ],
+        "novelty_frac": [
+          0.972,
+          0.10107423014794623
+        ],
+        "sim_to_seed": [
+          0.18242440456063722,
+          0.06358261349512047
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.199446225190695,
+          "uncertainty": 1.212897758690765,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1741657094652121,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.686296312443021,
+          "uncertainty": 0.9961156658302753,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11463949006878367,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.846119534162088,
+          "uncertainty": 1.156110308814998,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11579327549051344,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.552495339388221,
+          "uncertainty": 1.1184942097995556,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12296256523016243,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.946409173483272,
+          "uncertainty": 0.996021905835941,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17588420393416798,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.478127158866892,
+          "uncertainty": 1.189359992329521,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1353738265633166,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.39321834056573,
+          "uncertainty": 0.8822830896741403,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.26761807666304305,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.926654131076155,
+          "uncertainty": 1.3160792965879131,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17970383564266004,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.333404881692951,
+          "uncertainty": 0.9221045168194933,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2595840373538496,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.520408998352204,
+          "uncertainty": 1.0577498928828013,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18211579501755842,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.368740974366593,
+          "uncertainty": 1.4639771856514232,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1371918269799537,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.289616090560935,
+          "uncertainty": 1.2290830539932034,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18605010880044917,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.611090539889995,
+          "uncertainty": 1.165577138066947,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.28569633705499753,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.9993680861645755,
+          "uncertainty": 1.0363890134675633,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1400983638707539,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.95824046618808,
+          "uncertainty": 1.0667267638922868,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1484506688334926,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.332062933026581,
+          "uncertainty": 1.2677471169744066,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19506592192146868,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.190388362141265,
+          "uncertainty": 1.0131171489853643,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.3860941194665436,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.004467147390346,
+          "uncertainty": 1.1239008078824293,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14539421115215345,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.465138007568433,
+          "uncertainty": 1.3942627844798903,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17836055388359595,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.4567000551666,
+          "uncertainty": 1.2819753335629631,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15564776808111785,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.627570368112148,
+          "uncertainty": 1.113205656483579,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11251199385466315,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.737629626390631,
+          "uncertainty": 1.3909315421382282,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.21502242207787914,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.961257213216342,
+          "uncertainty": 1.1208178770397128,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.25318651732626574,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.614582038267803,
+          "uncertainty": 0.9505173904310951,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15297140512776397,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.60061806669754,
+          "uncertainty": 1.0704445730472198,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1410270801555639,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "scd1",
+      "w_novelty": 0.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.229911598293844,
+          0.40801057453676237
+        ],
+        "uncertainty": [
+          0.5679645669832165,
+          0.07535565668775737
+        ],
+        "novelty_frac": [
+          0.2358509017642145,
+          0.25401764620377015
+        ],
+        "sim_to_seed": [
+          0.4957168479438661,
+          0.07817796485803938
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.656247232284073,
+          "uncertainty": 0.6311395623952938,
+          "novelty_frac": 0.8571428571428571,
+          "sim_to_seed": 0.3627909411673417,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.287540860433428,
+          "uncertainty": 0.5454359696881054,
+          "novelty_frac": 0.058823529411764705,
+          "sim_to_seed": 0.5511481164848461,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.482033436095,
+          "uncertainty": 0.6588692680137077,
+          "novelty_frac": 0.3684210526315789,
+          "sim_to_seed": 0.4476352143833834,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.62056703477098,
+          "uncertainty": 0.5692387581202972,
+          "novelty_frac": 0.1111111111111111,
+          "sim_to_seed": 0.6267653144463348,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.289120354902902,
+          "uncertainty": 0.45890687489719423,
+          "novelty_frac": 0.15789473684210525,
+          "sim_to_seed": 0.4503654346832149,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.15137919550042,
+          "uncertainty": 0.6697267870597077,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5361678927341864,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.270475495037799,
+          "uncertainty": 0.47672231215354677,
+          "novelty_frac": 0.7894736842105263,
+          "sim_to_seed": 0.38711383416223977,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.882410433831552,
+          "uncertainty": 0.6159170021409277,
+          "novelty_frac": 0.125,
+          "sim_to_seed": 0.6311514406190761,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.28531104767537,
+          "uncertainty": 0.49541461672167514,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.6762207206576715,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.840140924827265,
+          "uncertainty": 0.4982417523670974,
+          "novelty_frac": 0.11764705882352941,
+          "sim_to_seed": 0.4904619378199842,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.56368274285011,
+          "uncertainty": 0.5829370768091691,
+          "novelty_frac": 0.21052631578947367,
+          "sim_to_seed": 0.5674751795511626,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.856082063373535,
+          "uncertainty": 0.49882192049615803,
+          "novelty_frac": 0.1,
+          "sim_to_seed": 0.5294092544975411,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.39056980963841,
+          "uncertainty": 0.6430705495357735,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.5142127267416953,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.504433517067865,
+          "uncertainty": 0.7168455020261567,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.39040565614709805,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.742362141288462,
+          "uncertainty": 0.558366774215048,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.4814782472939988,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.879852375356438,
+          "uncertainty": 0.6437907635661521,
+          "novelty_frac": 0.11764705882352941,
+          "sim_to_seed": 0.5171040210355926,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.077691596995363,
+          "uncertainty": 0.5945186301031009,
+          "novelty_frac": 0.10526315789473684,
+          "sim_to_seed": 0.5244163898023164,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.383747304829988,
+          "uncertainty": 0.5866158813887229,
+          "novelty_frac": 0.7894736842105263,
+          "sim_to_seed": 0.35573483096542163,
+          "oracle_calls": 260
+        },
+        {
+          "potency": 8.471270036373143,
+          "uncertainty": 0.6937280741772789,
+          "novelty_frac": 0.21052631578947367,
+          "sim_to_seed": 0.4757613366964304,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.707562117358112,
+          "uncertainty": 0.5762047115597987,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.49006919879054295,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.462270590075773,
+          "uncertainty": 0.5335689605721349,
+          "novelty_frac": 0.23529411764705882,
+          "sim_to_seed": 0.4910103159904613,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.214733992131139,
+          "uncertainty": 0.4613646471327194,
+          "novelty_frac": 0.2,
+          "sim_to_seed": 0.44216030306112,
+          "oracle_calls": 261
+        },
+        {
+          "potency": 8.154309610863368,
+          "uncertainty": 0.471928136441203,
+          "novelty_frac": 0.17647058823529413,
+          "sim_to_seed": 0.4375798420407391,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.791442473676307,
+          "uncertainty": 0.5393256188043446,
+          "novelty_frac": 0.125,
+          "sim_to_seed": 0.5208489316134209,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.782553570109276,
+          "uncertainty": 0.47841402419509976,
+          "novelty_frac": 0.23529411764705882,
+          "sim_to_seed": 0.49543411721083475,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "scd1",
+      "w_novelty": 0.25,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.002529479114996,
+          0.4473903517764417
+        ],
+        "uncertainty": [
+          0.658972281990215,
+          0.0973715554778942
+        ],
+        "novelty_frac": [
+          0.5275727554179567,
+          0.3335609126657032
+        ],
+        "sim_to_seed": [
+          0.38623968981456813,
+          0.0893311841074731
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.530351379898443,
+          "uncertainty": 0.6837437926866093,
+          "novelty_frac": 0.8421052631578947,
+          "sim_to_seed": 0.33916669724975995,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.129378646641335,
+          "uncertainty": 0.5684991155703255,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.4951667440918909,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.451061945404291,
+          "uncertainty": 0.6796123555371215,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2961200824230789,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.403839111389114,
+          "uncertainty": 0.7028119913136205,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.3368631593317607,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.204730362953931,
+          "uncertainty": 0.5105670381265823,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.4715643080009432,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.097291441228169,
+          "uncertainty": 0.6407421352102738,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.5132417434744034,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.392996959934127,
+          "uncertainty": 0.5332345213452727,
+          "novelty_frac": 0.42105263157894735,
+          "sim_to_seed": 0.45980458504813315,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.174387687874409,
+          "uncertainty": 0.8145326896689633,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.23438426810381302,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.4193831386914,
+          "uncertainty": 0.659667042900925,
+          "novelty_frac": 0.45,
+          "sim_to_seed": 0.42758334392195074,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.262675032202078,
+          "uncertainty": 0.8358286807964783,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1748051902588911,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.259766251825845,
+          "uncertainty": 0.6813526316347887,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.40170092355768927,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.69106344977163,
+          "uncertainty": 0.8208400726295284,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.2591286454748037,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.389448649603718,
+          "uncertainty": 0.6365677955898882,
+          "novelty_frac": 0.55,
+          "sim_to_seed": 0.42593453897084677,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.247566410109574,
+          "uncertainty": 0.6653399237529178,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.40944426885522855,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.575798516241456,
+          "uncertainty": 0.6141697183018092,
+          "novelty_frac": 0.1,
+          "sim_to_seed": 0.49341547851442347,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.547760765060725,
+          "uncertainty": 0.5578605788243918,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.41940169084216083,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.862268771597589,
+          "uncertainty": 0.7171563578182474,
+          "novelty_frac": 0.25,
+          "sim_to_seed": 0.4167648196807813,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.351183529859226,
+          "uncertainty": 0.7916693979902869,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.2524928141198795,
+          "oracle_calls": 260
+        },
+        {
+          "potency": 8.309664239825173,
+          "uncertainty": 0.6696854490677672,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.47512034764051314,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.70780019885967,
+          "uncertainty": 0.5792619068110265,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.46888741492087044,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.195515827952367,
+          "uncertainty": 0.48253803399385947,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.3855961476770512,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.250017323206055,
+          "uncertainty": 0.5172248103464876,
+          "novelty_frac": 0.2,
+          "sim_to_seed": 0.45303879592497953,
+          "oracle_calls": 261
+        },
+        {
+          "potency": 7.768346928001475,
+          "uncertainty": 0.6316856797838805,
+          "novelty_frac": 0.6,
+          "sim_to_seed": 0.340702949445343,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.324524185848938,
+          "uncertainty": 0.7286614273365648,
+          "novelty_frac": 0.8235294117647058,
+          "sim_to_seed": 0.31314591398900987,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.516416223894143,
+          "uncertainty": 0.7510539027177562,
+          "novelty_frac": 0.35,
+          "sim_to_seed": 0.39251737384599744,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "scd1",
+      "w_novelty": 0.5,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.829250907051236,
+          0.514966014371864
+        ],
+        "uncertainty": [
+          0.7476739353607386,
+          0.10928034687973666
+        ],
+        "novelty_frac": [
+          0.784,
+          0.3161392098427527
+        ],
+        "sim_to_seed": [
+          0.2888931033360301,
+          0.11310828661889893
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.417628565053112,
+          "uncertainty": 0.9018709779547794,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13122010850778912,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.147006131790302,
+          "uncertainty": 0.6506433415072973,
+          "novelty_frac": 0.6,
+          "sim_to_seed": 0.39842410072238005,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.018124889974051,
+          "uncertainty": 0.7476799643397294,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12153888682915215,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.186013041955265,
+          "uncertainty": 0.7027467642584512,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.33368553272499224,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.157952408058975,
+          "uncertainty": 0.7589613622210928,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.1691662372044017,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.505290092753289,
+          "uncertainty": 0.7861473391714308,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12232397298641018,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.6519510654674,
+          "uncertainty": 0.7049583011413517,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5245057774204117,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.2506115800113635,
+          "uncertainty": 0.7948327276102249,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.23797082427197097,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.293072992773785,
+          "uncertainty": 0.6715742970831172,
+          "novelty_frac": 0.55,
+          "sim_to_seed": 0.3979539261121376,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.366462915993887,
+          "uncertainty": 0.7895487580181455,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2163079637128973,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.451628998034526,
+          "uncertainty": 0.7725356130946734,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.29666030163680485,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.551154214837595,
+          "uncertainty": 0.8761801259057733,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.17248463536778724,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.052289353324277,
+          "uncertainty": 0.633621707305708,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.44680222915139745,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.137891941079577,
+          "uncertainty": 0.6834637117358076,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2255385410106528,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.382747903888347,
+          "uncertainty": 0.6314676834768387,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.39258763744334174,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.408538223960308,
+          "uncertainty": 0.6217647192544759,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.30452651139408377,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.427330379815702,
+          "uncertainty": 0.6190075008967753,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.3050039946058666,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.149002929795634,
+          "uncertainty": 0.9357935177648373,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1555909386596069,
+          "oracle_calls": 260
+        },
+        {
+          "potency": 8.234199425249631,
+          "uncertainty": 0.716534645723325,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.3190471714713697,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.678165053587994,
+          "uncertainty": 0.6205805864433555,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.44634546847008794,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.465038269820905,
+          "uncertainty": 0.687090511286757,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.3814388859035028,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.29942919368889,
+          "uncertainty": 0.6204207620402193,
+          "novelty_frac": 0.35,
+          "sim_to_seed": 0.4049543109291628,
+          "oracle_calls": 261
+        },
+        {
+          "potency": 7.539267121489994,
+          "uncertainty": 0.8956935652020428,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.21350491461579643,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.373904979717298,
+          "uncertainty": 0.8796974919714652,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18934958465073934,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.586571004158811,
+          "uncertainty": 0.9890324086107893,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.3153951275980081,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "scd1",
+      "w_novelty": 1.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.672254574643975,
+          0.4938392761843202
+        ],
+        "uncertainty": [
+          0.7817687129537702,
+          0.08013166751687717
+        ],
+        "novelty_frac": [
+          0.938,
+          0.20556264252047352
+        ],
+        "sim_to_seed": [
+          0.21530965361752308,
+          0.09052749595339143
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.500689068858071,
+          "uncertainty": 0.830516624338488,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16041990812432252,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.48611694843481,
+          "uncertainty": 0.933053892276052,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1806369221200289,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.974937489085309,
+          "uncertainty": 0.7612917825143668,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2824978655665328,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.201908623198289,
+          "uncertainty": 0.6398771073979754,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.3825036357220154,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.940883692405085,
+          "uncertainty": 0.8324067974088175,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14439279943826672,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.502914097067065,
+          "uncertainty": 0.7649708776782908,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13426460715202676,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.752442240399067,
+          "uncertainty": 0.8875137178957274,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1816167769024951,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.647749541699066,
+          "uncertainty": 0.8136256009781212,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14138123736345348,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.195314098336393,
+          "uncertainty": 0.6887905467775554,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.24940282345151782,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.207179041318332,
+          "uncertainty": 0.7535933536442282,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18763881040866084,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.293540356750545,
+          "uncertainty": 0.8755809618152055,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1929123506568126,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.5741890260837055,
+          "uncertainty": 0.8483668199041077,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16178863439542887,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.186089010896142,
+          "uncertainty": 0.6170813085127308,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.4421542288530992,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.853658417019801,
+          "uncertainty": 0.8037201729320943,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.37616810211194307,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.0708209236378305,
+          "uncertainty": 0.8157255249320515,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19257742691737492,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.222899971499487,
+          "uncertainty": 0.8381282227784567,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11123501040197667,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.113334580671728,
+          "uncertainty": 0.7191725771505573,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.31165029252059107,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.997139489820638,
+          "uncertainty": 0.7612978245597726,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12298671535273524,
+          "oracle_calls": 260
+        },
+        {
+          "potency": 7.126587849442984,
+          "uncertainty": 0.8447512156075037,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.09262926476949822,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.3799840658378,
+          "uncertainty": 0.6069852562903704,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2976827781036462,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.326218348935104,
+          "uncertainty": 0.7482618599613482,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.30765178392759773,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.637249441805357,
+          "uncertainty": 0.7422461618935585,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2321266238140122,
+          "oracle_calls": 261
+        },
+        {
+          "potency": 7.003487770665845,
+          "uncertainty": 0.7843115434014143,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1743174340738273,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.090555118993753,
+          "uncertainty": 0.7929565849488993,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15958341336860252,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.520475153237152,
+          "uncertainty": 0.8399914882465573,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16252189492161023,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "scd1",
+      "w_novelty": 2.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.270284237795229,
+          0.4531664640982001
+        ],
+        "uncertainty": [
+          0.8272619891071327,
+          0.0717705056403066
+        ],
+        "novelty_frac": [
+          1.0,
+          0.0
+        ],
+        "sim_to_seed": [
+          0.1562689269303363,
+          0.046287314272272076
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 6.927553227705253,
+          "uncertainty": 0.8215901024748181,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1704179483506821,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.785430362936715,
+          "uncertainty": 0.8856638390330065,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1598502529937436,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.953199504604976,
+          "uncertainty": 0.7631012584537448,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1745000156685465,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.4322228368057495,
+          "uncertainty": 0.8410927762048187,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15726948876111396,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.046767183189795,
+          "uncertainty": 0.748420279003098,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16939930644141807,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.554987051785242,
+          "uncertainty": 0.8044025372447342,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12498596176835604,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.198343595630971,
+          "uncertainty": 0.914458594604038,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1835050223417906,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.921027541726349,
+          "uncertainty": 0.8705390786548343,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10729908488091955,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.0743579945215345,
+          "uncertainty": 0.8282092880419644,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14260976226152572,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.138439029632174,
+          "uncertainty": 0.7532642514300375,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1596097612626887,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.889947152914523,
+          "uncertainty": 0.7948207626047699,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11238731781859553,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.237427283473679,
+          "uncertainty": 0.8386422968554974,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.07653523748929737,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.331864027569651,
+          "uncertainty": 0.823726337254951,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1375327120679698,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.882257140344256,
+          "uncertainty": 0.773077250039884,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2715169765153245,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.7615261359438446,
+          "uncertainty": 0.7644196212554724,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11900790237219613,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.396332567954756,
+          "uncertainty": 1.0331368831893186,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.20696804693529142,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.103705935091211,
+          "uncertainty": 0.790368274689732,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18529287047756166,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.6272777695018705,
+          "uncertainty": 0.9546647019740144,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13723693337327258,
+          "oracle_calls": 260
+        },
+        {
+          "potency": 7.079043619083005,
+          "uncertainty": 0.7908642518879334,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11868212103327871,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.0660704590489996,
+          "uncertainty": 0.8521514729689678,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.08504083727319325,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.128569731946879,
+          "uncertainty": 0.7148149712623747,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.27852676693924117,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.3692550425508445,
+          "uncertainty": 0.8998496455541076,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15819211265001806,
+          "oracle_calls": 261
+        },
+        {
+          "potency": 6.967724483172139,
+          "uncertainty": 0.8825943532076534,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1589606804396912,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.959085984557144,
+          "uncertainty": 0.7411754961884222,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15437769593477585,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.924690283189159,
+          "uncertainty": 0.7965014036001217,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1570183572079158,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "fads",
+      "w_novelty": 0.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.907680047329218,
+          0.27417331945294976
+        ],
+        "uncertainty": [
+          0.7229938666604246,
+          0.12961531045018995
+        ],
+        "novelty_frac": [
+          0.19534873949579834,
+          0.28617329264302976
+        ],
+        "sim_to_seed": [
+          0.5259550372154927,
+          0.12659489397080514
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.773429827576601,
+          "uncertainty": 0.719052202521483,
+          "novelty_frac": 0.0625,
+          "sim_to_seed": 0.5420780968774411,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.762509516528939,
+          "uncertainty": 0.7534025721754023,
+          "novelty_frac": 0.26666666666666666,
+          "sim_to_seed": 0.5547403639557906,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.89072079920264,
+          "uncertainty": 0.6284234175962903,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.5340246829699479,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.376197437641164,
+          "uncertainty": 0.7517764453258348,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6768664624013682,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.265003943573463,
+          "uncertainty": 0.7831011039695052,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6235098454271341,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.200098181850494,
+          "uncertainty": 0.7677159971910242,
+          "novelty_frac": 0.0625,
+          "sim_to_seed": 0.6122164007986872,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.69681984234432,
+          "uncertainty": 0.7937983822915967,
+          "novelty_frac": 0.3125,
+          "sim_to_seed": 0.46734969662166403,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.052743211414104,
+          "uncertainty": 0.5079866780584203,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6568907488426052,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.99249820091608,
+          "uncertainty": 0.5951724219644814,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6019128495824203,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.922072246858683,
+          "uncertainty": 0.5948286315145512,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.566913429684062,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.962769646024841,
+          "uncertainty": 0.8545959425199389,
+          "novelty_frac": 0.25,
+          "sim_to_seed": 0.5276954870197836,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.652130202396593,
+          "uncertainty": 0.8792691584477514,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.178848434605123,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.259865735062345,
+          "uncertainty": 0.7608499075808264,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5731997196604415,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.37386997848616,
+          "uncertainty": 0.8183485646304878,
+          "novelty_frac": 0.6666666666666666,
+          "sim_to_seed": 0.35283100176224574,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.02102470624778,
+          "uncertainty": 0.4987598177331538,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5972254884642603,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.857051010374593,
+          "uncertainty": 0.6990905521499331,
+          "novelty_frac": 0.35714285714285715,
+          "sim_to_seed": 0.5574332913732917,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.46880569747722,
+          "uncertainty": 0.8080714456561762,
+          "novelty_frac": 0.3333333333333333,
+          "sim_to_seed": 0.4267893304744963,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.505772695497901,
+          "uncertainty": 0.6072712753490637,
+          "novelty_frac": 0.13333333333333333,
+          "sim_to_seed": 0.5865056335108784,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.293041764420579,
+          "uncertainty": 0.6582372498172411,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6600179303118716,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.997211080245968,
+          "uncertainty": 0.5952015816708027,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.627457649193959,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.8776198140028075,
+          "uncertainty": 0.8000947797088924,
+          "novelty_frac": 0.07142857142857142,
+          "sim_to_seed": 0.510000572903365,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.379222272760252,
+          "uncertainty": 0.7060504844494495,
+          "novelty_frac": 0.2,
+          "sim_to_seed": 0.5095991544940176,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.053388802132687,
+          "uncertainty": 0.9020085457102255,
+          "novelty_frac": 0.11764705882352941,
+          "sim_to_seed": 0.4781590283811199,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.031860702090983,
+          "uncertainty": 0.5443750295688504,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5575889468964812,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.02627386810322,
+          "uncertainty": 1.0473644789092327,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1690216841748639,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "fads",
+      "w_novelty": 0.25,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.644390869635439,
+          0.3668279458022774
+        ],
+        "uncertainty": [
+          0.8324826446147686,
+          0.11558407933841397
+        ],
+        "novelty_frac": [
+          0.5717039903680771,
+          0.36079299820901184
+        ],
+        "sim_to_seed": [
+          0.3639816575591587,
+          0.13016817862723723
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.8945463470221835,
+          "uncertainty": 0.6785632660643367,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5440991195385231,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.4208078165875975,
+          "uncertainty": 1.080571530983337,
+          "novelty_frac": 0.8888888888888888,
+          "sim_to_seed": 0.3135451506499547,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.443656489190692,
+          "uncertainty": 0.8430951771625956,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.26063594826795994,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.285110784686882,
+          "uncertainty": 0.8180205484606166,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5787820302453435,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.208306370320816,
+          "uncertainty": 0.9013899179008641,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5461817939858643,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.11970041738452,
+          "uncertainty": 0.556395964896236,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5808811897441004,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.140721708581264,
+          "uncertainty": 0.8068538290506877,
+          "novelty_frac": 0.8947368421052632,
+          "sim_to_seed": 0.30541866134442536,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.5093652330291905,
+          "uncertainty": 0.8150933645462368,
+          "novelty_frac": 0.631578947368421,
+          "sim_to_seed": 0.3331718594001185,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.343117436188706,
+          "uncertainty": 0.7914306822324517,
+          "novelty_frac": 0.7368421052631579,
+          "sim_to_seed": 0.37830579933874214,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.62209739689788,
+          "uncertainty": 0.7589127803377669,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.4102480408602608,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.7439693222780095,
+          "uncertainty": 0.8814796463530172,
+          "novelty_frac": 0.6470588235294118,
+          "sim_to_seed": 0.3598652526361667,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.670365315511413,
+          "uncertainty": 0.8557607988033651,
+          "novelty_frac": 0.7894736842105263,
+          "sim_to_seed": 0.2362227423587766,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.821114934735839,
+          "uncertainty": 0.8554390446298751,
+          "novelty_frac": 0.5625,
+          "sim_to_seed": 0.33533974744362355,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.3741206810197,
+          "uncertainty": 0.8682971168429787,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.3083792268798748,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.804629301512458,
+          "uncertainty": 0.7345928790277879,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.5225383386372416,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.1521281763480005,
+          "uncertainty": 0.7295631188412626,
+          "novelty_frac": 0.6666666666666666,
+          "sim_to_seed": 0.3119819519668358,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.299521575366112,
+          "uncertainty": 1.024829170709007,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.21256540060482615,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.1068613608520765,
+          "uncertainty": 0.9538889163697568,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.26456827475400957,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.825605924409627,
+          "uncertainty": 0.6330270418074068,
+          "novelty_frac": 0.3888888888888889,
+          "sim_to_seed": 0.4868615634951502,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.962396367180285,
+          "uncertainty": 0.7640851292613259,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5465173112958902,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.852609942287968,
+          "uncertainty": 0.8754922660983888,
+          "novelty_frac": 0.3333333333333333,
+          "sim_to_seed": 0.39671786960316413,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.134356482322086,
+          "uncertainty": 0.8325253427653461,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13436017056454322,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.059642314743206,
+          "uncertainty": 0.9981360155730437,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.35546268856491714,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.04307581526511,
+          "uncertainty": 0.827475241461778,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18769567531737158,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.271944227164364,
+          "uncertainty": 0.9271473251897466,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.18919563148128254,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "fads",
+      "w_novelty": 0.5,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.468582901989899,
+          0.4125229684998695
+        ],
+        "uncertainty": [
+          0.9196212245531392,
+          0.10270622322930632
+        ],
+        "novelty_frac": [
+          0.82,
+          0.3059411708155671
+        ],
+        "sim_to_seed": [
+          0.2689398543009615,
+          0.11522618731645028
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.10530234762432,
+          "uncertainty": 0.9149568483742755,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1905438058194729,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.538287985868062,
+          "uncertainty": 0.8846625689491143,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.31800947625300346,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.738855319242944,
+          "uncertainty": 1.0076569973113585,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17710796560579994,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.231776388714007,
+          "uncertainty": 0.8841807209294068,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5138129221104147,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.097758582958921,
+          "uncertainty": 0.9229772660040203,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.49867115076983176,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.3230452964351045,
+          "uncertainty": 0.9180026562409159,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2079066429642705,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.090735808939845,
+          "uncertainty": 0.7628396815827153,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2429099444033584,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.851075230587102,
+          "uncertainty": 0.892673403240436,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.21530441175257362,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.026361985880138,
+          "uncertainty": 0.9652634838488525,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2482450147617517,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.199617399679733,
+          "uncertainty": 0.7579510609462543,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.33700301630311186,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.5740692547177515,
+          "uncertainty": 1.0436749126755254,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.21818782840816314,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.610011532614879,
+          "uncertainty": 0.8998884756276209,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.35932998267071725,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.22837191144637,
+          "uncertainty": 0.8926690835495462,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5259179896892365,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.45084160370709,
+          "uncertainty": 1.0708532798119397,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.20844039631525074,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.3413841665265265,
+          "uncertainty": 0.7821871306258229,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.26870719127277726,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.7114635729643055,
+          "uncertainty": 1.1398744896617283,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1396080795765444,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.18139761936435,
+          "uncertainty": 0.8280748933401189,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.22419870710691567,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.629555251900385,
+          "uncertainty": 0.9276062881785393,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1377682299676271,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.151791451334194,
+          "uncertainty": 0.8244057918160559,
+          "novelty_frac": 0.55,
+          "sim_to_seed": 0.4366456540851371,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.1724853079834485,
+          "uncertainty": 1.0318648558856238,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.2680055139714064,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.2429608502066305,
+          "uncertainty": 0.743517245582652,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.3135108220473628,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.088674627980526,
+          "uncertainty": 0.9617671909110191,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17224257093048712,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.979765308966234,
+          "uncertainty": 1.0584802360509158,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18842889245998418,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.338234168998038,
+          "uncertainty": 1.0091736043149797,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19002961220961978,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.810749575106608,
+          "uncertainty": 0.8653284483690464,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1229605360692202,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "fads",
+      "w_novelty": 1.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.283762752215392,
+          0.2789205271203727
+        ],
+        "uncertainty": [
+          0.9741360382648793,
+          0.12675364251736704
+        ],
+        "novelty_frac": [
+          0.998,
+          0.009797958971132722
+        ],
+        "sim_to_seed": [
+          0.19536231655462288,
+          0.056961829453506634
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 7.6710571249820845,
+          "uncertainty": 1.0393613437062252,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1383500026299281,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.187472083607711,
+          "uncertainty": 0.9429468684241147,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16703508406983475,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.618838961226347,
+          "uncertainty": 0.9371405305166973,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15916458012090523,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.367841398543419,
+          "uncertainty": 0.9850544440018186,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17852846487502533,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.018713354209621,
+          "uncertainty": 0.9454492201680154,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.0793673355604949,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.419510303172925,
+          "uncertainty": 0.8555104920447636,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.24819881575748695,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.261864026632978,
+          "uncertainty": 1.1032867947928091,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14762069399272645,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.047699055349054,
+          "uncertainty": 0.9974784050483366,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18797874499614503,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.79854168373911,
+          "uncertainty": 0.8603876807664859,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19822269326963718,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.173276393371104,
+          "uncertainty": 0.774375780263096,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2802620033805859,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.876151605591109,
+          "uncertainty": 1.0915415879256352,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19150425349470132,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.304467362601173,
+          "uncertainty": 0.8648719265195263,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3313564789719664,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.978831330360869,
+          "uncertainty": 0.8338250057329022,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16809414569121767,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.378493511211699,
+          "uncertainty": 1.0836585801213867,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1997337615895472,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.2404185832043195,
+          "uncertainty": 0.7996450496996597,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.23850896097027935,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.443725712360754,
+          "uncertainty": 1.0491399585556018,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19990908909437768,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.398993470807004,
+          "uncertainty": 1.0188148704346747,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.27136003548168486,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.08194203996708,
+          "uncertainty": 0.892709762099917,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18566933107727385,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.127972991033985,
+          "uncertainty": 1.3907145112369732,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2395705513908037,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.471556161814253,
+          "uncertainty": 1.0018905945731253,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14312198369421908,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.415303384081234,
+          "uncertainty": 1.1155724093587271,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19476631307298758,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.164570838453782,
+          "uncertainty": 1.008477442211091,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15614094955948443,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.159051192562766,
+          "uncertainty": 0.9279897014899156,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1491585190406613,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.4944498761498135,
+          "uncertainty": 0.9596724777490309,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2973884003662555,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.993326360350586,
+          "uncertainty": 0.8738855191814545,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1330467217173433,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "fads",
+      "w_novelty": 2.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.171197780557897,
+          0.3432265189836725
+        ],
+        "uncertainty": [
+          1.0419867549263169,
+          0.13150233557806948
+        ],
+        "novelty_frac": [
+          1.0,
+          0.0
+        ],
+        "sim_to_seed": [
+          0.14506274929658255,
+          0.04295948588940097
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 6.8727414987738085,
+          "uncertainty": 1.1957172334079194,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13345716793146384,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.165758187803361,
+          "uncertainty": 1.103184133561774,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13712876272328636,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.619327037127057,
+          "uncertainty": 0.922151300617972,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10674910250566474,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.354687166601069,
+          "uncertainty": 0.9168002594949787,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1632389630013804,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.901365629441838,
+          "uncertainty": 1.1559502783104265,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14791745372484802,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.139761846851485,
+          "uncertainty": 1.0217709881502808,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.22945969484847778,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.230085410483154,
+          "uncertainty": 1.0797633458434976,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11763228902103937,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.630507677926045,
+          "uncertainty": 0.8571948813038827,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10151424987207894,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.489614893734711,
+          "uncertainty": 1.134406367294749,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14082392102618932,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.6247556246525665,
+          "uncertainty": 1.3831277514800888,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10807501042815575,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.93893448978047,
+          "uncertainty": 1.1862350606236554,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17954227771565645,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.557650819283107,
+          "uncertainty": 1.0369282739548007,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.29183317770269723,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.136977567010936,
+          "uncertainty": 0.9006456504087591,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14674967684079018,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.794289779831014,
+          "uncertainty": 0.8849283593660561,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14609468931792388,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.325757751385465,
+          "uncertainty": 1.074766973999116,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1442589950254795,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.783552189142678,
+          "uncertainty": 0.9945837904941577,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17520498503116075,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.7677750694074605,
+          "uncertainty": 1.0903316052992413,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12418277441254903,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.887186724879513,
+          "uncertainty": 0.9564578880789719,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10812047659551541,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.948653481962158,
+          "uncertainty": 1.263164217023243,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10517519146263798,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.410775379226426,
+          "uncertainty": 1.0478503799360674,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1327502071275829,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.796840356579655,
+          "uncertainty": 0.9288067297269288,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16886975078459518,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.878809929400494,
+          "uncertainty": 0.9275666314578663,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10284706655357886,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.269020846444263,
+          "uncertainty": 1.1440646113133561,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.10931074707703939,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.901416859447925,
+          "uncertainty": 0.9861550763643745,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18476783447403772,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.853698296770785,
+          "uncertainty": 0.857117085645759,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12086426721073498,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "nk1r",
+      "w_novelty": 0.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.339924930900086,
+          0.3453949078910377
+        ],
+        "uncertainty": [
+          0.5629927179958409,
+          0.14910841236091038
+        ],
+        "novelty_frac": [
+          0.3339480564155487,
+          0.37136665664521806
+        ],
+        "sim_to_seed": [
+          0.5354835910362723,
+          0.13646008522936073
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.992488808340152,
+          "uncertainty": 0.5274193454704813,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2979589473345278,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.550701146744796,
+          "uncertainty": 0.3923664049861646,
+          "novelty_frac": 0.29411764705882354,
+          "sim_to_seed": 0.5299282076484215,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.728373224276353,
+          "uncertainty": 0.3855936918803151,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6187527269363875,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.76590229950765,
+          "uncertainty": 0.7866870057248442,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.644650855385019,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.093392902573326,
+          "uncertainty": 0.45845458009476364,
+          "novelty_frac": 0.7058823529411765,
+          "sim_to_seed": 0.38944437568391443,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.966498573349835,
+          "uncertainty": 0.7645105312365319,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6546984988936898,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.188758524662791,
+          "uncertainty": 0.4559044044699479,
+          "novelty_frac": 0.47368421052631576,
+          "sim_to_seed": 0.5399082985566697,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.120770816313904,
+          "uncertainty": 0.5114605735013942,
+          "novelty_frac": 0.8421052631578947,
+          "sim_to_seed": 0.37743040887534723,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.479361617910714,
+          "uncertainty": 0.7343528907190622,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5840513727689419,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.006999440851475,
+          "uncertainty": 0.5642786643604331,
+          "novelty_frac": 0.9444444444444444,
+          "sim_to_seed": 0.33157838282542507,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.238603214646078,
+          "uncertainty": 0.48753393251542765,
+          "novelty_frac": 0.3888888888888889,
+          "sim_to_seed": 0.5125033088129184,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.708497863520018,
+          "uncertainty": 0.767687928888108,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2777877874230008,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.757483749275066,
+          "uncertainty": 0.7517312177812367,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6543509319523878,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.181783039687252,
+          "uncertainty": 0.5296023621439696,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6622388616836421,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.170475177476467,
+          "uncertainty": 0.7719069139338222,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7020908703228215,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.39871656636736,
+          "uncertainty": 0.576545164963864,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5908162089568666,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.466446765219919,
+          "uncertainty": 0.34189317204107617,
+          "novelty_frac": 0.1111111111111111,
+          "sim_to_seed": 0.658650438991845,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.755049716212763,
+          "uncertainty": 0.7636004297919909,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.3617019648805157,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.400952561111435,
+          "uncertainty": 0.4538117803580669,
+          "novelty_frac": 0.35294117647058826,
+          "sim_to_seed": 0.476006316165042,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.751808333766698,
+          "uncertainty": 0.3394993097167656,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6758600672392617,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.466396698354975,
+          "uncertainty": 0.4261459031421319,
+          "novelty_frac": 0.21052631578947367,
+          "sim_to_seed": 0.5451097380412836,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.955557062240663,
+          "uncertainty": 0.5718624783033422,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.3450791828618067,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.898894385352097,
+          "uncertainty": 0.7238703201962974,
+          "novelty_frac": 0.375,
+          "sim_to_seed": 0.573034102599828,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.712944143411649,
+          "uncertainty": 0.40582953797772825,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6555947165973711,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.74126664132871,
+          "uncertainty": 0.5822694056982598,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7278632044698711,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "nk1r",
+      "w_novelty": 0.25,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.260108456444355,
+          0.41184763274591435
+        ],
+        "uncertainty": [
+          0.6295328921352479,
+          0.18365612055096106
+        ],
+        "novelty_frac": [
+          0.6397777777777778,
+          0.4317338941174819
+        ],
+        "sim_to_seed": [
+          0.40597205049764573,
+          0.14851037716865745
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 9.018809069758996,
+          "uncertainty": 0.5673793367945341,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.30115391503395533,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.25779473444534,
+          "uncertainty": 0.5937330351552862,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.32068735997146275,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.844739288301412,
+          "uncertainty": 0.45828641501906153,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5686062788714927,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.475930983139095,
+          "uncertainty": 1.0812221645125715,
+          "novelty_frac": 0.15789473684210525,
+          "sim_to_seed": 0.4989181856577871,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.92696057824404,
+          "uncertainty": 0.6083744653335473,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.33983913786112235,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 10.022810851673034,
+          "uncertainty": 0.6595627886714213,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6415083067477535,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.177470541088923,
+          "uncertainty": 0.5910078165049641,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.30980247733007543,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.116375445552476,
+          "uncertainty": 0.5331139642955737,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.3234122739822457,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.473768531170718,
+          "uncertainty": 0.7181271909867719,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.5243335102115995,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.065762529531355,
+          "uncertainty": 0.6400595610272226,
+          "novelty_frac": 0.8947368421052632,
+          "sim_to_seed": 0.33662553641046106,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.027999886820997,
+          "uncertainty": 0.5782733087591706,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.27964003264879345,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.95537539447581,
+          "uncertainty": 0.7850804162035063,
+          "novelty_frac": 0.9444444444444444,
+          "sim_to_seed": 0.3169184598384841,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 10.10599489463136,
+          "uncertainty": 0.3678003840208044,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.7462980521605121,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.868816870595845,
+          "uncertainty": 0.9056564685698506,
+          "novelty_frac": 0.9473684210526315,
+          "sim_to_seed": 0.3348732748844989,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.562600858053997,
+          "uncertainty": 0.9224981317826371,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2531882652195084,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.018727594543993,
+          "uncertainty": 0.5941500162491439,
+          "novelty_frac": 0.9473684210526315,
+          "sim_to_seed": 0.3292197302753462,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.056995006934454,
+          "uncertainty": 0.6819803612079398,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.3624966521231634,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.902107364337438,
+          "uncertainty": 0.8412798705077214,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25358525093329465,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.790764647408423,
+          "uncertainty": 0.7970713044609335,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.297280048730691,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.691154938669467,
+          "uncertainty": 0.42565235931585016,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5869295934230416,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.520704858651216,
+          "uncertainty": 0.44289098233747176,
+          "novelty_frac": 0.65,
+          "sim_to_seed": 0.3991297398185357,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.943322164975399,
+          "uncertainty": 0.5501018346120586,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.26826651150041136,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.033567192771965,
+          "uncertainty": 0.7039863540799428,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25906129969036346,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.780936669543653,
+          "uncertainty": 0.36504624567681765,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6726363081321607,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.863220515789505,
+          "uncertainty": 0.3259875272963968,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6248910609843825,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "nk1r",
+      "w_novelty": 0.5,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.210171144643008,
+          0.3473498684624439
+        ],
+        "uncertainty": [
+          0.7175298654068425,
+          0.20084487320979197
+        ],
+        "novelty_frac": [
+          0.6793684210526315,
+          0.4108336771119275
+        ],
+        "sim_to_seed": [
+          0.37047701731564137,
+          0.0955309169703485
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.93787195272534,
+          "uncertainty": 0.5639672895441381,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2780085973882357,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.404900858575104,
+          "uncertainty": 0.4891545174102109,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.30662131027369327,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.608202330468801,
+          "uncertainty": 0.7228977153546222,
+          "novelty_frac": 0.25,
+          "sim_to_seed": 0.48220917719534284,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.48674771973478,
+          "uncertainty": 1.1549026355096168,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.4828983202744526,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.91785903938771,
+          "uncertainty": 0.7508790346742328,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3075649112631335,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.740735208448745,
+          "uncertainty": 0.7929447190114408,
+          "novelty_frac": 0.2,
+          "sim_to_seed": 0.499228915167753,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.082173288779128,
+          "uncertainty": 0.6331336486605934,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2855030059928712,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.086227628673267,
+          "uncertainty": 0.5634165119002603,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.30676189235678175,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.697847500011006,
+          "uncertainty": 0.5915712987905803,
+          "novelty_frac": 0.6842105263157895,
+          "sim_to_seed": 0.4025702895111744,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.058599491094848,
+          "uncertainty": 0.640519399904424,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.303060555741423,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.96068572543931,
+          "uncertainty": 0.6742099620595893,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3033107026628511,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.845856671976545,
+          "uncertainty": 0.823836075839141,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.24870241733030224,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.094416921070392,
+          "uncertainty": 1.2595695614089413,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.4414337218562484,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.080863626704499,
+          "uncertainty": 0.6931215730361067,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.36512824337712246,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.932890763877129,
+          "uncertainty": 0.9920958540271055,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.38870625213091026,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.141069997098578,
+          "uncertainty": 0.5713850448291868,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.3205654179972274,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.651980183336882,
+          "uncertainty": 0.5301494954005368,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.4510008128080047,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.738496584297803,
+          "uncertainty": 0.8834086180601058,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3222250869315956,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.972789242934741,
+          "uncertainty": 0.5645717192055136,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3052901021665956,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.677167533978789,
+          "uncertainty": 0.4849241004222383,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5650847535047983,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.606163797900017,
+          "uncertainty": 0.5690594498913402,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3203878185297916,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.066219247366991,
+          "uncertainty": 0.6843264085169707,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.26466554237069356,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.418880012581571,
+          "uncertainty": 0.9899035546956814,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2722038785542047,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.599605085659856,
+          "uncertainty": 0.5289742329853325,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5791262285842567,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.446028203953382,
+          "uncertainty": 0.7853242140331531,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.45966747892156984,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "nk1r",
+      "w_novelty": 1.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          9.028834061027865,
+          0.3734294522251702
+        ],
+        "uncertainty": [
+          0.7810973871499978,
+          0.20374713374758457
+        ],
+        "novelty_frac": [
+          0.89,
+          0.23323807579381203
+        ],
+        "sim_to_seed": [
+          0.29718617740289294,
+          0.05922534255217319
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.63314338995575,
+          "uncertainty": 0.9229401087591622,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.23119981863567407,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.458748584280873,
+          "uncertainty": 0.45871135173862754,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.26096603515492484,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.490572888075018,
+          "uncertainty": 0.4874358472519552,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3293755515037901,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.497372188440613,
+          "uncertainty": 1.1100930912273224,
+          "novelty_frac": 0.25,
+          "sim_to_seed": 0.4218145257492468,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.592743162137975,
+          "uncertainty": 0.9227554671281508,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2418342878806406,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.069156037649659,
+          "uncertainty": 1.1008648258422835,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25513001671543556,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.151033459683696,
+          "uncertainty": 0.5757404875926664,
+          "novelty_frac": 0.6,
+          "sim_to_seed": 0.39447480658296874,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.07104209943562,
+          "uncertainty": 0.683316903178038,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2698094961909596,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.296376835479368,
+          "uncertainty": 0.7507104324658957,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.24994018002670754,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.90673248897488,
+          "uncertainty": 0.6911653542634568,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2958189945157198,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.336113694619184,
+          "uncertainty": 0.5123801394285712,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2850116875167417,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.498152368021968,
+          "uncertainty": 0.9692570049590052,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.22736569905437168,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.674073904738625,
+          "uncertainty": 0.6521155513129561,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.36028487711178026,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.954417825211145,
+          "uncertainty": 0.8097178251215746,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.30848113976824354,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.855743950181395,
+          "uncertainty": 0.9994133347117977,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.33270998618353465,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.949491756767102,
+          "uncertainty": 0.8173476490413266,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.26651387003408955,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.140183362976426,
+          "uncertainty": 0.6453898614046506,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.34648468137646604,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.731281760196774,
+          "uncertainty": 0.9103759427594079,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2620846513401492,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.928413939088866,
+          "uncertainty": 0.5297670213398777,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.28148035686105033,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.3938934471748,
+          "uncertainty": 0.7088450658370574,
+          "novelty_frac": 0.1,
+          "sim_to_seed": 0.4521031168020898,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.541025218624458,
+          "uncertainty": 0.6797157371086441,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.28762043945530924,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.940620393871567,
+          "uncertainty": 0.5328711190356212,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25796810227965306,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.754867242412569,
+          "uncertainty": 0.9581876694030758,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2308114699851047,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.763956003831467,
+          "uncertainty": 1.1256534700922518,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.2527758515661168,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.0916955238668,
+          "uncertainty": 0.9726634177465707,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.3275947927815549,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "nk1r",
+      "w_novelty": 2.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.30177624267997,
+          0.9767056835633198
+        ],
+        "uncertainty": [
+          1.007260930388742,
+          0.22367479600470427
+        ],
+        "novelty_frac": [
+          1.0,
+          0.0
+        ],
+        "sim_to_seed": [
+          0.20783814642624412,
+          0.06016768117627422
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.6040044669484,
+          "uncertainty": 1.0132043091884575,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.21555856125126524,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.95319231519118,
+          "uncertainty": 0.6186040145820046,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.23483660155289873,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.153454032423793,
+          "uncertainty": 1.0044036118926933,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13294602906083217,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.96693585201054,
+          "uncertainty": 1.2303112389425739,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.3391580906717388,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.829669760242812,
+          "uncertainty": 0.9186084164779892,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.20029671884193706,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.051415404163599,
+          "uncertainty": 0.8359724290760505,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.26170597911280324,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.682117576667511,
+          "uncertainty": 1.3629959199304533,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17571941879126465,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.98997114609944,
+          "uncertainty": 1.207771082781632,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.18226277639762445,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.912440821683345,
+          "uncertainty": 1.2697442398624033,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1594411500726951,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.994205493321115,
+          "uncertainty": 0.7790326352127377,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.22113879651858329,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.869562302761071,
+          "uncertainty": 0.7684987374647463,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2649178560702237,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.038626375517643,
+          "uncertainty": 1.131673313555264,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14045753969793517,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.476998886008868,
+          "uncertainty": 1.149180895184178,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.28807046379951534,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.74151902750788,
+          "uncertainty": 0.963484532782006,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25746223785914013,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.829436775625922,
+          "uncertainty": 1.0062586543607877,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2248488371560165,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.378771218517944,
+          "uncertainty": 1.266057743982151,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1465023335031832,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.510318898866986,
+          "uncertainty": 0.6133315698401315,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2934487618158691,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.818873664536405,
+          "uncertainty": 0.8433642135142293,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2204653646833099,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.762070302072272,
+          "uncertainty": 0.9679299376921309,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1248018723478429,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.53765576013866,
+          "uncertainty": 1.17099970935214,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.12356817450956721,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 9.457644655764797,
+          "uncertainty": 0.7031321806482562,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.22274457006914455,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.741657387516486,
+          "uncertainty": 0.8483814054194132,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.24146789928354756,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.341517431903244,
+          "uncertainty": 0.9627652594662655,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.0852086043455025,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.964514637625139,
+          "uncertainty": 1.4876183728080006,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.19943740916987288,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.937831873884186,
+          "uncertainty": 1.058198835701857,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2394876140737896,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd2",
+      "w_novelty": 0.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.381512785176525,
+          0.39962806468879886
+        ],
+        "uncertainty": [
+          0.6329509165999464,
+          0.20695677298619156
+        ],
+        "novelty_frac": [
+          0.14071052631578948,
+          0.23947077264044134
+        ],
+        "sim_to_seed": [
+          0.5220025895704582,
+          0.09737594204605578
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.891140550813343,
+          "uncertainty": 0.2797450132687396,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5987557727028097,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.291337751840532,
+          "uncertainty": 0.8441838831153274,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5823225731080581,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.593021349589787,
+          "uncertainty": 0.5710924185450541,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6133543418150538,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.705411028647825,
+          "uncertainty": 0.4713505167169606,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6737071734183725,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.168951489067313,
+          "uncertainty": 0.7011418958683491,
+          "novelty_frac": 0.15789473684210525,
+          "sim_to_seed": 0.5518954561101069,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.739902781811278,
+          "uncertainty": 0.4710888481486994,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.691121474002186,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.910629328553352,
+          "uncertainty": 0.3011292150423951,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.594194359858599,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.178723858933136,
+          "uncertainty": 0.9283831476467659,
+          "novelty_frac": 0.3,
+          "sim_to_seed": 0.4233542063706941,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.318733512501288,
+          "uncertainty": 0.9255589298017346,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.609453429431928,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.350589052609285,
+          "uncertainty": 0.8666898137591982,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.38344343621512855,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.389402211433431,
+          "uncertainty": 1.0839014119539532,
+          "novelty_frac": 0.8947368421052632,
+          "sim_to_seed": 0.2456454864268372,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.96870552663929,
+          "uncertainty": 0.5565859017287119,
+          "novelty_frac": 0.05555555555555555,
+          "sim_to_seed": 0.5141099763190834,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.935354581074063,
+          "uncertainty": 0.5503066303448791,
+          "novelty_frac": 0.06666666666666667,
+          "sim_to_seed": 0.49049015754567704,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.590280474515277,
+          "uncertainty": 0.6176155561333807,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5471177852142709,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.903849311097838,
+          "uncertainty": 0.3092075227130261,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6041792248900607,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.771292032791291,
+          "uncertainty": 0.763061495387267,
+          "novelty_frac": 0.5625,
+          "sim_to_seed": 0.3535877576588195,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.830247221208817,
+          "uncertainty": 0.7583082426488852,
+          "novelty_frac": 0.16666666666666666,
+          "sim_to_seed": 0.46124424740589703,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.087430197797783,
+          "uncertainty": 0.7029875062054038,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.48652306823232633,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.530171148928254,
+          "uncertainty": 0.7732651947502328,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5137608865342587,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.877111355127637,
+          "uncertainty": 0.3255164903257094,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.559839726683912,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.469506091944945,
+          "uncertainty": 0.6332297942241978,
+          "novelty_frac": 0.05555555555555555,
+          "sim_to_seed": 0.5472356269030549,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.602081364028216,
+          "uncertainty": 0.7203385787893367,
+          "novelty_frac": 0.4,
+          "sim_to_seed": 0.48465131319890975,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.803387509551216,
+          "uncertainty": 0.5370036772287929,
+          "novelty_frac": 0.05555555555555555,
+          "sim_to_seed": 0.5050201264982958,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.686342923366611,
+          "uncertainty": 0.5193378219271294,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5429798004546358,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.944216975541325,
+          "uncertainty": 0.6127434087245296,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.4720773322624801,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd2",
+      "w_novelty": 0.25,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.387910233844302,
+          0.48601850243631395
+        ],
+        "uncertainty": [
+          0.6596589140290938,
+          0.23829437327200245
+        ],
+        "novelty_frac": [
+          0.22728654970760231,
+          0.3222423627502709
+        ],
+        "sim_to_seed": [
+          0.483664337176196,
+          0.1011413136910516
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.84732441872642,
+          "uncertainty": 0.28288972603245177,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5982216645851076,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.352248142722548,
+          "uncertainty": 0.9220232264789543,
+          "novelty_frac": 0.10526315789473684,
+          "sim_to_seed": 0.5264552214355509,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.588265693658686,
+          "uncertainty": 0.5178395801366551,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6246161283875128,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.880151020749704,
+          "uncertainty": 0.41787155730762604,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5813141879397125,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.149759003929741,
+          "uncertainty": 0.6401711263439392,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.5699120207794338,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.693473800197449,
+          "uncertainty": 0.5353847839553577,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.581090378223876,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.914446747766881,
+          "uncertainty": 0.3071476515548855,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.575941895258177,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.633290286387805,
+          "uncertainty": 0.9724709891177443,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.36891884565304894,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.299247361523063,
+          "uncertainty": 0.9703241321320426,
+          "novelty_frac": 0.10526315789473684,
+          "sim_to_seed": 0.529727667626953,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.043729561218444,
+          "uncertainty": 1.288233891060676,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1808243113959615,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.019392190371244,
+          "uncertainty": 0.705965561073947,
+          "novelty_frac": 0.3684210526315789,
+          "sim_to_seed": 0.42466766989236066,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.038650772696858,
+          "uncertainty": 0.9152360308441171,
+          "novelty_frac": 0.65,
+          "sim_to_seed": 0.37668304145324694,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.863649418289225,
+          "uncertainty": 0.6498209822209023,
+          "novelty_frac": 0.7777777777777778,
+          "sim_to_seed": 0.3529420802705194,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.620000795079093,
+          "uncertainty": 0.669442722948231,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5556046137453159,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.900106320977681,
+          "uncertainty": 0.289673166311487,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.6055608326982763,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.569668019754387,
+          "uncertainty": 0.7235789624653344,
+          "novelty_frac": 0.3333333333333333,
+          "sim_to_seed": 0.5002733815564682,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.023815002212178,
+          "uncertainty": 0.768762272256327,
+          "novelty_frac": 0.55,
+          "sim_to_seed": 0.402466990161601,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.022624837629188,
+          "uncertainty": 0.691248189961114,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.46999522244579506,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.92445581978547,
+          "uncertainty": 0.7592230902775613,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.49411496001986327,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.939728371891581,
+          "uncertainty": 0.3037489638109294,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5430104679441653,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.212304596174205,
+          "uncertainty": 0.6766119866307281,
+          "novelty_frac": 0.15,
+          "sim_to_seed": 0.44007955410395383,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.952017596505601,
+          "uncertainty": 0.690291212380894,
+          "novelty_frac": 0.7894736842105263,
+          "sim_to_seed": 0.367579569397418,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.438485704782149,
+          "uncertainty": 0.7265084778839916,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.4603077225634388,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.966368104290488,
+          "uncertainty": 0.4833083405339368,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.46921031944790137,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.804552258787465,
+          "uncertainty": 0.5836962270075117,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.4920896824192412,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd2",
+      "w_novelty": 0.5,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.414706822066183,
+          0.42644982609302484
+        ],
+        "uncertainty": [
+          0.7180096025760793,
+          0.233863347522057
+        ],
+        "novelty_frac": [
+          0.3793684210526316,
+          0.3928690406515803
+        ],
+        "sim_to_seed": [
+          0.43459808461962524,
+          0.10239520603789949
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.859415311757816,
+          "uncertainty": 0.3546160906521111,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5006010287919851,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.462204673813854,
+          "uncertainty": 0.854206152303977,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.559937019556662,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.666511798543086,
+          "uncertainty": 0.5386614182219318,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5889018824643044,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.714147790588104,
+          "uncertainty": 0.5600685174689334,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.48393212070571395,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.939418671092151,
+          "uncertainty": 1.0248707720188939,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.33489329410434615,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.595432547834339,
+          "uncertainty": 0.8206767394304473,
+          "novelty_frac": 0.25,
+          "sim_to_seed": 0.4544953331250857,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.929444486897394,
+          "uncertainty": 0.3251105107768959,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5431950856031662,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.152649366768626,
+          "uncertainty": 0.9895371000478799,
+          "novelty_frac": 0.6,
+          "sim_to_seed": 0.3919715078347398,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.670984230021066,
+          "uncertainty": 0.9451757683087928,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.3735962065558809,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.34867355731544,
+          "uncertainty": 0.9838680828621482,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.35023604660009433,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.859805201023859,
+          "uncertainty": 0.8531971216496075,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.28559255870804456,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.752831461068878,
+          "uncertainty": 0.698905827154034,
+          "novelty_frac": 0.45,
+          "sim_to_seed": 0.41352836881104116,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.287418787662302,
+          "uncertainty": 0.914566502171931,
+          "novelty_frac": 0.631578947368421,
+          "sim_to_seed": 0.39782986586899277,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.661396479446166,
+          "uncertainty": 0.9634348534775729,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.5536763903372336,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.911366685230137,
+          "uncertainty": 0.3146835482638175,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5616807882335004,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.810853111302724,
+          "uncertainty": 0.6958862678201764,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.3710941985214867,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.114845485898112,
+          "uncertainty": 0.7880027045936072,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.4053909461597799,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.819589809453038,
+          "uncertainty": 0.6113027154036784,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.5293839327607841,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.507030908706568,
+          "uncertainty": 0.7642812131420784,
+          "novelty_frac": 0.05263157894736842,
+          "sim_to_seed": 0.5103690855465505,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.963403214755825,
+          "uncertainty": 0.30523612742375916,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.502424847321479,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.963141741631397,
+          "uncertainty": 0.486126493573971,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.4755707295495918,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.056444494343099,
+          "uncertainty": 0.8824706023029236,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.22285962571370307,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.664802613301317,
+          "uncertainty": 1.0594446438058829,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.19846703500039145,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.899118653069339,
+          "uncertainty": 0.5260950494735515,
+          "novelty_frac": 0.35,
+          "sim_to_seed": 0.4199739196114492,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.756739470129936,
+          "uncertainty": 0.6898152420533772,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.4353502980046257,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd2",
+      "w_novelty": 1.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          8.04738605481341,
+          0.768226946407658
+        ],
+        "uncertainty": [
+          0.8300327872563713,
+          0.21045923505646313
+        ],
+        "novelty_frac": [
+          0.728,
+          0.3346879143321431
+        ],
+        "sim_to_seed": [
+          0.30133768698000707,
+          0.11503133386320893
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 8.58957854831985,
+          "uncertainty": 0.5607098978477847,
+          "novelty_frac": 0.85,
+          "sim_to_seed": 0.37295876760139024,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.518492352162937,
+          "uncertainty": 0.9107986880911515,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25205161056833936,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.507315618150667,
+          "uncertainty": 0.8149935414460732,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.2401261383355937,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.794808516901622,
+          "uncertainty": 0.5909127158614932,
+          "novelty_frac": 0.05,
+          "sim_to_seed": 0.459193826690116,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.115329363974804,
+          "uncertainty": 1.174043913509372,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.1545110963890067,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.8623627782048064,
+          "uncertainty": 0.8404283154037181,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.3790342369983438,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.733782769943797,
+          "uncertainty": 0.5119926913650519,
+          "novelty_frac": 0.1,
+          "sim_to_seed": 0.4568981002398399,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.9687065278959555,
+          "uncertainty": 0.9625970557247745,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.32296108048619426,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.5340518196074155,
+          "uncertainty": 1.160485869437911,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13240563472592667,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.435377561228016,
+          "uncertainty": 0.9219085633070894,
+          "novelty_frac": 0.5,
+          "sim_to_seed": 0.3906485838099688,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.05443076513974,
+          "uncertainty": 0.8053331220130534,
+          "novelty_frac": 0.7,
+          "sim_to_seed": 0.3781701396949878,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.232056174476572,
+          "uncertainty": 0.8862196745188614,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1747925559778992,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.614922663873119,
+          "uncertainty": 0.8698241661351066,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.2278373634560753,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.321714236333275,
+          "uncertainty": 0.9033163394900374,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15721462059785019,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.850559160784247,
+          "uncertainty": 0.37869793461614265,
+          "novelty_frac": 0.35,
+          "sim_to_seed": 0.4357021010623545,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.742937329524726,
+          "uncertainty": 0.9590374650820408,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.156391372945469,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.5394254116047295,
+          "uncertainty": 0.848560114684274,
+          "novelty_frac": 0.95,
+          "sim_to_seed": 0.21977154823628728,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.5460705558585275,
+          "uncertainty": 1.1790554223671112,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.11483444448830733,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.770373420331595,
+          "uncertainty": 0.8735598403244978,
+          "novelty_frac": 0.2,
+          "sim_to_seed": 0.4321796078408813,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.615540279029862,
+          "uncertainty": 0.6068115518781758,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.34559269107621887,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.889826834134386,
+          "uncertainty": 0.6043442262188135,
+          "novelty_frac": 0.65,
+          "sim_to_seed": 0.3892654257161096,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.30798759638228,
+          "uncertainty": 1.0991930785427226,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16789266653030796,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.069133881046309,
+          "uncertainty": 0.9849172222102396,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.33409780819869206,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.848153405131171,
+          "uncertainty": 0.6537113197861837,
+          "novelty_frac": 0.75,
+          "sim_to_seed": 0.37690516642367544,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.72171380029485,
+          "uncertainty": 0.6493669515476066,
+          "novelty_frac": 0.0,
+          "sim_to_seed": 0.4620055864103415,
+          "oracle_calls": 250
+        }
+      ]
+    },
+    {
+      "target": "drd2",
+      "w_novelty": 2.0,
+      "lambda_unc": 0.1,
+      "k": 10,
+      "n_seeds": 25,
+      "budget": 250,
+      "agg": {
+        "potency": [
+          7.313946602918175,
+          0.7406485762733565
+        ],
+        "uncertainty": [
+          0.9998730171333307,
+          0.20849514487262888
+        ],
+        "novelty_frac": [
+          0.9840000000000001,
+          0.046303347611160894
+        ],
+        "sim_to_seed": [
+          0.17901557756519015,
+          0.06421845292606726
+        ]
+      },
+      "per_seed": [
+        {
+          "potency": 6.97641141062505,
+          "uncertainty": 1.0342737201416006,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.18932787961904915,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.66574775877523,
+          "uncertainty": 0.99158360008979,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.25928300112267644,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.93775693647879,
+          "uncertainty": 1.0856077183808719,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1900382177215769,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.07073689911028,
+          "uncertainty": 1.0977052374543186,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14566767013228513,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.426560056248967,
+          "uncertainty": 1.2318906467485882,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14787162232626969,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.98057397834359,
+          "uncertainty": 1.1295408765066066,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1633120007988711,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.495849221135325,
+          "uncertainty": 0.5219858489315863,
+          "novelty_frac": 0.9,
+          "sim_to_seed": 0.3546161759839476,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.33972162382833,
+          "uncertainty": 1.2699813183703554,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.09497802623559547,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.615854344969671,
+          "uncertainty": 1.1572133215521234,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.08226583128548168,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.220186597393383,
+          "uncertainty": 1.2010514422801761,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16640198286836674,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.384090908615162,
+          "uncertainty": 1.0549006953382727,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15269256278596338,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.310867005147536,
+          "uncertainty": 0.6434886091179662,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1906475561653659,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.989870402642028,
+          "uncertainty": 1.2618981184794893,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14898492419825993,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.792987360888593,
+          "uncertainty": 0.9322770527110963,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13537784924848023,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.486912377544057,
+          "uncertainty": 0.5095689223593594,
+          "novelty_frac": 0.8,
+          "sim_to_seed": 0.3488250536510892,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.324494562208713,
+          "uncertainty": 1.0372151704041521,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.17869336884669612,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.364059829071527,
+          "uncertainty": 1.0897985994949955,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.21593207717379173,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.296870061655145,
+          "uncertainty": 1.0697793270703535,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.13791123393794816,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.890188430342077,
+          "uncertainty": 1.0378219955023553,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.1540351031584577,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 8.537811969259149,
+          "uncertainty": 0.6206541414890369,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.258832144756324,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.095659663162219,
+          "uncertainty": 0.9419930465620021,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14227506906076665,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 6.116333719080401,
+          "uncertainty": 1.07795180085105,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.14079449155701015,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.740298491712021,
+          "uncertainty": 0.9603395584244844,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.16772052880186133,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.278816408020468,
+          "uncertainty": 1.1095475073482386,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15774431387775295,
+          "oracle_calls": 250
+        },
+        {
+          "potency": 7.51000505669668,
+          "uncertainty": 0.9287571527243971,
+          "novelty_frac": 1.0,
+          "sim_to_seed": 0.15116075381586627,
+          "oracle_calls": 250
+        }
+      ]
+    }
+  ]
+}
