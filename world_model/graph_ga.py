@@ -125,9 +125,13 @@ class GraphGA:
         while self.reward.n_oracle_calls < budget:
             pop = sorted(self.scores, key=self.scores.get, reverse=True)[:self.pop_size]
             fit = [self.scores[s] for s in pop]
+            # exact-budget accounting: never exceed `budget` total oracle calls
+            n_take = min(self.offspring, budget - self.reward.n_oracle_calls)
+            if n_take <= 0:
+                break
             offspring = []
             guard = 0
-            while len(offspring) < self.offspring and guard < self.offspring * 20:
+            while len(offspring) < n_take and guard < self.offspring * 20:
                 guard += 1
                 a, b = self._select_parents(pop, fit)
                 child = crossover(a, b, self.rng)

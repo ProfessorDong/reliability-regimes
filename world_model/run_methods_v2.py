@@ -37,13 +37,16 @@ def run_cell(target, k, seed, actives, train_canon, cfg):
     rw = CWMReward(target, anti_targets=cfg['anti'], lambda_unc=LAMBDA_UNC, weights=cfg['weights'])
     g = WMGuidedGA(target, rw, world_model=ECFPSurrogate(seed=seed), mode='wm', beta=0.0, seed=seed)
     g.run(seeds, BUDGET); out['stga_ecfp'] = top10_novel(g, sc, train_canon)
+    out['calls_stga'] = rw.n_oracle_calls
     # random triage (same pool, random selection; no surrogate)
     rw = CWMReward(target, anti_targets=cfg['anti'], lambda_unc=LAMBDA_UNC, weights=cfg['weights'])
     g = WMGuidedGA(target, rw, world_model=None, mode='randtriage', seed=seed)
     g.run(seeds, BUDGET); out['randtriage'] = top10_novel(g, sc, train_canon)
+    out['calls_rt'] = rw.n_oracle_calls
     # vanilla Graph GA
     rw = CWMReward(target, anti_targets=cfg['anti'], lambda_unc=LAMBDA_UNC, weights=cfg['weights'])
     g = GraphGA(target, rw, seed=seed); g.run(seeds, BUDGET); out['graphga'] = top10_novel(g, sc, train_canon)
+    out['calls_ga'] = rw.n_oracle_calls
     return out
 
 

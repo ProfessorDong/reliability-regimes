@@ -51,27 +51,38 @@ for t in ['scd1', 'fads', 'drd2']:
 # --------------------------------------------------------------- Results 5.2
 cal = L('calibration_analysis.json')
 close('Results/risk', 'pooled Spearman(sigma_T, |error|)', cal['pooled']['spearman_sigma_err'], 0.399, 0.01)
-cond('Results/risk', 'pooled n = 21,173 out-of-fold predictions', cal['pooled']['n'] == 21173, str(cal['pooled']['n']))
 cond('Results/risk', 'sigma_T -> |error| positive in every target',
      all(cal[t]['spearman_sigma_err'] > 0 for t in T))
 
-rel = L('reliability_analysis.json')
-rc = rel['pooled']['risk_coverage_rmse']
-close('Results/risk (Fig 1)', 'pooled RMSE at 20% coverage', rc['0.2'], 0.41, 0.02)
-close('Results/risk (Fig 1)', 'pooled RMSE at 100% coverage', rc['1.0'], 0.71, 0.02)
+rel = L('reliability_v2_analysis.json')
+cond('Results/risk', 'structure-disjoint n = 21,037 predictions', rel['pooled']['n'] == 21037, str(rel['pooled']['n']))
+rc = rel['pooled']['risk_coverage_micro']
+close('Results/risk (Fig 1)', 'micro RMSE at 20% coverage', rc['0.2'], 0.40, 0.02)
+close('Results/risk (Fig 1)', 'micro RMSE at 100% coverage', rc['1.0'], 0.71, 0.02)
+_ma = rel['pooled']['risk_coverage_macro']
+close('Results/risk (macro)', 'macro RMSE at 20% coverage', _ma['0.2'], 0.44, 0.02)
+close('Results/risk (macro)', 'macro RMSE at 100% coverage', _ma['1.0'], 0.75, 0.02)
+cond('Methods/leakage', 'structure-disjoint: SCD-1 duplicates removed (762 -> 626)',
+     rel['scd1']['duplicates']['n_unique'] == 626 and rel['scd1']['duplicates']['n_duplicate_rows'] == 136)
+cond('Results/in-domain novelty', 'novelty gap positive for 99.6% of compounds',
+     rel['pooled']['gap_frac_positive'] > 0.99)
+cond('Results/in-domain novelty', 'error falls as the novelty gap widens',
+     rel['pooled']['err_by_gap_quintile'][0] > rel['pooled']['err_by_gap_quintile'][-1])
+cond('Results/in-domain novelty', 'novel in-domain beats out-of-domain on 4 of 5 targets',
+     sum(rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse'] for t in T) == 4)
 cond('Results/risk (Fig 1)', 'risk-coverage monotone increasing (pooled)',
      all(rc[f'{a:.1f}'] <= rc[f'{b:.1f}'] + 1e-9 for a, b in [(.2, .4), (.4, .6), (.6, .8), (.8, 1.)]))
 cond('SI Table S4', 'risk-coverage monotone in every target',
      all(all(rel[t]['risk_coverage_rmse'][f'{a:.1f}'] <= rel[t]['risk_coverage_rmse'][f'{b:.1f}'] + 1e-9
              for a, b in [(.2, .4), (.4, .6), (.6, .8), (.8, 1.)]) for t in T))
 close('Results/risk', 'partial rho(err, sigma_T | novelty, d_train)',
-      rel['pooled']['partial_err_sig_given_nov_dtr'], 0.384, 0.01)
+      rel['pooled']['partial_err_sig_given_nov_dtr'], 0.381, 0.01)
 
 # --------------------------------------------------------------- Results 5.3
-close('Results/drift', 'pooled Spearman(support-novelty, |error|)', rel['pooled']['spearman_nov_err'], 0.044, 0.01)
-close('Results/drift', 'partial rho(err, novelty | d_train) ~ 0', rel['pooled']['partial_err_nov_given_dtr'], 0.021, 0.01)
-close('Results/drift', 'FADS Spearman(novelty, |error|) is negative', rel['fads']['spearman_nov_err'], -0.171, 0.01)
-close('Results/drift', 'pooled Spearman(d_train, |error|)', rel['pooled']['spearman_dtr_err'], 0.132, 0.01)
+close('Results/drift', 'pooled Spearman(support-novelty, |error|)', rel['pooled']['spearman_nov_err'], 0.068, 0.01)
+close('Results/drift', 'partial rho(err, novelty | d_train) ~ 0', rel['pooled']['partial_err_nov_given_dtr'], 0.047, 0.01)
+close('Results/drift', 'FADS Spearman(novelty, |error|) is negative', rel['fads']['spearman_nov_err'], -0.140, 0.01)
+close('Results/drift', 'pooled Spearman(d_train, |error|)', rel['pooled']['spearman_dtr_err'], 0.141, 0.01)
 
 app = L('applicability_analysis.json')
 close('SI Note 4', 'pooled Spearman(d_train, sigma_T)', app['pooled']['spearman_dtrain_sigma'], 0.435, 0.01)
@@ -90,6 +101,9 @@ cond('Results/drift', 'novelty->sigma_T holds with NO uncertainty penalty (lambd
 # --------------------------------------------------------------- Results 5.4
 mv = L('methods_v2_results.json')['results']
 cond('Results/method (Table S7)', '15 target-by-k cells', len(mv) == 15, str(len(mv)))
+cond('Methods/budget', 'every run uses exactly 300 oracle calls (no overshoot)',
+     all(c[k] <= 300 for r in mv for c in r['per_seed'] for k in ('calls_stga','calls_rt','calls_ga')),
+     'max=%d' % max(c[k] for r in mv for c in r['per_seed'] for k in ('calls_stga','calls_rt','calls_ga')))
 cond('Results/method (Table S7)', 'ST-GA beats Graph GA in ALL 15 cells',
      all(r['agg']['d_vs_ga'] > 0 for r in mv))
 cond('Results/method (Table S7)', 'every cell significant at 0.05',
@@ -99,10 +113,10 @@ cond('Results/method', 'ST-GA beats random-triage in ALL 15 cells',
 import statistics as st
 tgt = {t: st.mean([c['stga_ecfp'] - c['graphga'] for r in mv if r['target'] == t for c in r['per_seed']]) for t in T}
 tl = st.mean(tgt.values())
-close('Results/method (Fig 3)', 'target-level mean gain over Graph GA', tl, 0.0566, 0.004)
+close('Results/method (Fig 3)', 'target-level mean gain over Graph GA', tl, 0.0620, 0.004)
 cond('Results/method (Fig 3)', 'all five per-target means positive', all(v > 0 for v in tgt.values()),
      ', '.join(f'{t}={v:+.3f}' for t, v in tgt.items()))
-close('Results/method', 'DRD2 k=20 gain', [r for r in mv if r['target'] == 'drd2' and r['k'] == 20][0]['agg']['d_vs_ga'], 0.108, 0.01)
+close('Results/method', 'DRD2 k=20 gain', [r for r in mv if r['target'] == 'drd2' and r['k'] == 20][0]['agg']['d_vs_ga'], 0.117, 0.01)
 
 hs = L('hierstats_analysis.json')['target_level']
 close('SI Table S8', 'dual-encoder target-level gain', hs['mean'], 0.0239, 0.002)

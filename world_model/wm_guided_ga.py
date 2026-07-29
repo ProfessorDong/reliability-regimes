@@ -84,12 +84,16 @@ class WMGuidedGA:
             pool = self._make_pool(pop, fit, target_pool)
             if not pool:
                 break
+            # exact-budget accounting: never exceed `budget` total oracle calls
+            n_take = min(self.eval_per_gen, budget - self.reward.n_oracle_calls)
+            if n_take <= 0:
+                break
             if self.mode == 'wm' and self.wm is not None and self.wm.fitted:
                 mean, std = self.wm.predict(pool)
                 acq = mean + self.beta * std
-                chosen = [pool[i] for i in np.argsort(-acq)[:self.eval_per_gen]]
+                chosen = [pool[i] for i in np.argsort(-acq)[:n_take]]
             else:
-                idx = self.rng.permutation(len(pool))[:self.eval_per_gen]
+                idx = self.rng.permutation(len(pool))[:n_take]
                 chosen = [pool[i] for i in idx]
             self._evaluate(chosen)
         return self.results()

@@ -1,24 +1,15 @@
-"""Reliability and budgeted-search experiments for molecular design.
+"""Chemistry World Model (CWM) package for few-shot theranostic molecule generation.
 
-This package contains the activity models, the reward, the search operators, and the
-experiment and analysis scripts behind "Quantifying the reliability cost of novelty in
-molecular design".
+Design phase only. See PLAN_code.md for the module-by-module build spec and
+../../../JournalPapers_generation/DESIGN.md for the scientific blueprint.
 
-    oracle.py               activity model API, target configuration, ECFP featurization
-    oracle_sanity_gate.py   model selection and gating; writes the frozen .pkl models
-    reward.py               multi-objective reward with the uncertainty penalty
-    actions.py              BRICS fragment-edit action space and admissibility filter
-    graph_ga.py             Graph GA baseline (crossover / mutation)
-    wm_guided_ga.py         surrogate-triaged search over the Graph GA offspring pool
-    dynamics.py             dual-encoder latent surrogate (reported as an ablation)
-    run_*.py                experiments; analyze_*.py   frozen analyses
-
-Naming note: the package directory, some module names (`wm_guided_ga`), class names
-(`LatentWorldModel`, `WMGuidedGA`, `CWMReward`) and the keys of the frozen JSON outputs
-retain identifiers from an earlier version of this work. They are kept unchanged so that
-the frozen outputs and the reproduction path remain valid; they carry no meaning beyond
-naming. The primary method in the manuscript is the fingerprint-surrogate triage
-implemented by `run_methods_v2.py` on top of `wm_guided_ga.WMGuidedGA`.
+Planned modules (not yet implemented):
+    actions.py        MMP / fragment (BRICS-RECAP) action space + actionability filter
+    dynamics.py       learned latent-dynamics transition model M_phi over dual-encoder R^128
+    reward.py         multi-objective reward wrapping the Part-1 MoEPredictor (+ QED, SA, selectivity)
+    planner.py        beam / model-predictive rollout in latent space (PMO oracle budget)
+    cwm.py            top-level world model tying state/action/dynamics/reward/planner together
+    compat_imagine.py compatibility (C_nn)-driven cross-target source-pretraining harness
 """
 
 __all__: list[str] = []
