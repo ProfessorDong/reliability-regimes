@@ -8,8 +8,6 @@ Planned modules (not yet implemented):
     dynamics.py       learned latent-dynamics transition model M_phi over dual-encoder R^128
     reward.py         multi-objective reward wrapping the Part-1 MoEPredictor (+ QED, SA, selectivity)
     planner.py        beam / model-predictive rollout in latent space (PMO oracle budget)
-    cwm.py            top-level world model tying state/action/dynamics/reward/planner together
-    compat_imagine.py compatibility (C_nn)-driven cross-target source-pretraining harness
 """
 
 __all__: list[str] = []

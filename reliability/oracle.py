@@ -22,8 +22,10 @@ OUT_DIR = os.path.join(BASE_DIR, 'outputs', 'frozen')
 # v4 pipeline conventions; DRD3 uses 7.0 (its distribution is shifted high).
 _D = os.path.join(BASE_DIR, 'data')
 TARGETS = {
-    'scd1': (os.path.normpath(os.path.join(BASE_DIR, '..', '..',
-             'SCD1 dataset filtered 20230412', 'scd1_binding.csv')), 7.0),
+    'scd1': (os.path.join(_D, 'scd1_binding.csv')
+             if os.path.exists(os.path.join(_D, 'scd1_binding.csv'))
+             else os.path.normpath(os.path.join(BASE_DIR, '..', '..',
+                  'SCD1 dataset filtered 20230412', 'scd1_binding.csv')), 7.0),
     'fads': (os.path.join(_D, 'fatty_acid_desaturase_bioactivity.csv'), 6.5),
     'nk1r': (os.path.join(_D, 'nk1r_combined.csv'), 7.0),
     'drd2': (os.path.join(_D, 'drd2_bioactivity.csv'), 6.5),

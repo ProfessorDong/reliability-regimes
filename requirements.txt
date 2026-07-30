@@ -5,3 +5,6 @@ pandas
 rdkit
 torch
 joblib
+matplotlib
+statsmodels
+tqdm
