@@ -38,20 +38,36 @@ bins = np.linspace(nv.min(), nv.max(), 9)
 bc = 0.5 * (bins[:-1] + bins[1:])
 idx = np.clip(np.digitize(nv, bins) - 1, 0, len(bc) - 1)
 
-fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.5))
+# Bin occupancy is very uneven (the lowest-novelty bin holds a handful of runs while the
+# highest holds a couple of hundred), so marker area is scaled to the number of runs behind
+# each point. A reader can then see which points carry weight instead of reading eight
+# equally prominent dots.
+nb = np.array([(idx == b).sum() for b in range(len(bc))])
+
+fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.6))
 for ax, (y, lab, col), tag in zip(axes, series, 'abc'):
     m = np.array([y[idx == b].mean() if (idx == b).any() else np.nan for b in range(len(bc))])
     s = np.array([y[idx == b].std(ddof=1) / np.sqrt((idx == b).sum()) if (idx == b).sum() > 1
                   else 0.0 for b in range(len(bc))])
-    ax.errorbar(bc, m, yerr=s, fmt='-o', color=col, ms=4, lw=1.4, capsize=2)
+    ax.errorbar(bc, m, yerr=s, fmt='-', color=col, lw=1.4, capsize=2, zorder=2)
+    ax.scatter(bc, m, s=8 + 42 * np.sqrt(nb / nb.max()), color=col, zorder=3,
+               edgecolor='white', lw=0.5)
     ax.set_xlabel('Generated-set novelty')
     ax.set_ylabel(lab, fontsize=8)
     ax.grid(alpha=0.22, lw=0.6)
     ax.set_title(tag, loc='left', pad=5, fontsize=10.5, fontweight='bold')
+
+# the disagreement score turns over at the highest novelty: mark it rather than let the
+# eye read panel b as monotone
+_pk = int(np.nanargmax([series[1][0][idx == b].mean() for b in range(len(bc))]))
+axes[1].annotate('turns over', xy=(bc[_pk], series[1][0][idx == _pk].mean()),
+                 xytext=(bc[_pk] - 0.30, series[1][0][idx == _pk].mean() + 0.02),
+                 fontsize=6.5, color=VERM, fontweight='bold', ha='right',
+                 arrowprops=dict(arrowstyle='->', color=VERM, lw=0.9))
 fig.tight_layout()
 fig.savefig(os.path.join(OUT, 'fig2_frontier.png'), dpi=400)
 plt.close(fig)
-print(f'Fig 2  {len(rows)} runs, novelty {nv.min():.2f}-{nv.max():.2f}')
+print(f'Fig 2  {len(rows)} runs, novelty {nv.min():.2f}-{nv.max():.2f}; bin n from {nb.min()} to {nb.max()}')
 
 # ------------------------------------------------------------------ Fig 3: method gain
 mv = L('methods_v2_results.json')['results']

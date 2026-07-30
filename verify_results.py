@@ -356,6 +356,46 @@ if _os.path.exists(_fig):
     cond('figure 1', 'caption panel d: optimistic leads on average, conservative rules trail',
          _m('ucb') > _m('greedy') > _m('lcb') > _m('conformal'), '')
 
+# Figure 2's panel b is non-monotone and the manuscript now says so. Pin the turnover,
+# because an audit found the figure title asserting a rise the panel itself contradicts.
+_frf = _os.path.join(OUT, 'frontier_v2_results.json')
+if _os.path.exists(_frf):
+    import numpy as _np, collections as _co
+    _rs = json.load(open(_frf))['results']
+    _rows = [dict(r, target=t) for t, rr in _rs.items() for r in rr]
+    _nv = _np.array([r['novelty'] for r in _rows]); _sg = _np.array([r['sigma'] for r in _rows])
+    _lam = _np.array([r['lam'] for r in _rows]); _tg = _np.array([r['target'] for r in _rows])
+    _bn = _np.linspace(_nv.min(), _nv.max(), 9)
+    _ix = _np.clip(_np.digitize(_nv, _bn) - 1, 0, 7)
+    _m = [_sg[_ix == b].mean() for b in range(8)]
+    _n = [int((_ix == b).sum()) for b in range(8)]
+    cond('figure 2', 'disagreement peaks at the seventh bin and falls in the eighth',
+         int(_np.argmax(_m)) == 6 and _m[7] < _m[6], f'peak bin {int(_np.argmax(_m))+1}')
+    close('figure 2', 'caption: the turnover is 0.92 to 0.81', _m[6], 0.92, 0.005)
+    close('figure 2', 'caption: the turnover is 0.92 to 0.81 (second value)', _m[7], 0.81, 0.005)
+    cond('figure 2', 'the turnover is not an artefact of the uncertainty penalty',
+         all(_sg[(_ix == 7) & (_lam == L)].mean() < _sg[(_ix == 6) & (_lam == L)].mean()
+             for L in (0.0, 0.1)), '')
+    cond('figure 2', 'the last two bins are not thin at either penalty',
+         all(((_ix == b) & (_lam == L)).sum() > 100 for b in (6, 7) for L in (0.0, 0.1)), '')
+    _dec = 0
+    for t in set(_tg):
+        _mm = _np.array([_sg[(_ix == b) & (_tg == t)].mean()
+                         if ((_ix == b) & (_tg == t)).sum() else _np.nan for b in range(8)])
+        _dec += _mm[7] < _np.nanmax(_mm) - 1e-9
+    cond('figure 2', 'disagreement turns over on four of the five targets', _dec == 4, f'{_dec} of 5')
+    cond('figure 2', 'caption: bin counts run from 8 to 244',
+         _n[0] == 8 and _n[7] == 244, f'{_n[0]} to {_n[7]}')
+    _tr = _co.Counter((r['target'], r['seed'], r['opt'], r['lam']) for r in _rows)
+    cond('figure 2', 'caption: 1,200 runs from 300 trajectories of four settings each',
+         len(_rows) == 1200 and len(_tr) == 300 and set(_tr.values()) == {4},
+         f'{len(_rows)} runs, {len(_tr)} trajectories')
+    _gf = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_main_figures.py')
+    if _os.path.exists(_gf):
+        _g = open(_gf, encoding='utf-8').read()
+        cond('figure 2', 'marker area encodes bin occupancy',
+             'nb / nb.max()' in _g and 'turns over' in _g, '')
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
