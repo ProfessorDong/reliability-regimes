@@ -7,7 +7,11 @@ re-curated ChEMBL files carry a publication year for every compound, so we can e
 that directly.
 
 Protocol, per target:
-  * train on all compounds whose median publication year is < CUT
+  * train on all compounds whose FIRST publication year is < CUT. First disclosure, not
+    median, is the prospective quantity: a compound with one pre-CUT record and several
+    post-CUT records was already public before the cutoff, and assigning it by median year
+    would place known chemistry in the future set. Using year_min guarantees that no test
+    compound carries any pre-CUT activity record.
   * evaluate on compounds published in or after CUT, which the model has never seen and
     which were not available when it was fitted
   * grouping is on the standardized parent InChIKey, so no structure crosses the split
@@ -37,15 +41,16 @@ BASE = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DATA = os.path.join(BASE, 'data', 'chembl_v2')
 OUT = os.path.join(BASE, 'outputs', 'cwm_v1', 'temporal_analysis.json')
 RF_KW = dict(n_estimators=300, min_samples_leaf=2, n_jobs=-1, random_state=0)
+YEAR_FIELD = 'year_min'      # set from --year-field; first disclosure by default
 EPS = 1e-3
 
 
 def load(target):
     rows = list(csv.DictReader(open(os.path.join(DATA, f'{target}_chembl_v2.csv'))))
-    rows = [r for r in rows if r['year_median']]
+    rows = [r for r in rows if r.get(YEAR_FIELD)]
     smi = [r['SMILES'] for r in rows]
     y = np.array([float(r['pAct']) for r in rows])
-    yr = np.array([int(r['year_median']) for r in rows])
+    yr = np.array([int(r[YEAR_FIELD]) for r in rows])
     return smi, y, yr
 
 
@@ -59,10 +64,17 @@ def main():
     ap.add_argument('--targets', nargs='+', default=['scd1', 'nk1r', 'drd2', 'drd3'])
     ap.add_argument('--cut', type=int, default=2015)
     ap.add_argument('--out', default=OUT)
+    ap.add_argument('--year-field', default='year_min', choices=['year_min', 'year_median'],
+                    help='year_min is first disclosure and is the prospective default; '
+                         'year_median is retained only as a sensitivity analysis')
     args = ap.parse_args()
+    global YEAR_FIELD
+    YEAR_FIELD = args.year_field
     out = {'cut_year': args.cut,
-           'protocol': 'train on compounds published before CUT, evaluate on CUT and later; '
-                       'grouping on standardized parent InChIKey; calibration uses pre-CUT only'}
+           'year_field': args.year_field,
+           'protocol': 'train on compounds first published before CUT, evaluate on those first '
+                       'published at CUT or later; grouping on standardized parent InChIKey; '
+                       'calibration uses pre-CUT compounds only'}
     P = {k: [] for k in ('err', 'sig', 'dtr', 'cov')}
     for tgt in args.targets:
         smi, y, yr = load(tgt)
@@ -87,6 +99,11 @@ def main():
         cov_ada = err_t <= q_ada * (st_ + EPS)
         dtr = 1.0 - max_tanimoto_to_set(X[te], X[ptr])
         rho_sig = stats.spearmanr(st_, err_t)
+        # percentile bootstrap CI, so per-target degradation can be read with its uncertainty
+        _bs = np.random.default_rng(7)
+        _b = [stats.spearmanr(st_[i], err_t[i])[0]
+              for i in (_bs.integers(0, len(err_t), len(err_t)) for _ in range(2000))]
+        rho_ci = [float(np.percentile(_b, 2.5)), float(np.percentile(_b, 97.5))]
         rho_dtr = stats.spearmanr(dtr, err_t)
         part = partial_spearman(err_t, st_, dtr)
         # risk-coverage on the future compounds
@@ -99,6 +116,7 @@ def main():
             test_years=[int(yr[te].min()), int(yr[te].max())],
             rmse_test=float(np.sqrt(np.mean(err_t ** 2))),
             spearman_sigma_err=float(rho_sig[0]), p_sigma_err=float(rho_sig[1]),
+            spearman_sigma_err_ci95=rho_ci,
             spearman_dtr_err=float(rho_dtr[0]),
             partial_err_sigma_given_dtr=part[0],
             conformal_coverage_standard=float(cov_std.mean()),
@@ -130,7 +148,10 @@ def main():
         out[tgt]['control_random_same_size'] = dict(
             spearman_sigma_err=float(np.mean(ctl['rho'])),
             rmse=float(np.mean(ctl['rmse'])),
-            conformal_coverage_adaptive=float(np.mean(ctl['cov'])), n_reps=5)
+            conformal_coverage_adaptive=float(np.mean(ctl['cov'])), n_reps=5,
+            spearman_sigma_err_sd=float(np.std(ctl['rho'], ddof=1)),
+            rmse_sd=float(np.std(ctl['rmse'], ddof=1)),
+            conformal_coverage_adaptive_sd=float(np.std(ctl['cov'], ddof=1)))
         for k, v in (('err', err_t), ('sig', st_), ('dtr', dtr), ('cov', cov_ada)):
             P[k].append(v)
         o = out[tgt]
@@ -164,6 +185,47 @@ def main():
               f"90% adaptive coverage {p['conformal_coverage_adaptive']:.3f}")
         print(f"  risk-coverage: {rc['0.2']:.2f} (20%) -> {rc['1.0']:.2f} (all), "
               f"reduction {100*(rc['1.0']-rc['0.2'])/rc['1.0']:.0f}%")
+    _t = [k for k in out if k not in ('cut_year', 'protocol', 'pooled', 'year_field',
+                                      'macro', 'delta_vs_control')]
+    if _t:
+        _n = np.array([out[k]['n_test'] for k in _t], float)
+        _mean = lambda f: float(np.mean([f(out[k]) for k in _t]))
+        _wr = lambda f: float(np.sqrt(np.sum(_n * np.array([f(out[k]) for k in _t]) ** 2) / _n.sum()))
+        out['macro'] = dict(
+            n_targets=len(_t), targets=_t,
+            temporal=dict(rmse=_mean(lambda d: d['rmse_test']),
+                          rmse_pooled_nweighted=_wr(lambda d: d['rmse_test']),
+                          spearman_sigma_err=_mean(lambda d: d['spearman_sigma_err']),
+                          conformal_coverage_adaptive=_mean(lambda d: d['conformal_coverage_adaptive'])),
+            control=dict(rmse=_mean(lambda d: d['control_random_same_size']['rmse']),
+                         rmse_pooled_nweighted=_wr(lambda d: d['control_random_same_size']['rmse']),
+                         spearman_sigma_err=_mean(lambda d: d['control_random_same_size']['spearman_sigma_err']),
+                         conformal_coverage_adaptive=_mean(
+                             lambda d: d['control_random_same_size']['conformal_coverage_adaptive'])))
+        m = out['macro']
+        # the size-matched control is the only like-for-like comparator: same data, same sizes
+        out['delta_vs_control'] = {
+            k: {'temporal': m['temporal'][k], 'control': m['control'][k],
+                'delta': m['temporal'][k] - m['control'][k]}
+            for k in ('rmse', 'spearman_sigma_err', 'conformal_coverage_adaptive')}
+        out['delta_vs_control']['rmse_pct_increase_vs_control'] = 100.0 * (
+            m['temporal']['rmse_pooled_nweighted'] / m['control']['rmse_pooled_nweighted'] - 1.0)
+        out['per_target_delta'] = {k: {
+            'd_rmse': out[k]['rmse_test'] - out[k]['control_random_same_size']['rmse'],
+            'd_rho': out[k]['spearman_sigma_err'] - out[k]['control_random_same_size']['spearman_sigma_err'],
+            'd_cov': out[k]['conformal_coverage_adaptive']
+                     - out[k]['control_random_same_size']['conformal_coverage_adaptive']} for k in _t}
+        print('\nMACRO (equal weight over targets), temporal vs its size-matched control:')
+        for k, v in out['delta_vs_control'].items():
+            if isinstance(v, dict):
+                print(f"  {k:28s} {v['temporal']:+.3f} vs {v['control']:+.3f}   delta {v['delta']:+.3f}")
+        print(f"  pooled n-weighted RMSE   {m['temporal']['rmse_pooled_nweighted']:.3f} vs "
+              f"{m['control']['rmse_pooled_nweighted']:.3f}  "
+              f"(+{out['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}%)")
+        print('  per-target delta vs control:')
+        for k, v in out['per_target_delta'].items():
+            print(f"    {k:6s} dRMSE {v['d_rmse']:+.3f}  drho {v['d_rho']:+.3f}  dcov {v['d_cov']:+.3f}")
+
     with open(args.out, 'w') as f:
         json.dump(out, f, indent=2)
     print('wrote', args.out)

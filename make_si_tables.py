@@ -158,14 +158,49 @@ tab('tab:s-conformal',
     r' & Coverage & Median width & Coverage & Median width & (adaptive/standard)',
     rows, 'rrrrrr')
 
+# --------------------------------------------------- S17 TEMPORAL YEAR-FIELD SENSITIVITY
+_sens = os.path.join(CW, 'temporal_analysis_yearmedian.json')
+if os.path.exists(_sens):
+    _md = json.load(open(_sens))
+    rows = []
+    for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
+        if t not in _md or t not in tmp:
+            continue
+        a_, b_ = tmp[t], _md[t]
+        rows.append(f"{LAB[t]} & {a_['n_test']:,} & {f(a_['rmse_test'])} & "
+                    f"{sg(a_['spearman_sigma_err'],2)} & {f(a_['conformal_coverage_adaptive'],3)} & "
+                    f"{b_['n_test']:,} & {f(b_['rmse_test'])} & "
+                    f"{sg(b_['spearman_sigma_err'],2)} & "
+                    f"{f(b_['conformal_coverage_adaptive'],3)}".replace(',', '{,}'))
+    _da, _db = tmp['delta_vs_control'], _md['delta_vs_control']
+    rows.append(r'\midrule Increase over control & \multicolumn{4}{c}{' +
+                f"{_da['rmse_pct_increase_vs_control']:.0f}\\%" + r'} & \multicolumn{4}{c}{' +
+                f"{_db['rmse_pct_increase_vs_control']:.0f}\\%" + r'}')
+    tab('tab:s-tempsens',
+        'Sensitivity of the temporal analysis to how a compound is dated. First disclosure, the '
+        'earliest publication year among a compound\'s records, is used throughout the main '
+        'article: it is the quantity a prospective split requires, and it guarantees that no '
+        'evaluation compound carries a pre-cutoff record. The median year of a compound\'s '
+        'records is shown for comparison. The error increase over the size-matched control, the '
+        'set of targets that retain the error ranking and the set that lose it are the same '
+        'under both.',
+        r'Target & \multicolumn{4}{c}{First disclosure (used)} & \multicolumn{4}{c}{Median year}\\'
+        r'\cmidrule(lr){2-5}\cmidrule(lr){6-9}'
+        r' & $n_{\mathrm{test}}$ & RMSE & $\rho(\sigma_T,e)$ & Coverage'
+        r' & $n_{\mathrm{test}}$ & RMSE & $\rho(\sigma_T,e)$ & Coverage',
+        rows, 'rrrrrrrrr')
+
 # ---------------------------------------------------------------- S7 TEMPORAL (key)
 rows = []
 for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
     if t not in tmp:
         continue
     d = tmp[t]; c = d['control_random_same_size']
+    ci = d.get('spearman_sigma_err_ci95')
+    rho = sg(d['spearman_sigma_err'], 2) + (
+        f" [{ci[0]:+.2f}, {ci[1]:+.2f}]" if ci else '')
     rows.append(f"{LAB[t]} & {d['n_train']:,} & {d['n_test']:,} & {f(d['rmse_test'])} & {f(c['rmse'])} & "
-                f"{sg(d['spearman_sigma_err'],2)} & {sg(c['spearman_sigma_err'],2)} & "
+                f"{rho} & {sg(c['spearman_sigma_err'],2)} & "
                 f"{f(d['conformal_coverage_adaptive'],3)} & {f(c['conformal_coverage_adaptive'],3)}".replace(',', '{,}'))
 tp = tmp['pooled']
 rows.append(r'\midrule Pooled & --- & ' + f"{tp['n']:,}".replace(',', '{,}') + ' & ' + f(tp['rmse']) +
@@ -176,9 +211,12 @@ tab('tab:s-temporal',
     'before 2015 and evaluated on those published later. Each temporal split is repeated five '
     'times with training, calibration and test sets of identical size drawn at random from the '
     'same pool, which separates distribution shift from the smaller training set a temporal '
-    'split implies. Under shift the error roughly doubles, the disagreement score loses most '
-    'of its ranking power, and conformal coverage falls below its nominal 0.900; the '
-    'size-matched control recovers all three.',
+    'split implies, and is the only like-for-like comparator because this cohort is re-curated '
+    'independently of the five datasets of Table S1. Error rises on every target and coverage '
+    'falls below nominal on three of four, whereas the error ranking degrades on DRD2 and DRD3 '
+    'and is unchanged on SCD-1 and NK1R. Brackets give the 95\\% percentile bootstrap interval on '
+    'the temporal rank correlation. The pooled correlation is lower than any per-target value '
+    'because pooling mixes targets whose errors differ in scale.',
     r'Target & $n_{\mathrm{train}}$ & $n_{\mathrm{test}}$ & \multicolumn{2}{c}{RMSE} & '
     r'\multicolumn{2}{c}{$\rho(\sigma_T,e)$} & \multicolumn{2}{c}{Coverage at 0.900}\\'
     r'\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}'

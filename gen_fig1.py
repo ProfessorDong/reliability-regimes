@@ -146,14 +146,17 @@ ax.scatter([], [], s=34, color=VERM, label='temporal split')
 ax.legend(fontsize=6.4, frameon=False, loc='upper left', handletextpad=0.3,
           borderpad=0.2, bbox_to_anchor=(-0.01, 0.30))
 tp = tmp['pooled']
-ax.text(0.035, 0.055, f"error ranking falls {rel['pooled']['spearman_sigma_err']:.2f} "
-        f"$\\rightarrow$ {tp['spearman_sigma_err']:.2f}",
+# the panel shows coverage, so annotate coverage. The pooled error-ranking contrast is
+# not stated here: it is a target-dependent effect and a single pooled number misreads it.
+_below = sum(tmp[t]['conformal_coverage_adaptive']
+             < tmp[t]['control_random_same_size']['conformal_coverage_adaptive'] for t in tt)
+ax.text(0.035, 0.055, f"coverage falls below its control on {_below} of {len(tt)}",
         transform=ax.transAxes, fontsize=6.8, color=VERM, fontweight='bold')
 
 # ---------------------------------------------------------------- (d) acquisition
 ax = fig.add_subplot(gs[1, 1])
 panel_label(ax, 'd')
-ax.set_title('Acquiring real measured actives', pad=6, loc='left')
+ax.set_title('Acquiring measured activities', pad=6, loc='left')
 meths = ['random', 'greedy', 'ucb', 'lcb', 'conformal']
 names = ['Random', 'Predicted\nmean', 'Optimistic\n$\\mu+\\sigma$',
          'Cautious\n$\\mu-\\sigma$', 'Conformal\nbound']
@@ -166,9 +169,9 @@ for i, (v, s) in enumerate(zip(vals, sds)):
     ax.text(i, v + s + 0.10, f'{v:.1f}×', ha='center', fontsize=7.0, fontweight='bold')
 ax.axhline(1.0, color=DARK, ls=':', lw=1.0)
 ax.set_xticks(range(5)); ax.set_xticklabels(names, fontsize=6.6, linespacing=1.15)
-ax.set_ylabel('True actives found\n(relative to random)')
+ax.set_ylabel('Top-percentile compounds found\n(relative to random)')
 ax.set_ylim(0, max(vals) + 1.45); ax.grid(alpha=0.22, axis='y', lw=0.6)
-ax.text(0.5, 0.995, 'penalising uncertainty costs actives', transform=ax.transAxes,
+ax.text(0.5, 0.995, 'penalising uncertainty finds fewer', transform=ax.transAxes,
         ha='center', va='top', fontsize=6.8, color=VERM, fontweight='bold')
 
 fig.savefig(OUT, dpi=400, bbox_inches='tight', facecolor='white')

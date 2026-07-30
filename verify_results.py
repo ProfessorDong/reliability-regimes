@@ -246,6 +246,75 @@ else:
     print('skip [numbers.tex] macro cross-check: numbers.tex lives with the manuscript, '
           'which is intentionally not in this repository')
 
+# --------------------------------------------------- semantic checks (not just numbers)
+# A number can match its source file while the prose around it names the wrong target or the
+# wrong direction. These assertions pin the statements the text actually makes.
+print()
+_N = {'scd1': 'SCD-1', 'fads': 'FADS', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 'DRD3'}
+_TT = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+_ex = [t for t in _TT if not rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse']]
+cond('semantic', 'the in-domain error exception is SCD-1, not FADS',
+     [_N[t] for t in _ex] == ['SCD-1'],
+     f"exception target(s) = {[_N[t] for t in _ex]}")
+cond('semantic', 'nearer-training group has lower error on exactly 4 of 5 targets',
+     sum(rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse'] for t in _TT) == 4, '')
+cond('semantic', 'nearer-training group has lower disagreement on all 5 targets',
+     all(rel[t]['novel_in_domain_sigma'] < rel[t]['novel_out_domain_sigma'] for t in _TT), '')
+
+_tt = [t for t in ['scd1', 'nk1r', 'drd2', 'drd3'] if t in tmp]
+cond('semantic', 'temporal split is dated by first disclosure, not median year',
+     tmp.get('year_field') == 'year_min', f"year_field={tmp.get('year_field')}")
+cond('semantic', 'temporal error rises above the size-matched control on every target',
+     all(tmp[t]['rmse_test'] > tmp[t]['control_random_same_size']['rmse'] for t in _tt), '')
+_keep = [t for t in _tt if tmp['per_target_delta'][t]['d_rho'] > -0.05]
+_lose = [t for t in _tt if tmp['per_target_delta'][t]['d_rho'] < -0.10]
+cond('semantic', 'error ranking is kept on SCD-1 and NK1R and lost on DRD2 and DRD3',
+     sorted(_keep) == ['nk1r', 'scd1'] and sorted(_lose) == ['drd2', 'drd3'],
+     f"kept={[_N[t] for t in _keep]} lost={[_N[t] for t in _lose]}")
+cond('semantic', 'the pooled temporal correlation is below every per-target value',
+     all(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _tt
+         if t != 'drd3'), '')
+close('semantic', 'temporal RMSE increase over control is ~49 percent, not 100',
+      tmp['delta_vs_control']['rmse_pct_increase_vs_control'], 49.0, 2.0)
+
+_p = L('poolopt_analysis.json')['summary']
+cond('semantic', 'both conservative rules fall below the predicted mean on every target',
+     all(_p[t]['lcb']['hits'] < _p[t]['greedy']['hits']
+         and _p[t]['conformal']['hits'] < _p[t]['greedy']['hits'] for t in _p), '')
+cond('semantic', 'the optimistic rule leads on average, so uncertainty is not useless here',
+     sum(_p[t]['ucb']['enrichment_vs_random'] for t in _p)
+     > sum(_p[t]['greedy']['enrichment_vs_random'] for t in _p), '')
+_conall = L('conformal_analysis.json')
+cond('semantic', 'adaptive intervals under-cover low-sigma and over-cover high-sigma compounds',
+     all(_conall[t]['alpha0.1']['adaptive_coverage_low_sigma']
+         < _conall[t]['alpha0.1']['adaptive_coverage_high_sigma'] for t in _TT), '')
+
+_mm = L('mixedmodel_method.json')
+close('semantic', 'random-intercept model reproduces the target-level point estimate',
+      _mm['mixed_model']['intercept'], _mm['target_level']['mean'], 0.001)
+
+# manuscript-side checks: only runnable where the .tex lives
+_tex = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                     'theranostics', 'JournalPapers_npjDM', 'npjDM_Reliability.tex')
+if _os.path.exists(_tex) and _os.path.exists(NUM):
+    _s = open(_tex, encoding='utf-8').read()
+    _ab = _re.search(r'\\abstract\{(.*?)\}\s*\n\n', _s, _re.S).group(1)
+    _t = _re.sub(r'\\(\w+)\{\}', lambda m: mac.get(m.group(1), m.group(1)), _ab)
+    _t = _t.replace(r'\mathrm{pIC}_{50}', 'pIC50').replace('{,}', ',')
+    _t = _re.sub(r'\\[a-zA-Z]+', ' ', _t)
+    _t = _re.sub(r'[{}$\\]', '', _t)
+    _t = _re.sub(r'\s+%', '%', _t)
+    _w = [w for w in _t.split() if _re.search(r'[A-Za-z0-9]', w)]
+    cond('manuscript', 'abstract is within the npj Drug Discovery 150-word limit',
+         len(_w) <= 150, f'{len(_w)} words')
+    cond('manuscript', 'no reference to the superseded raw-record count in the text',
+         '21,173' not in _s.replace('{,}', ',') or '\\Nrows' in _s,
+         'raw-record total must come from the macro, inside Table 1 only')
+    cond('manuscript', 'the removed duplicate reference is no longer cited',
+         'tropsha2010best' not in _s, '')
+else:
+    print('skip [manuscript] checks: the manuscript is intentionally not in this repository')
+
 # --------------------------------------------------------------- summary
 print('\n' + '=' * 72)
 if FAILED:
