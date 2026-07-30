@@ -129,6 +129,9 @@ reliability/              activity model, reward, search operators, experiments
   analyze_*.py                  frozen analysis scripts for the individual experiments
 outputs/frozen/           frozen result files; the source of every reported number
 verify_results.py         asserts every reported number against those files
+models/ utils/            encoder and chemistry helpers
+train_pipeline_v3.py      activity-data loading and ECFP featurization
+run_moe_predictor.py      graph batching used by the latent-surrogate ablation
 ```
 
 ## Data
@@ -152,6 +155,11 @@ data in this repository. The frozen JSON outputs that back the reported numbers 
 so `verify_results.py` runs without rebuilding the models.
 
 ## Repository layout
+
+The four entries at the end of that listing are support modules imported by
+`reliability/oracle.py`, `dynamics.py` and `oracle_sanity_gate.py`. They are shared with
+an earlier study on the same targets and are kept unchanged so the frozen outputs stay
+reproducible.
 
 `reliability/` holds the analysis package: `oracle.py` and `standardize.py` for the activity
 models and structure grouping, `run_reliability_v2.py`, `run_conformal_v1.py` and
