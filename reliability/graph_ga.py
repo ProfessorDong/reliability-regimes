@@ -1,7 +1,7 @@
 """Graph Genetic Algorithm baseline (Jensen, Chem. Sci. 2019; GB-GA).
 
 The standard, strong oracle-budget baseline for molecular optimization (tops the
-PMO benchmark). Distinct from the Chemistry World Model: crossover recombines
+PMO benchmark). Distinct from the reliability analysis: crossover recombines
 fragments cut at ARBITRARY acyclic bonds (not synthesis-aware BRICS bonds), and
 mutation is atom/bond-level. It uses the SAME TargetReward oracle, the SAME k-seed
 start, and the SAME oracle-call budget, so the comparison is apples-to-apples.

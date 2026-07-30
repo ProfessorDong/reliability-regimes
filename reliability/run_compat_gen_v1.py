@@ -2,7 +2,7 @@
 
 Does the SAME source-target compatibility metric C_nn (from the prediction paper)
 that predicts when few-shot transfer helps PREDICTION also predict when warm-starting
-the world model on a source target helps few-shot GENERATION on a target?
+the surrogate on a source target helps few-shot GENERATION on a target?
 
 For each ordered pair (source S -> target T) among the 5 generation targets:
   warm : pre-load the WM buffer with (source molecules, source-oracle reward), fit,

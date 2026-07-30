@@ -1,4 +1,4 @@
-"""Multi-objective, uncertainty-aware reward for the Chemistry World Model.
+"""Multi-objective, uncertainty-aware reward for the reliability analysis.
 
 R(x) = w_pot * potency_norm
      + w_sel * selectivity        (margin vs. specified anti-targets; opt-in)

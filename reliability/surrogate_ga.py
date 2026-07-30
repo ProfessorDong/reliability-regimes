@@ -1,15 +1,15 @@
 """World-model-guided Graph GA (the engineered improvement; pre-registered test).
 
-Hypothesis: the world model adds value not as a stand-alone optimizer but as a
+Hypothesis: the surrogate adds value not as a stand-alone optimizer but as a
 cheap TRIAGE on top of the strongest search operator (Graph GA crossover/mutation).
 Each generation we generate a LARGE offspring pool with GA operators (free, no
-oracle) and use the latent world-model surrogate (UCB = mean + beta*std) to pick
+oracle) and use the latent surrogate surrogate (UCB = mean + beta*std) to pick
 which few to actually score with the real oracle, under a fixed oracle budget.
 
 Modes:
   'surrogate'  : surrogate UCB triage of a pool of size eval_per_gen * pool_mult
   'randtriage' : random triage of the SAME-size pool (attribution control: isolates
-                 the world model's contribution from merely having a bigger pool)
+                 the surrogate's contribution from merely having a bigger pool)
   (vanilla Graph GA = graph_ga.GraphGA, already run, evaluates eval_per_gen offspring)
 
 run(seed_smiles, budget) -> results (same shape as Planner/GraphGA).

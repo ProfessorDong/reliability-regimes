@@ -1,6 +1,6 @@
-"""Latent world model for the Chemistry World Model.
+"""Latent surrogate for the reliability analysis.
 
-The world model M_phi predicts a candidate's reward from the Part-1 dual-encoder
+The surrogate M_phi predicts a candidate's reward from the Part-1 dual-encoder
 latent (R^128) WITHOUT calling the real oracle, enabling cheap imagined rollouts.
 It is an ensemble of small MLPs trained online on (latent, real_reward) pairs
 gathered during search; ensemble disagreement gives epistemic uncertainty for an
@@ -10,7 +10,7 @@ Why the dual-encoder latent (not ECFP): the reward oracle is RF-on-ECFP, so a
 surrogate on ECFP could trivially memorize it (circular). The latent is a genuinely
 different representation, so M_phi is an honest approximation and the
 sample-efficiency claim (imagination reduces oracle calls) is meaningful. The
-latent also places the world model in the Dreamer / JEPA / folding-WM lineage.
+latent also places the surrogate in the Dreamer / JEPA / folding-WM lineage.
 
 Smoke test (does M_phi approximate the reward landscape from few evaluations?):
     python -m reliability.dynamics --target drd3
@@ -29,7 +29,7 @@ from data.dataset import DualDataset, collate_dual  # noqa: E402
 from run_moe_predictor import _GraphBatch  # noqa: E402
 
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-ENCODER_CKPT = os.path.join(BASE_DIR, 'outputs', 'moe_v6', 'dual_encoder_clean.pt')
+ENCODER_CKPT = os.path.join(BASE_DIR, 'outputs', 'encoder', 'dual_encoder_clean.pt')
 
 
 class LatentEmbedder:

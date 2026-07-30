@@ -1,10 +1,10 @@
 """Few-shot sample-efficiency experiment (Section V-B).
 
-The world-model claim must be tested where selection matters: only k known actives
+The surrogate claim must be tested where selection matters: only k known actives
 are given, the search has a large actionable space (seed fragments + a generic
 ChEMBL fragment pool), and the real-oracle budget is tight. We compare:
-  * wm     : world-model UCB acquisition (imagined rollouts prioritize oracle calls)
-  * random : identical budget, random selection (no world model)  [controlled ablation]
+  * wm     : surrogate UCB acquisition (imagined rollouts prioritize oracle calls)
+  * random : identical budget, random selection (no surrogate)  [controlled ablation]
 
 For each (target, k, seed) we draw k random actives, run both modes to a fixed
 oracle budget, and record best-reward / top-k / sample-efficiency-AUC / novelty.

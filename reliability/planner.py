@@ -1,18 +1,18 @@
-"""Budgeted imagined-rollout planner for the Chemistry World Model.
+"""Budgeted imagined-rollout planner for the reliability analysis.
 
-Bayesian-optimization-style molecular search with a learned world model and
+Bayesian-optimization-style molecular search with a learned surrogate and
 actionable moves:
 
   seed from known actives -> repeat until the oracle-call budget is spent:
     1. expand the current best molecules into actionable neighbors (actions.py),
-    2. score every neighbor with the world model M_phi (imagination, no oracle):
+    2. score every neighbor with the surrogate M_phi (imagination, no oracle):
        acquisition = mean + beta * std  (UCB),
     3. evaluate only the top-Q by acquisition with the REAL oracle (reward.py),
     4. add to the pool, update M_phi.
 
 The sample-efficiency claim is the best-reward-vs-oracle-calls trajectory. Setting
 `mode='random'` replaces the acquisition with random selection (identical budget,
-no world model): the gap is the controlled imagination ablation (Section V-B/D).
+no surrogate): the gap is the controlled imagination ablation (Section V-B/D).
 
 Run:
     python -m reliability.planner --target drd3 --budget 400 --compare
@@ -158,7 +158,7 @@ if __name__ == '__main__':
               f"unique={res['n_unique']}")
     if args.compare:
         d = out['wm']['top10_mean'] - out['random']['top10_mean']
-        print(f"world-model top10 advantage at fixed budget: {d:+.3f}")
+        print(f"surrogate top10 advantage at fixed budget: {d:+.3f}")
     os.makedirs(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                 'outputs', 'frozen'), exist_ok=True)
     p = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),

@@ -1,4 +1,4 @@
-"""Shared oracle API for the Chemistry World Model reward.
+"""Shared oracle API for the reliability analysis reward.
 
 Defines the 5 generation targets, ECFP4 featurization, and a clean
 load / predict interface with epistemic uncertainty (ensemble std). The

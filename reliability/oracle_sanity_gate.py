@@ -1,4 +1,4 @@
-"""Build and rigorously sanity-gate the Chemistry World Model reward oracles.
+"""Build and rigorously sanity-gate the reliability analysis reward oracles.
 
 Motivation: the v4 per-target neural MLPs collapse to the training mean and are
 unusable as a reward. We use field-standard QSAR oracles (tree ensembles on

@@ -1,4 +1,4 @@
-"""Actionable local-edit action space for the Chemistry World Model.
+"""Actionable local-edit action space for the reliability analysis.
 
 Actions are MMP-style R-group replacements realized through BRICS chemistry: a
 molecule is cut at one BRICS bond, the smaller terminal fragment is swapped for a
