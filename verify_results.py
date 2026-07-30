@@ -671,6 +671,34 @@ if _os.path.exists(_epf):
         cond('manuscript', 'the top-percentile endpoint is defined exactly',
              'Q_{0.99}' in _a and 'tied at that cutoff' in _a, 'including tie handling')
 
+# Acquisition, paired by seed with the target as the unit. The article's claim is that
+# penalising uncertainty costs, not that optimism wins: the first must be separated from the
+# predicted-mean rule and the second must not be overstated.
+_pf = _os.path.join(OUT, 'poolopt_analysis.json')
+if _os.path.exists(_pf):
+    import statistics as _st
+    _pres = json.load(open(_pf))['results']
+    _TT = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+    _pm = {}
+    for _m in ('ucb', 'lcb', 'conformal'):
+        _per = [_st.mean([r[_m]['hits'] - r['greedy']['hits'] for r in _pres[t]]) for t in _TT]
+        _pm[_m] = (_st.mean(_per), _st.stdev(_per) / len(_per) ** 0.5)
+    cond('numeric', 'the conservative rule loses to the predicted mean on every target',
+         all(_st.mean([r['lcb']['hits'] - r['greedy']['hits'] for r in _pres[t]]) < 0
+             for t in _TT), 'this is the paper\'s acquisition claim')
+    cond('numeric', 'the conformal-style rule loses to the predicted mean on every target',
+         all(_st.mean([r['conformal']['hits'] - r['greedy']['hits'] for r in _pres[t]]) < 0
+             for t in _TT), 'both penalised rules, not just one')
+    cond('semantic', 'the optimistic rule is not separated from the predicted mean',
+         _pm['ucb'][0] - 2.776 * _pm['ucb'][1] < 0 < _pm['ucb'][0] + 2.776 * _pm['ucb'][1],
+         'its interval covers zero, so the article must not claim it reliably wins')
+    if _os.path.exists(_art):
+        _aa = open(_art, encoding='utf-8').read()
+        cond('manuscript', 'the article reports the paired acquisition intervals',
+             'PoolLcbCI' in _aa and 'PoolUcbCI' in _aa, 'means alone cannot separate the rules')
+        cond('manuscript', 'the article does not claim the optimistic rule reliably wins',
+             'optimistic rule is not' in _aa, 'its advantage rests largely on DRD3')
+
 # Literals that duplicate a macro. Twelve numbers were typed into the article while a macro
 # already held the same quantity, and one of them (0.97, where the data give 0.975) was simply
 # wrong. Flag any numeric literal in the body that equals a macro value.

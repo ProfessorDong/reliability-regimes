@@ -204,12 +204,21 @@ sds = [np.std([pool[t][m]['enrichment_vs_random'] for t in T], ddof=1) / np.sqrt
 cols = [GREY, BLUE, SKY, ORANGE, VERM]
 bars = ax.bar(range(5), vals, yerr=sds, capsize=2.5, color=cols, width=0.66,
               edgecolor='white', lw=0.6, error_kw=dict(lw=0.9, ecolor=DARK))
+# With five targets the individual values say more than a standard error does, and they show
+# that the optimistic rule's higher mean is carried by one target rather than shared.
+_rng = np.random.default_rng(0)
+for i, m in enumerate(meths):
+    pts = [pool[t][m]['enrichment_vs_random'] for t in T]
+    ax.scatter(i + _rng.uniform(-0.17, 0.17, len(pts)), pts, s=7, facecolor='white',
+               edgecolor=DARK, lw=0.7, zorder=5, clip_on=False)
+_top = [max(v + s, max(pool[t][m]['enrichment_vs_random'] for t in T))
+        for v, s, m in zip(vals, sds, meths)]
 for i, (v, s) in enumerate(zip(vals, sds)):
-    ax.text(i, v + s + 0.10, f'{v:.1f}×', ha='center', fontsize=7.0, fontweight='bold')
+    ax.text(i, _top[i] + 0.10, f'{v:.1f}×', ha='center', fontsize=7.0, fontweight='bold')
 ax.axhline(1.0, color=DARK, ls=':', lw=1.0)
 ax.set_xticks(range(5)); ax.set_xticklabels(names, fontsize=6.6, linespacing=1.15)
 ax.set_ylabel('Top-percentile compounds found\n(relative to random)')
-ax.set_ylim(0, max(vals) + 1.45); ax.grid(alpha=0.22, axis='y', lw=0.6)
+ax.set_ylim(0, max(_top) + 1.45); ax.grid(alpha=0.22, axis='y', lw=0.6)
 ax.text(0.5, 0.995, 'penalizing uncertainty finds fewer', transform=ax.transAxes,
         ha='center', va='top', fontsize=6.8, color=VERM, fontweight='bold')
 

@@ -320,6 +320,26 @@ M.update({
     'MixedResid': f"{mm['scale_residual']:.5f}",
 })
 
+# Acquisition, paired by seed against the predicted-mean rule. Means alone cannot say whether
+# a rule is separated from greedy, and two of these are while one is not: penalising
+# uncertainty costs on every target, whereas the optimistic rule's higher average rests on one
+# target and its interval covers zero. The unit of generalisation is the target, as elsewhere.
+_pr = L('poolopt_analysis.json')['results']
+_PT = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+for _m, _tag in [('ucb', 'Ucb'), ('lcb', 'Lcb'), ('conformal', 'Conf')]:
+    _per = [np.mean([r[_m]['hits'] - r['greedy']['hits'] for r in _pr[t]]) for t in _PT]
+    _all = [r[_m]['hits'] - r['greedy']['hits'] for t in _PT for r in _pr[t]]
+    _a = np.array(_per, float)
+    _se = _a.std(ddof=1) / np.sqrt(len(_a))
+    _tc = sps.t.ppf(0.975, len(_a) - 1)
+    _p = sps.ttest_1samp(_a, 0).pvalue
+    M.update({
+        'Pool%sD' % _tag: f"{_a.mean():+.2f}",
+        'Pool%sCI' % _tag: f"[{_a.mean() - _tc * _se:+.2f}, {_a.mean() + _tc * _se:+.2f}]",
+        'Pool%sP' % _tag: f"{_p:.3f}",
+        'Pool%sWin' % _tag: f"{np.mean([x > 0 for x in _all]):.2f}",
+    })
+
 # Endpoint composition. The pooled response is named pIC50 by convention but is populated
 # from four ChEMBL standard types, so the article states the mix per target. The total
 # variation distance between the pre- and post-cutoff mixes tests whether endpoint

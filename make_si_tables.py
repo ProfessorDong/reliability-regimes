@@ -292,14 +292,32 @@ mean_enr = {m: st.mean([pool[t][m]['enrichment_vs_random'] for t in T])
             for m in ['random', 'greedy', 'ucb', 'lcb', 'conformal']}
 rows.append(r'\midrule Enrichment & --- & --- & ' +
             ' & '.join(f(mean_enr[m]) + r'$\times$' for m in ['random', 'greedy', 'ucb', 'lcb', 'conformal']))
+# Paired against the predicted-mean rule, seed by seed, with the target as the unit of
+# generalisation. A mean cannot say whether a rule is separated from greedy; these do.
+from scipy import stats as sps
+_pres = json.load(open(os.path.join(CW, 'poolopt_analysis.json')))['results']
+_pd = {}
+for _m in ['random', 'ucb', 'lcb', 'conformal']:
+    _per = [st.mean([r[_m]['hits'] - r['greedy']['hits'] for r in _pres[t]]) for t in T]
+    _n = len(_per); _se = st.stdev(_per) / (_n ** 0.5)
+    _tc = sps.t.ppf(0.975, _n - 1); _mu = st.mean(_per)
+    _pd[_m] = '%+.2f [%+.2f, %+.2f]' % (_mu, _mu - _tc * _se, _mu + _tc * _se)
+_note = (r'Paired against the predicted-mean rule, seed by seed, as the mean per-target '
+         r'difference in compounds acquired with a 95\% $t$ interval across the five targets: '
+         r'UCB ' + _pd['ucb'] + r', LCB ' + _pd['lcb'] + r', conformal-style ' +
+         _pd['conformal'] + r', random ' + _pd['random'] + r'. Both penalized rules are '
+         r'separated from the predicted mean; the optimistic rule is not.')
 tab('tab:s-pool',
     'Acquisition against measured activity. All labels in the pool are hidden except ten known '
     'actives; each strategy spends 300 queries and every query reveals a compound\'s '
     'measured activity. Entries are the number of top-percentile compounds acquired, '
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
     'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal-style lower '
-    'score, finds fewer top-percentile compounds than selecting on the predicted mean.',
-    r'Target & Pool & Top 1\% & Random & Greedy & UCB & LCB & Conf.-style', rows, 'lrrrrrrr')
+    'score, finds fewer top-percentile compounds than selecting on the predicted mean. The last '
+    'row is the mean enrichment over random selection; the paired comparisons against the '
+    'predicted-mean rule are given below the table.',
+    r'Target & Pool & Top 1\% & Random & Greedy & UCB & LCB & Conf.-style', rows, 'lrrrrrrr',
+    note=_note)
 
 # ---------------------------------------------------------------- S9 frontier
 rows = []
