@@ -224,7 +224,8 @@ if _os.path.exists(NUM):
           tp['spearman_sigma_err'], 0.005)
     close('numbers.tex', 'PoolUCB macro matches source', float(mac['PoolUCB']), enr['ucb'], 0.01)
 else:
-    cond('numbers.tex', 'numbers.tex present for cross-check', False, 'not found')
+    print('skip [numbers.tex] macro cross-check: numbers.tex lives with the manuscript, '
+          'which is intentionally not in this repository')
 
 # --------------------------------------------------------------- summary
 print('\n' + '=' * 72)
