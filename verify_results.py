@@ -223,6 +223,25 @@ if _os.path.exists(NUM):
     close('numbers.tex', 'TempRhoSigErr macro matches source', float(mac['TempRhoSigErr']),
           tp['spearman_sigma_err'], 0.005)
     close('numbers.tex', 'PoolUCB macro matches source', float(mac['PoolUCB']), enr['ucb'], 0.01)
+    # Table 1 carries two distinct counts per target. Conflating them is the failure this
+    # check exists to prevent, so both are asserted against the same frozen source.
+    _cap = {'scd1': 'Scd', 'fads': 'Fads', 'nk1r': 'Nkone',
+            'drd2': 'Drdtwo', 'drd3': 'Drdthree'}
+    _int = lambda v: int(v.replace('{,}', '').replace(',', ''))
+    for _t, _c in _cap.items():
+        _d = rel[_t]['duplicates']
+        cond('numbers.tex', f'Table 1 record count for {_t} matches source',
+             _int(mac[f'Rows{_c}']) == _d['n_rows'],
+             f"macro={mac[f'Rows{_c}']} json={_d['n_rows']}")
+        cond('numbers.tex', f'Table 1 structure count for {_t} matches source',
+             _int(mac[f'Struct{_c}']) == _d['n_unique'],
+             f"macro={mac[f'Struct{_c}']} json={_d['n_unique']}")
+    cond('numbers.tex', 'Table 1 record total is the sum of the per-target records',
+         _int(mac['Nrows']) == sum(rel[t]['duplicates']['n_rows'] for t in _cap),
+         f"macro={mac['Nrows']}")
+    cond('numbers.tex', 'Table 1 structure total equals the pooled prediction count',
+         _int(mac['Nstruct']) == sum(rel[t]['duplicates']['n_unique'] for t in _cap)
+         == rel['pooled']['n'], f"macro={mac['Nstruct']} json={rel['pooled']['n']}")
 else:
     print('skip [numbers.tex] macro cross-check: numbers.tex lives with the manuscript, '
           'which is intentionally not in this repository')
