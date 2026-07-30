@@ -8,6 +8,7 @@ per-cell method gain. Styling matches gen_fig1.py so the three read as one set.
 from __future__ import annotations
 import json, os
 import numpy as np
+from scipy import stats as sps
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
@@ -71,18 +72,26 @@ print(f'Fig 2  {len(rows)} runs, novelty {nv.min():.2f}-{nv.max():.2f}; bin n fr
 
 # ------------------------------------------------------------------ Fig 3: method gain
 mv = L('methods_v2_results.json')['results']
+# Intervals are Student t, not the normal approximation. It matters most for the
+# target-level estimate, where n=5 gives t=2.78 against z=1.96, and a normal interval would
+# be 29% too narrow and would disagree with the interval the manuscript quotes.
+def ci95(v):
+    v = np.asarray(v, float)
+    return float(sps.t.ppf(0.975, len(v) - 1) * v.std(ddof=1) / np.sqrt(len(v)))
+
+
 labels, means, cis = [], [], []
 for r in mv:
     d = np.array([c['stga_ecfp'] - c['graphga'] for c in r['per_seed']])
     labels.append(f"{LAB[r['target']]}  $k$={r['k']}")
     means.append(d.mean())
-    cis.append(1.96 * d.std(ddof=1) / np.sqrt(len(d)))
+    cis.append(ci95(d))
 tgt = {}
 for r in mv:
     tgt.setdefault(r['target'], []).append(
         np.mean([c['stga_ecfp'] - c['graphga'] for c in r['per_seed']]))
 tm = np.array([np.mean(tgt[t]) for t in T])
-tl, tci = tm.mean(), 1.96 * tm.std(ddof=1) / np.sqrt(len(tm))
+tl, tci = tm.mean(), ci95(tm)
 
 fig, ax = plt.subplots(figsize=(4.4, 4.6))
 y = np.arange(len(labels))[::-1]
@@ -93,10 +102,10 @@ ax.set_yticks(list(y) + [-1.6])
 ax.set_yticklabels(labels + ['Target-level ($n$=5)'], fontsize=7.5)
 ax.get_yticklabels()[-1].set_fontweight('bold')
 ax.set_ylim(-2.6, len(labels) - 0.4)
-ax.set_xlabel('Top-molecule reward gain over Graph GA')
+ax.set_xlabel('Top-10 reward gain over Graph GA')
 ax.grid(alpha=0.22, axis='x', lw=0.6)
 fig.tight_layout()
 fig.savefig(os.path.join(OUT, 'fig3_forest.png'), dpi=400)
 plt.close(fig)
-print(f'Fig 3  target-level gain {tl:+.4f} +/- {tci:.4f}; cells positive '
+print(f'Fig 3  target-level gain {tl:+.4f} 95% CI [{tl-tci:+.4f}, {tl+tci:+.4f}]; cells positive '
       f'{sum(m > 0 for m in means)}/{len(means)}')

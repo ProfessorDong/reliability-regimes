@@ -396,6 +396,38 @@ if _os.path.exists(_frf):
         cond('figure 2', 'marker area encodes bin occupancy',
              'nb / nb.max()' in _g and 'turns over' in _g, '')
 
+# Figure 3 drew normal-approximation intervals while the text quoted Student t ones, so the
+# same estimate carried two different 95% intervals. Pin the figure to the text's convention.
+_mvf = _os.path.join(OUT, 'methods_v2_results.json')
+_g3 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_main_figures.py')
+if _os.path.exists(_mvf) and _os.path.exists(_g3):
+    import numpy as _np
+    from scipy import stats as _sps
+    _mv = json.load(open(_mvf))['results']
+    _TT5 = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+    _ci = lambda v: float(_sps.t.ppf(0.975, len(v) - 1) * _np.std(v, ddof=1) / _np.sqrt(len(v)))
+    _cell = [(_np.mean([c['stga_ecfp'] - c['graphga'] for c in r['per_seed']]),
+              _ci([c['stga_ecfp'] - c['graphga'] for c in r['per_seed']])) for r in _mv]
+    _tm = [_np.mean([c['stga_ecfp'] - c['graphga'] for r in _mv if r['target'] == t
+                     for c in r['per_seed']]) for t in _TT5]
+    _tci = _ci(_tm)
+    _gg = open(_g3, encoding='utf-8').read()
+    cond('figure 3', 'intervals are Student t, not the normal approximation',
+         'sps.t.ppf(0.975' in _gg and '1.96 *' not in _gg, '')
+    cond('figure 3', 'the figure and the manuscript quote the same target-level interval',
+         abs((_np.mean(_tm) - _tci) - float(mac['MethodCIlo'])) < 0.0006
+         and abs((_np.mean(_tm) + _tci) - float(mac['MethodCIhi'])) < 0.0006,
+         f'figure [{_np.mean(_tm)-_tci:+.4f}, {_np.mean(_tm)+_tci:+.4f}] vs '
+         f"macro [{mac['MethodCIlo']}, {mac['MethodCIhi']}]") if 'MethodCIlo' in mac else None
+    cond('figure 3', 'caption: gain positive and interval clear of zero in all 15 cells',
+         len(_cell) == 15 and all(m - h > 0 for m, h in _cell), '')
+    cond('figure 3', 'caption: the target-level interval is the widest in the figure',
+         _tci > max(h for _, h in _cell), f'{_tci:.4f} vs {max(h for _, h in _cell):.4f}')
+    cond('figure 3', 'caption: 375 runs behind the 15 cells',
+         sum(len(r['per_seed']) for r in _mv) == 375, '')
+    cond('figure 3', 'axis label names the same metric as the caption',
+         'Top-10 reward gain' in _gg, '')
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
