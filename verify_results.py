@@ -507,6 +507,38 @@ if _os.path.exists(NUM):
         cond('table 1', 'the caption discloses that FADS pools two isoforms',
              'FADS pools FADS1 and FADS2' in _b, '')
 
+# Supplementary tables. The article is a separate document and cited them by hard-coded
+# number; inserting one table silently shifted ten of those citations onto the wrong table,
+# and one pointed at a table that did not exist. Numbers now come from si_refs.tex.
+_D = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                   'theranostics', 'JournalPapers_npjDD')
+_sit = _os.path.join(_D, 'si_tables.tex'); _sir = _os.path.join(_D, 'si_refs.tex')
+_art = _os.path.join(_D, 'npjDD_Reliability.tex'); _sid = _os.path.join(_D, 'npjDD_SI.tex')
+if all(_os.path.exists(x) for x in (_sit, _sir, _art, _sid)):
+    import re as _r
+    _t = open(_sit, encoding='utf-8').read()
+    _labels = _r.findall(r'\\label\{tab:s-(.*?)\}', _t)
+    _macros = dict(_r.findall(r'\\newcommand\{\\Tab(\w+)\}\{S(\d+)\}',
+                              open(_sir, encoding='utf-8').read()))
+    _a = open(_art, encoding='utf-8').read(); _d = open(_sid, encoding='utf-8').read()
+    cond('SI tables', 'every table number macro matches the generated table order',
+         all(int(_macros[l.capitalize()]) == i for i, l in enumerate(_labels, 1)),
+         f'{len(_labels)} tables')
+    cond('SI tables', 'the article cites Supplementary tables by macro, never by literal',
+         not _r.search(r'Supplementary Tables?~S\d', _a), 'a literal would not track reordering')
+    cond('SI tables', 'every macro the article cites is defined',
+         all(k in _macros for k in _r.findall(r'\\Tab(\w+)', _a)),
+         str(sorted(set(_r.findall(r'\\Tab(\w+)', _a)) - set(_macros))))
+    cond('SI tables', 'the article loads the generated numbers', '\\input{si_refs}' in _a, '')
+    cond('SI tables', 'every generated table is referenced from the SI text',
+         all(f'tab:s-{l}' in _d for l in _labels),
+         str([l for l in _labels if f'tab:s-{l}' not in _d]))
+    cond('SI tables', 'the compatibility negative result has a table of its own',
+         'compat' in _labels and 'TabCompat' in _a, '')
+    _cg = L('compat_gen_analysis.json')
+    cond('SI tables', 'the compatibility table has one row per source-target pair',
+         len(_cg['rows']) == _cg['summary']['n_pairs'] == 20, f"{len(_cg['rows'])} rows")
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
