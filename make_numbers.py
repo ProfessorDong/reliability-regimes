@@ -235,6 +235,13 @@ for t in T:
     M[f'Struct{CAP[t]}'] = thou(d['n_unique'])
 M['Nrows'] = thou(sum(rel[t]['duplicates']['n_rows'] for t in T))
 
+# Activity thresholds were the last hand-typed numbers in Table 1. Read them from the frozen
+# oracle metrics, which record the cutoff each run actually used, so the table cannot drift
+# from the analysis the way a literal can.
+_om = {e['target']: e for e in L('oracle_metrics.json')['results']}
+for t in T:
+    M[f'Thr{CAP[t]}'] = f"{_om[t]['threshold']:.1f}"
+
 mm = L('mixedmodel_method.json')['mixed_model']
 M.update({
     'MixedB': f"{mm['intercept']:+.3f}", 'MixedSE': f"{mm['se']:.3f}",

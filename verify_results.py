@@ -479,6 +479,34 @@ cond('figure S3', 'every model-guided rule beats random on every target',
      all(_ps[t][m]['hits'] > _ps[t]['random']['hits']
          for t in _ps for m in ('greedy', 'ucb', 'lcb', 'conformal')), '')
 
+# Table 1. Its counts were already asserted; the thresholds were the last hand-typed cells
+# in it, and the caption previously implied its counts described the temporal analysis too.
+_om = {e['target']: e for e in L('oracle_metrics.json')['results']}
+_T5 = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+_CAP1 = {'scd1': 'Scd', 'fads': 'Fads', 'nk1r': 'Nkone', 'drd2': 'Drdtwo', 'drd3': 'Drdthree'}
+cond('table 1', 'structures never exceed records on any row',
+     all(rel[t]['duplicates']['n_unique'] <= rel[t]['duplicates']['n_rows'] for t in _T5), '')
+cond('table 1', 'the structure total is the pooled prediction count',
+     sum(rel[t]['duplicates']['n_unique'] for t in _T5) == rel['pooled']['n'], '')
+cond('table 1', 'FADS is the only target with no duplicate structures',
+     [t for t in _T5 if rel[t]['duplicates']['n_duplicate_rows'] == 0] == ['fads'], '')
+if _os.path.exists(NUM):
+    for t in _T5:
+        cond('table 1', f'threshold for {t} comes from the frozen oracle metrics',
+             abs(float(mac[f'Thr{_CAP1[t]}']) - _om[t]['threshold']) < 1e-9,
+             f"macro={mac.get('Thr'+_CAP1[t])} json={_om[t]['threshold']}")
+    _tex = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                         'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
+    if _os.path.exists(_tex):
+        _b = open(_tex, encoding='utf-8').read()
+        cond('table 1', 'no hand-typed threshold literals remain in the table body',
+             all(f'& {v}\\\\' not in _b.split('tab:targets')[1][:600] for v in ('7.0', '6.5')),
+             'thresholds must come from macros')
+        cond('table 1', 'the caption scopes its counts to the cross-validation cohort',
+             'cross-validation cohort' in _b and 'do not describe the temporal analysis' in _b, '')
+        cond('table 1', 'the caption discloses that FADS pools two isoforms',
+             'FADS pools FADS1 and FADS2' in _b, '')
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
