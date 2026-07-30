@@ -37,18 +37,31 @@ prov = json.load(open(PROV)) if os.path.exists(PROV) else {}
 OUTL = []
 
 
-def tab(label, caption, header, rows, spec, note=''):
+def tab(label, caption, header, rows, spec, note='', size=''):
+    """Emit one Supplementary table.
+
+    `size` shrinks a table that would otherwise run past the text block: pass 'small' or
+    'footnotesize'. Column padding is tightened with it, since a wide table is usually wide
+    because of the number of columns rather than the font. Any table left overflowing is
+    caught by the overfull-hbox check in verify_results.py rather than by eye.
+    """
     OUTL.append(r'\begin{table}[htbp]\centering\caption{%s}\label{%s}' % (caption, label))
+    if size:
+        OUTL.append(r'{\%s\setlength{\tabcolsep}{3pt}' % size)
     OUTL.append(r'\begin{tabular}{@{}%s@{}}\toprule' % spec)
     OUTL.append(header + r'\\\midrule')
     OUTL.extend(r + r'\\' for r in rows[:-1])
     OUTL.append(rows[-1] + r'\\\bottomrule')
     OUTL.append(r'\end{tabular}' + (('\n\\par\\smallskip\\footnotesize ' + note) if note else ''))
+    if size:
+        OUTL.append('}')
     OUTL.append(r'\end{table}' + '\n')
 
 
 def f(x, d=2):
-    return ('%.' + str(d) + 'f') % x
+    """Fixed-point, with negatives set in math so they get a real minus rather than a hyphen."""
+    t = ('%.' + str(d) + 'f') % x
+    return ('$%s$' % t) if t.startswith('-') else t
 
 
 def sg(x, d=3):
@@ -68,8 +81,8 @@ tab('tab:s-data',
     'replicate measurements of compounds that have more than one record. Models are scored '
     'against the median aggregated activity rather than a fresh replicate, so this is a measure '
     'of label noise and not a demonstrated lower bound on attainable error.',
-    r'Target & Records & Parent structures & Duplicates removed & With replicates & Within-compound SD',
-    rows, 'lrrrrr')
+    r'Target & Records & \shortstack[r]{Parent\\structures} & \shortstack[r]{Duplicates\\removed} & \shortstack[r]{With\\replicates} & \shortstack[r]{Within-compound\\SD}',
+    rows, 'lrrrrr', size='small')
 
 # ---------------------------------------------------------------- S2 protocols
 rows = []
@@ -194,54 +207,58 @@ if os.path.exists(_sens):
 
 # ---------------------------------------------------------------- S7 TEMPORAL (key)
 rows = []
+
+
+def _n(v):
+    """Thousands separator, applied to one integer rather than to a whole row."""
+    return f"{v:,}".replace(',', '{,}')
+
+
+def _vc(v, ci, dec=2, signed=False):
+    """A value with its 95% interval, for one cell."""
+    txt = (('$%+.' + str(dec) + 'f$') % v) if signed else (('%.' + str(dec) + 'f') % v)
+    if not ci:
+        return txt
+    if signed:
+        lo, hi = ('%+.*f' % (dec, ci[0])), ('%+.*f' % (dec, ci[1]))
+    else:
+        lo, hi = ('%.*f' % (dec, ci[0])), ('%.*f' % (dec, ci[1]))
+    return txt + r' \tiny{[' + lo + ', ' + hi + ']}'
+
+
 for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
     if t not in tmp:
         continue
     d = tmp[t]; c = d['control_random_same_size']
-    def _pair(val, ci, dec=2, signed=False):
-        v = sg(val, dec) if signed else f(val, dec)
-        if not ci:
-            return v
-        lo, hi = (f"{ci[0]:+.{dec}f}", f"{ci[1]:+.{dec}f}") if signed else \
-                 (f"{ci[0]:.{dec}f}", f"{ci[1]:.{dec}f}")
-        return v + r' \tiny{[' + lo + ', ' + hi + ']}'
-    rows.append(
-        f"{LAB[t]} & {d['n_train']:,} & {d['n_test']:,} & "
-        f"{_pair(d['rmse_test'], d.get('rmse_test_ci95'))} & "
-        f"{_pair(c['rmse'], c.get('rmse_ci95'))} & "
-        f"{_pair(d['spearman_sigma_err'], d.get('spearman_sigma_err_ci95'), signed=True)} & "
-        f"{_pair(c['spearman_sigma_err'], c.get('spearman_sigma_err_ci95'), signed=True)} & "
-        f"{_pair(d['conformal_coverage_adaptive'], d.get('conformal_coverage_adaptive_ci95'), 3)} & "
-        f"{_pair(c['conformal_coverage_adaptive'], c.get('conformal_coverage_adaptive_ci95'), 3)}"
-        .replace(',', '{,}').replace('{,} ', ', '))
+    rows.append(f"{LAB[t]} & Temporal & {_n(d['n_train'])} & {_n(d['n_test'])} & "
+                f"{_vc(d['rmse_test'], d.get('rmse_test_ci95'))} & "
+                f"{_vc(d['spearman_sigma_err'], d.get('spearman_sigma_err_ci95'), signed=True)} & "
+                f"{_vc(d['conformal_coverage_adaptive'], d.get('conformal_coverage_adaptive_ci95'), 3)}")
+    rows.append(" & Control & & & "
+                f"{_vc(c['rmse'], c.get('rmse_ci95'))} & "
+                f"{_vc(c['spearman_sigma_err'], c.get('spearman_sigma_err_ci95'), signed=True)} & "
+                f"{_vc(c['conformal_coverage_adaptive'], c.get('conformal_coverage_adaptive_ci95'), 3)}")
 tp = tmp['pooled']
-_pci = lambda k, dec=2, signed=False: (
-    (lambda c: '' if not c else r' \tiny{[' +
-     (f"{c[0]:+.{dec}f}, {c[1]:+.{dec}f}" if signed else f"{c[0]:.{dec}f}, {c[1]:.{dec}f}") + ']}')(
-        tp.get(k)))
-rows.append(r'\midrule Pooled & --- & ' + f"{tp['n']:,}".replace(',', '{,}') + ' & ' +
-            f(tp['rmse']) + _pci('rmse_ci95') + ' & --- & ' +
-            sg(tp['spearman_sigma_err'], 2) + _pci('spearman_sigma_err_ci95', signed=True) +
-            ' & --- & ' + f(tp['conformal_coverage_adaptive'], 3) +
-            _pci('conformal_coverage_adaptive_ci95', 3) + ' & ---')
+rows.append(r'\midrule Pooled & Temporal & --- & ' + _n(tp['n']) + ' & ' +
+            _vc(tp['rmse'], tp.get('rmse_ci95')) + ' & ' +
+            _vc(tp['spearman_sigma_err'], tp.get('spearman_sigma_err_ci95'), signed=True) + ' & ' +
+            _vc(tp['conformal_coverage_adaptive'], tp.get('conformal_coverage_adaptive_ci95'), 3))
 tab('tab:s-temporal',
-    'Temporal shift and its size-matched control. Models are trained on compounds published '
-    'before 2015 and evaluated on those published later. Each temporal split is repeated five '
-    'times with training, calibration and test sets of identical size drawn at random from the '
-    'same pool, which separates distribution shift from the smaller training set a temporal '
-    'split implies, and is the only like-for-like comparator because this cohort is re-curated '
-    'independently of the five datasets of Table S1. Error rises on every target and coverage '
-    'falls below nominal on three of four, whereas the error ranking degrades on DRD2 and DRD3 '
-    'and is unchanged on SCD-1 and NK1R. Brackets give 95\\% intervals: for the temporal split, '
-    'which happens once, a percentile bootstrap over the test compounds with the conformal '
-    'quantile held fixed; for the control, a t interval across its random replicates. The pooled '
+    'Temporal shift and its size-matched control, one row per arm. Models are trained on '
+    'compounds first published before 2015 and evaluated on those first published later. Each '
+    'temporal split is repeated twenty times with training, calibration and test sets of '
+    'identical size drawn at random from the same pool, so the control shares the sizes shown '
+    'on the temporal row above it; that control is the only like-for-like comparator, because '
+    'this cohort is re-curated independently of the five datasets of Table S1. Error rises on '
+    'every target and coverage falls below nominal on three of four, whereas the error ranking '
+    'degrades on DRD2 and DRD3 and is unchanged on SCD-1 and NK1R. Brackets give 95\\% '
+    'intervals: a percentile bootstrap over the evaluation compounds for the temporal split, '
+    'which happens once, and a $t$ interval across replicates for the control. The pooled '
     'correlation is lower than any per-target value because pooling mixes targets whose errors '
     'differ in scale.',
-    r'Target & $n_{\mathrm{train}}$ & $n_{\mathrm{test}}$ & \multicolumn{2}{c}{RMSE} & '
-    r'\multicolumn{2}{c}{$\rho(\sigma_T,e)$} & \multicolumn{2}{c}{Coverage at 0.900}\\'
-    r'\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}'
-    r' & & & Temporal & Control & Temporal & Control & Temporal & Control',
-    rows, 'lrrrrrrrr')
+    r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{test}}$ & RMSE & '
+    r'$\rho(\sigma_T,e)$ & Coverage at 0.900',
+    rows, 'llrrrrr', size='small')
 
 # ---------------------------------------------------------------- S8 pool acquisition (key)
 rows = []
@@ -257,10 +274,10 @@ rows.append(r'\midrule Enrichment & --- & --- & ' +
 tab('tab:s-pool',
     'Acquisition against measured activity. All labels in the pool are hidden except ten known '
     'actives; each strategy spends 300 queries and every query reveals a compound\'s true '
-    'measured activity. Entries are the number of genuine top-percentile compounds acquired, '
+    'measured activity. Entries are the number of top-percentile compounds acquired, '
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
     'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal '
-    'bound, finds fewer true actives than selecting on the predicted mean.',
+    'bound, finds fewer top-percentile compounds than selecting on the predicted mean.',
     r'Target & Pool & True top 1\% & Random & Greedy & UCB & LCB & Conformal', rows, 'lrrrrrrr')
 
 # ---------------------------------------------------------------- S9 frontier
@@ -276,7 +293,7 @@ tab('tab:s-frontier',
     'and predicted potency, for two search procedures at two uncertainty penalties. The '
     'relationship holds with the penalty set to zero.',
     r'Optimizer & $\lambda$ & $\rho(\nu,d)$ & $\rho(\nu,\sigma_T)$ & $\rho(\nu,\hat y)$ & $\rho(d,\sigma_T)$ & $n$',
-    rows, 'llrrrrr')
+    rows, 'llrrrrr', size='small')
 
 # ---------------------------------------------------------------- S10 method per-cell
 rows = []
@@ -314,7 +331,7 @@ tab('tab:s-targetlevel',
     '$P=0.0625$ even when every target is positive, so the effect is best described as '
     'positive in all five targets studied.',
     r'Surrogate & ' + ' & '.join(LAB[t] for t in T) + r' & Mean [95\% CI] & $P$',
-    rows, 'lrrrrrrr')
+    rows, 'lrrrrrrr', size='small')
 
 # ---------------------------------------------------------------- S12 negatives
 rows = []
@@ -355,7 +372,7 @@ tab('tab:s-compat',
     'both signs, and across the %d pairs they are uncorrelated with compatibility '
     '(Pearson $r=%s$, $P=%s$), so a compatibility measure that predicts transfer for static '
     'property prediction does not predict it here.'
-    % (len(_cgr), f(cg['pair_pearson_r'], 2), f(cg['pair_pearson_p'], 2)),
+    % (len(_cgr), '%.2f' % cg['pair_pearson_r'], '%.2f' % cg['pair_pearson_p']),
     r'Source & Destination & $C_{\mathrm{nn}}$ & $n_{\mathrm{target}}$ & Mean gain & SD',
     rows, 'llrrrr')
 

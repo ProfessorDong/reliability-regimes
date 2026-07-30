@@ -562,6 +562,18 @@ if all(_os.path.exists(x) for x in (_sit, _sir, _art, _sid)):
     cond('SI tables', 'the compatibility table has one row per source-target pair',
          len(_cg['rows']) == _cg['summary']['n_pairs'] == 20, f"{len(_cg['rows'])} rows")
 
+# Layout. A table that runs past the text block is a defect a reader sees before any number,
+# and pdflatex already reports it, so the logs are checked rather than the pages eyeballed.
+for _doc in ('npjDD_Reliability', 'npjDD_SI'):
+    _lg = _os.path.join(_D, _doc + '.log')
+    if _os.path.exists(_lg):
+        _txt = open(_lg, encoding='utf-8', errors='replace').read()
+        _over = [l for l in _txt.split('\n') if l.startswith('Overfull \\hbox')]
+        cond('layout', f'{_doc}: nothing overflows the text block',
+             not _over, f'{len(_over)} overfull hbox(es): ' + '; '.join(_over[:3]))
+        cond('layout', f'{_doc}: compiles without errors',
+             '\n! ' not in _txt, '')
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
