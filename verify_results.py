@@ -201,7 +201,7 @@ cond('Results/pool', 'optimistic (UCB) is the best strategy', enr['ucb'] == max(
 # numbers.tex is generated from these same JSONs; check the macros agree with the source.
 import re as _re, os as _os
 NUM = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..',
-                    'WritePaper', 'theranostics', 'JournalPapers_npjDM', 'numbers.tex')
+                    'WritePaper', 'theranostics', 'JournalPapers_npjDD', 'numbers.tex')
 if _os.path.exists(NUM):
     _txt = open(NUM).read()
     mac = {}
@@ -336,7 +336,7 @@ if _os.path.exists(_rm):
 
 # manuscript-side checks: only runnable where the .tex lives
 _tex = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
-                     'theranostics', 'JournalPapers_npjDM', 'npjDM_Reliability.tex')
+                     'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
 if _os.path.exists(_tex) and _os.path.exists(NUM):
     _s = open(_tex, encoding='utf-8').read()
     _ab = _re.search(r'\\abstract\{(.*?)\}\s*\n\n', _s, _re.S).group(1)
