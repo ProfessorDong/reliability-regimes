@@ -2,7 +2,7 @@
 
 Four panels carrying the whole argument:
   (a) schematic defining the three quantities the paper separates. No numeric axes:
-      position stands for chemical space and only the labelled distances carry meaning.
+      position stands for chemical space and only the labeled distances carry meaning.
   (b) Regime 1, in distribution: risk-coverage per target, with conformal coverage inset.
   (c) Regime 2, under temporal shift: the same two quantities beside their size-matched
       random controls, which is what shows the loss is shift and not sample size.
@@ -25,7 +25,7 @@ OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'fig1_overview.pn
 L = lambda f: json.load(open(os.path.join(CW, f)))
 T = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
 LAB = {'scd1': 'SCD-1', 'fads': 'FADS', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 'DRD3'}
-# Okabe-Ito, colourblind safe, no red/green contrast
+# Okabe-Ito, colorblind safe, no red/green contrast
 BLUE, ORANGE, GREEN, PINK, VERM, SKY, YELL = ('#0072B2', '#E69F00', '#009E73',
                                               '#CC79A7', '#D55E00', '#56B4E9', '#F0E442')
 GREY, DARK = '#9A9A9A', '#333333'
@@ -180,7 +180,7 @@ ax.axhline(1.0, color=DARK, ls=':', lw=1.0)
 ax.set_xticks(range(5)); ax.set_xticklabels(names, fontsize=6.6, linespacing=1.15)
 ax.set_ylabel('Top-percentile compounds found\n(relative to random)')
 ax.set_ylim(0, max(vals) + 1.45); ax.grid(alpha=0.22, axis='y', lw=0.6)
-ax.text(0.5, 0.995, 'penalising uncertainty finds fewer', transform=ax.transAxes,
+ax.text(0.5, 0.995, 'penalizing uncertainty finds fewer', transform=ax.transAxes,
         ha='center', va='top', fontsize=6.8, color=VERM, fontweight='bold')
 
 fig.savefig(OUT, dpi=400, bbox_inches='tight', facecolor='white')

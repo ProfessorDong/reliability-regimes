@@ -44,7 +44,7 @@ _po = L('poolopt_analysis.json')
 pool, NSEED = _po['summary'], _po['config']['seeds']
 
 # =====================================================================  S1 calibration
-# (a) empirical coverage against nominal, per target, for the disagreement-normalised
+# (a) empirical coverage against nominal, per target, for the disagreement-normalized
 #     intervals. (b) coverage of the same intervals within the low- and high-disagreement
 #     halves, which is what shows the guarantee is marginal and not conditional.
 ALPHA = [('alpha0.2', 0.80), ('alpha0.1', 0.90), ('alpha0.05', 0.95)]

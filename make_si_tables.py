@@ -151,7 +151,7 @@ for a in ['alpha0.2', 'alpha0.1', 'alpha0.05']:
                 f"{f(c['width_ratio_adaptive_over_standard'])}")
 tab('tab:s-conformal',
     'Split conformal intervals in distribution. Standard intervals use the absolute residual '
-    'and give every compound the same width; adaptive intervals normalise the residual by the '
+    'and give every compound the same width; adaptive intervals normalize the residual by the '
     'disagreement score. Both reach their nominal coverage, and the adaptive intervals are '
     'narrower at equal coverage, so the score carries usable information.',
     r'Nominal & \multicolumn{2}{c}{Standard} & \multicolumn{2}{c}{Adaptive} & Width ratio\\'
@@ -259,7 +259,7 @@ tab('tab:s-pool',
     'actives; each strategy spends 300 queries and every query reveals a compound\'s true '
     'measured activity. Entries are the number of genuine top-percentile compounds acquired, '
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
-    'selection. Penalising uncertainty, whether by a lower-confidence rule or a conformal '
+    'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal '
     'bound, finds fewer true actives than selecting on the predicted mean.',
     r'Target & Pool & True top 1\% & Random & Greedy & UCB & LCB & Conformal', rows, 'lrrrrrrr')
 
