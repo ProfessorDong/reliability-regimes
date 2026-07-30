@@ -64,34 +64,34 @@ predict warm-start benefit; withheld-scaffold recovery is not improved by the tr
 ```bash
 pip install -r requirements.txt
 
-# 1. Build and gate the activity models (writes outputs/cwm_v1/oracle_{target}.pkl).
+# 1. Build and gate the activity models (writes outputs/frozen/oracle_{target}.pkl).
 #    Required before any search experiment; the .pkl files are NOT in this repository
 #    (see "Large files" below).
-python -m world_model.oracle_sanity_gate
+python -m reliability.oracle_sanity_gate
 
 # 2. Reliability analyses (CPU only; these refit the models internally)
-python -m world_model.standardize            # structure grouping (parent InChIKey)
+python -m reliability.standardize            # structure grouping (parent InChIKey)
 python data/recurate_chembl_v2.py            # re-curate ChEMBL with provenance + years
-python -m world_model.run_reliability_v2     # Regime 1: error stratification, risk-coverage
-python -m world_model.run_conformal_v1       # Regime 1: calibrated intervals
-python -m world_model.run_temporal_v1        # Regime 2: temporal shift + size-matched control
-python -m world_model.run_temporal_v1 --year-field year_median \
-       --out outputs/cwm_v1/temporal_analysis_yearmedian.json   # dating sensitivity (Table S17)
-python -m world_model.run_poolopt_v1         # acquisition against measured labels
-python -m world_model.run_mixedmodel_method  # random-intercept model for the method gain
+python -m reliability.run_reliability_v2     # Regime 1: error stratification, risk-coverage
+python -m reliability.run_conformal_v1       # Regime 1: calibrated intervals
+python -m reliability.run_temporal_v1        # Regime 2: temporal shift + size-matched control
+python -m reliability.run_temporal_v1 --year-field year_median \
+       --out outputs/frozen/temporal_analysis_yearmedian.json   # dating sensitivity (Table S17)
+python -m reliability.run_poolopt_v1         # acquisition against measured labels
+python -m reliability.run_mixedmodel_method  # random-intercept model for the method gain
 python make_numbers.py && python make_si_tables.py   # regenerate all manuscript numbers/tables
 python gen_fig1.py && python gen_main_figures.py && python gen_si_figures.py   # all figures
-python -m world_model.analyze_calibration      # sigma_T vs measured error
-python -m world_model.run_applicability_v1     # distance-to-training, partial correlations
-python -m world_model.run_reliability_v1       # measured error vs novelty; risk-coverage
+python -m reliability.analyze_calibration      # sigma_T vs measured error
+python -m reliability.run_applicability_v1     # distance-to-training, partial correlations
+python -m reliability.run_reliability_v1       # measured error vs novelty; risk-coverage
 
 # 3. Search experiments (need the .pkl activity models from step 1)
-python -m world_model.run_frontier_v2          # novelty sweep x 2 optimizers x 2 penalties
-python -m world_model.run_methods_v2           # primary method comparison (fingerprint surrogate)
-python -m world_model.run_ecfp_baseline_v1     # fingerprint vs dual-encoder latent surrogate
-python -m world_model.run_beta_ablation_v1     # uncertainty-acquisition ablation
-python -m world_model.run_recovery_v2          # leakage-free scaffold-cluster recovery
-python -m world_model.run_hierstats_v1         # hierarchical / target-level statistics
+python -m reliability.run_frontier_v2          # novelty sweep x 2 optimizers x 2 penalties
+python -m reliability.run_methods_v2           # primary method comparison (fingerprint surrogate)
+python -m reliability.run_ecfp_baseline_v1     # fingerprint vs dual-encoder latent surrogate
+python -m reliability.run_beta_ablation_v1     # uncertainty-acquisition ablation
+python -m reliability.run_recovery_v2          # leakage-free scaffold-cluster recovery
+python -m reliability.run_hierstats_v1         # hierarchical / target-level statistics
 
 # 4. Check every reported number against the frozen outputs
 python verify_results.py
@@ -110,13 +110,13 @@ data/                     curated per-target activity data (SMILES, pIC50) + fea
   nk1r_combined.csv                      3,056            (active threshold 7.0)
   drd2_bioactivity.csv                   9,966            (active threshold 6.5)
   drd3_chembl.csv                        6,202            (active threshold 7.0)
-world_model/              activity model, reward, search operators, experiments
+reliability/              activity model, reward, search operators, experiments
   oracle.py                     activity model API, target config, ECFP featurization
   oracle_sanity_gate.py         model selection + gating; writes the frozen .pkl models
   reward.py                     multi-objective reward with the uncertainty penalty
   actions.py                    BRICS fragment-edit action space + admissibility filter
   graph_ga.py                   Graph GA baseline (crossover / mutation)
-  wm_guided_ga.py               surrogate-triaged search
+  surrogate_ga.py               surrogate-triaged search
   dynamics.py                   dual-encoder latent surrogate (ablation only)
   run_reliability_v1.py         measured error vs novelty and distance; risk-coverage
   run_applicability_v1.py       distance-to-training analysis; partial correlations
@@ -127,7 +127,7 @@ world_model/              activity model, reward, search operators, experiments
   run_recovery_v2.py            leakage-free scaffold-cluster recovery
   run_hierstats_v1.py           hierarchical / target-level statistics
   analyze_*.py                  frozen analysis scripts for the individual experiments
-outputs/cwm_v1/           frozen result files; the source of every reported number
+outputs/frozen/           frozen result files; the source of every reported number
 verify_results.py         asserts every reported number against those files
 ```
 
@@ -145,20 +145,25 @@ the search, not to the activity model, which is trained on all measured compound
 
 ## Large files
 
-The frozen activity models `outputs/cwm_v1/oracle_{target}.pkl` are not included: the DRD2
+The frozen activity models `outputs/frozen/oracle_{target}.pkl` are not included: the DRD2
 model exceeds the 100 MB per-file limit on GitHub. Rebuild them with
-`python -m world_model.oracle_sanity_gate`, which reproduces them deterministically from the
+`python -m reliability.oracle_sanity_gate`, which reproduces them deterministically from the
 data in this repository. The frozen JSON outputs that back the reported numbers are included,
 so `verify_results.py` runs without rebuilding the models.
 
-## A note on internal naming
+## Repository layout
 
-The package directory (`world_model/`), some module and class names (`wm_guided_ga`,
-`WMGuidedGA`, `LatentWorldModel`, `CWMReward`) and the keys of the frozen JSON outputs
-retain identifiers from an earlier version of this work. They are kept unchanged so that the
-frozen outputs and the reproduction path stay valid, and they carry no meaning beyond naming.
-The primary method reported in the manuscript is the fingerprint-surrogate triage in
-`run_methods_v2.py`.
+`reliability/` holds the analysis package: `oracle.py` and `standardize.py` for the activity
+models and structure grouping, `run_reliability_v2.py`, `run_conformal_v1.py` and
+`run_temporal_v1.py` for the two regimes, `run_poolopt_v1.py` for acquisition against measured
+labels, and `run_methods_v2.py` for the fingerprint-surrogate triage, which is the method
+reported in the manuscript. `graph_ga.py` and `surrogate_ga.py` are the two search procedures
+compared. `outputs/frozen/` holds the JSON outputs that back every reported number.
+
+Four scripts carry a `_v1` suffix (`run_fewshot_v1.py`, `run_reliability_v1.py`,
+`run_ecfp_baseline_v1.py`, `analyze_frontier.py`). They belong to an earlier round of the study
+and are retained because later scripts import helpers from them; their own entry points are not
+part of the reproduction path above, and some read inputs that are not distributed here.
 
 ## License
 

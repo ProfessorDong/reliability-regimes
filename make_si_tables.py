@@ -1,7 +1,7 @@
 """Generate si_tables.tex from the frozen analysis outputs.
 
 Same principle as make_numbers.py: no Supplementary table is hand-typed. Every value is
-read from outputs/cwm_v1/*.json (or data/chembl_v2/curation_provenance.json), so a table
+read from the frozen outputs (or data/chembl_v2/curation_provenance.json), so a table
 cannot drift out of step with the analysis it reports. Regenerate after any analysis
 change, then recompile the SI.
 
@@ -11,7 +11,22 @@ from __future__ import annotations
 import json, os, statistics as st
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-CW = os.path.join(ROOT, 'drug_discovery', 'theranostics_current', 'outputs', 'cwm_v1')
+def _data_dir():
+    """Locate the frozen outputs, whether this file sits in the repository or the workspace."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    roots = (here, os.path.join(os.path.dirname(here), 'drug_discovery', 'theranostics_current'))
+    for root in roots:
+        out = os.path.join(root, 'outputs')
+        if not os.path.isdir(out):
+            continue
+        for sub in sorted(os.listdir(out)):
+            cand = os.path.join(out, sub)
+            if os.path.isfile(os.path.join(cand, 'reliability_v2_analysis.json')):
+                return cand
+    raise SystemExit('frozen outputs not found beside this file or in the workspace')
+
+
+CW = _data_dir()
 PROV = os.path.join(ROOT, 'drug_discovery', 'theranostics_current', 'data', 'chembl_v2',
                     'curation_provenance.json')
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'si_tables.tex')

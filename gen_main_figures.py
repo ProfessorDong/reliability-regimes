@@ -13,8 +13,22 @@ import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
-CW = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
-                  'drug_discovery', 'theranostics_current', 'outputs', 'cwm_v1')
+def _data_dir():
+    """Locate the frozen outputs, whether this file sits in the repository or the workspace."""
+    here = os.path.dirname(os.path.abspath(__file__))
+    roots = (here, os.path.join(os.path.dirname(here), 'drug_discovery', 'theranostics_current'))
+    for root in roots:
+        out = os.path.join(root, 'outputs')
+        if not os.path.isdir(out):
+            continue
+        for sub in sorted(os.listdir(out)):
+            cand = os.path.join(out, sub)
+            if os.path.isfile(os.path.join(cand, 'reliability_v2_analysis.json')):
+                return cand
+    raise SystemExit('frozen outputs not found beside this file or in the workspace')
+
+
+CW = _data_dir()
 OUT = os.path.dirname(os.path.abspath(__file__))
 L = lambda f: json.load(open(os.path.join(CW, f)))
 T = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']

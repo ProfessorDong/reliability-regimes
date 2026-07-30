@@ -1,6 +1,6 @@
 __pycache__/
 *.pyc
 *.pkl
-!outputs/cwm_v1/chembl_fragment_pool.pkl
+!outputs/frozen/**
 *.log
 .ipynb_checkpoints/

@@ -4,13 +4,13 @@ Usage:  python verify_results.py
 Exits non-zero if any assertion fails.
 
 Each check names the manuscript location of the claim it verifies. All values are
-read from outputs/cwm_v1/*.json, which are produced by the run_*/analyze_* scripts
-in world_model/ (see README for the reproduction order).
+read from outputs/frozen/*.json, which are produced by the run_*/analyze_* scripts
+in reliability/ (see README for the reproduction order).
 """
 from __future__ import annotations
 import json, os, sys
 
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outputs', 'cwm_v1')
+OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outputs', 'frozen')
 T = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
 FAILED, CHECKED = [], 0
 
