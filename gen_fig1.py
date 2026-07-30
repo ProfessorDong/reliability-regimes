@@ -129,18 +129,26 @@ panel_label(ax, 'c')
 ax.set_title('Regime 2  applied to later chemistry', pad=6, loc='left')
 tt = [t for t in ['scd1', 'nk1r', 'drd2', 'drd3'] if t in tmp]
 y = np.arange(len(tt))[::-1]
+K = 'conformal_coverage_adaptive'
 for i, t in enumerate(tt):
     d, c = tmp[t], tmp[t]['control_random_same_size']
-    a, b = c['conformal_coverage_adaptive'], d['conformal_coverage_adaptive']
+    a, b = c[K], d[K]
     ax.annotate('', xy=(b, y[i]), xytext=(a, y[i]),
                 arrowprops=dict(arrowstyle='-|>', color=VERM, lw=1.6, shrinkA=0, shrinkB=0))
+    # 95% intervals: bootstrap over the evaluation compounds for the single temporal split,
+    # t interval across replicates for the control
+    for v, ci, col, dy in ((a, c.get(K + '_ci95'), BLUE, 0.17), (b, d.get(K + '_ci95'), VERM, -0.17)):
+        if ci:
+            ax.plot(ci, [y[i] + dy] * 2, color=col, lw=1.1, solid_capstyle='butt', zorder=4)
+            for e in ci:
+                ax.plot([e, e], [y[i] + dy - 0.06, y[i] + dy + 0.06], color=col, lw=1.1, zorder=4)
     ax.scatter([a], [y[i]], s=34, color=BLUE, zorder=5, edgecolor='white', lw=0.6)
     ax.scatter([b], [y[i]], s=34, color=VERM, zorder=5, edgecolor='white', lw=0.6)
 ax.axvline(0.90, color=DARK, ls=':', lw=1.1)
 ax.text(0.906, len(tt) - 0.62, 'nominal 0.90', fontsize=6.4, color=DARK, ha='left')
 ax.set_yticks(y); ax.set_yticklabels([LAB[t] for t in tt]); ax.set_ylim(-0.75, len(tt) - 0.35)
 ax.set_xlabel('Coverage of 90% prediction intervals')
-ax.set_xlim(0.70, 0.95); ax.grid(alpha=0.22, axis='x', lw=0.6)
+ax.set_xlim(0.70, 0.96); ax.grid(alpha=0.22, axis='x', lw=0.6)
 ax.scatter([], [], s=34, color=BLUE, label='size-matched random split')
 ax.scatter([], [], s=34, color=VERM, label='temporal split')
 ax.legend(fontsize=6.4, frameon=False, loc='upper left', handletextpad=0.3,
@@ -148,9 +156,10 @@ ax.legend(fontsize=6.4, frameon=False, loc='upper left', handletextpad=0.3,
 tp = tmp['pooled']
 # the panel shows coverage, so annotate coverage. The pooled error-ranking contrast is
 # not stated here: it is a target-dependent effect and a single pooled number misreads it.
-_below = sum(tmp[t]['conformal_coverage_adaptive']
-             < tmp[t]['control_random_same_size']['conformal_coverage_adaptive'] for t in tt)
-ax.text(0.035, 0.055, f"coverage falls below its control on {_below} of {len(tt)}",
+_sep = sum(tmp[t][K + '_ci95'][1]
+           < tmp[t]['control_random_same_size'][K + '_ci95'][0] for t in tt)
+ax.text(0.035, 0.055, f"intervals separate on {_sep} of {len(tt)}; pooled "
+                      f"{tmp['pooled'][K]:.3f}",
         transform=ax.transAxes, fontsize=6.8, color=VERM, fontweight='bold')
 
 # ---------------------------------------------------------------- (d) acquisition

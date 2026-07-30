@@ -143,11 +143,59 @@ M.update({
     'TempMacroCov': f"{_mac['temporal']['conformal_coverage_adaptive']:.3f}",
     'TempCtlMacroCov': f"{_mac['control']['conformal_coverage_adaptive']:.3f}",
 })
+_ci = lambda v, d=2: f"[{v[0]:.{d}f}, {v[1]:.{d}f}]"
+_cis = lambda v, d=2: f"[{v[0]:+.{d}f}, {v[1]:+.{d}f}]"
+M.update({
+    'TempRmseCI': _ci(tp['rmse_ci95']),
+    'TempCovCI': _ci(tp['conformal_coverage_adaptive_ci95'], 3),
+    'TempRhoCI': _cis(tp['spearman_sigma_err_ci95']),
+    # strict criterion: the temporal interval lies wholly outside the control's interval.
+    # Reported alongside the replicate-range statistic, which is the weaker of the two.
+    'TempSepRmse': str(sum(tmp[t]['rmse_test_ci95'][0]
+                           > tmp[t]['control_random_same_size']['rmse_ci95'][1] for t in _CAPT)),
+    'TempSepCov': str(sum(tmp[t]['conformal_coverage_adaptive_ci95'][1]
+                          < tmp[t]['control_random_same_size']['conformal_coverage_adaptive_ci95'][0]
+                          for t in _CAPT)),
+    'TempSepRho': str(sum(tmp[t]['spearman_sigma_err_ci95'][1]
+                          < tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]
+                          for t in _CAPT)),
+    'TempOutsideRmse': str(_mac['temporal_outside_control_range']['rmse']),
+    'TempSepCovWord': {0: 'none', 1: 'one', 2: 'two', 3: 'three', 4: 'four'}[
+        sum(tmp[t]['conformal_coverage_adaptive_ci95'][1]
+            < tmp[t]['control_random_same_size']['conformal_coverage_adaptive_ci95'][0]
+            for t in _CAPT)],
+    'TempOutsideCov': str(_mac['temporal_outside_control_range']['coverage']),
+    'TempOutsideRho': str(_mac['temporal_outside_control_range']['spearman']),
+    'TempCtlReps': str(tmp[list(_CAPT)[0]]['control_random_same_size']['n_reps']),
+})
+for _t, _c in _CAPT.items():
+    _d, _k = tmp[_t], tmp[_t]['control_random_same_size']
+    M[f'TempRmseCI{_c}'] = _ci(_d['rmse_test_ci95'])
+    M[f'TempCovCI{_c}'] = _ci(_d['conformal_coverage_adaptive_ci95'], 3)
+    M[f'TempRhoCI{_c}'] = _cis(_d['spearman_sigma_err_ci95'])
+    M[f'TempCtlRmseCI{_c}'] = _ci(_k['rmse_ci95'])
+    M[f'TempCtlCovCI{_c}'] = _ci(_k['conformal_coverage_adaptive_ci95'], 3)
+    M[f'TempCtlRhoCI{_c}'] = _cis(_k['spearman_sigma_err_ci95'])
 for _t, _c in _CAPT.items():
     M[f'TempRho{_c}'] = f"{tmp[_t]['spearman_sigma_err']:.2f}"
     M[f'TempCtlRho{_c}'] = f"{tmp[_t]['control_random_same_size']['spearman_sigma_err']:.2f}"
     M[f'TempDrho{_c}'] = f"{tmp['per_target_delta'][_t]['d_rho']:+.2f}"
     M[f'TempN{_c}'] = thou(tmp[_t]['n_test'])
+    M[f'TempCov{_c}'] = f"{tmp[_t]['conformal_coverage_adaptive']:.3f}"
+    M[f'TempCtlCov{_c}'] = f"{tmp[_t]['control_random_same_size']['conformal_coverage_adaptive']:.3f}"
+# median-year sensitivity, so the manuscript never hard-codes the comparison figure
+_med = os.path.join(CW, 'temporal_analysis_yearmedian.json')
+if os.path.exists(_med):
+    _m = json.load(open(_med))
+    _lost = lambda d: [t for t in _CAPT if d[t]['spearman_sigma_err_ci95'][1]
+                       < d[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]]
+    M.update({
+        'TempMedRmsePct': f"{_m['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}",
+        'TempMedLostSame': 'yes' if _lost(_m) == _lost(tmp) else 'no',
+        'TempMedRhoScd': f"{_m['scd1']['spearman_sigma_err']:.2f}",
+        'TempMedCtlRhoScd': f"{_m['scd1']['control_random_same_size']['spearman_sigma_err']:.2f}",
+    })
+
 # per-target in-domain comparison: which target is the exception, read from the source
 _IN = [t for t in T if rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse']]
 _EX = [t for t in T if t not in _IN]

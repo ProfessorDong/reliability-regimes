@@ -266,11 +266,35 @@ cond('semantic', 'temporal split is dated by first disclosure, not median year',
      tmp.get('year_field') == 'year_min', f"year_field={tmp.get('year_field')}")
 cond('semantic', 'temporal error rises above the size-matched control on every target',
      all(tmp[t]['rmse_test'] > tmp[t]['control_random_same_size']['rmse'] for t in _tt), '')
-_keep = [t for t in _tt if tmp['per_target_delta'][t]['d_rho'] > -0.05]
-_lose = [t for t in _tt if tmp['per_target_delta'][t]['d_rho'] < -0.10]
+# "kept" and "lost" are decided by whether the temporal interval overlaps the control's,
+# not by a hand-set threshold on the difference.
+def _overlap(a, b):
+    return a[0] <= b[1] and b[0] <= a[1]
+
+_keep, _lose = [], []
+for t in _tt:
+    _a = tmp[t]['spearman_sigma_err_ci95']
+    _b = tmp[t]['control_random_same_size']['spearman_sigma_err_ci95']
+    (_keep if _overlap(_a, _b) else _lose).append(t)
 cond('semantic', 'error ranking is kept on SCD-1 and NK1R and lost on DRD2 and DRD3',
      sorted(_keep) == ['nk1r', 'scd1'] and sorted(_lose) == ['drd2', 'drd3'],
      f"kept={[_N[t] for t in _keep]} lost={[_N[t] for t in _lose]}")
+cond('semantic', 'every temporal RMSE interval lies above its control interval',
+     all(tmp[t]['rmse_test_ci95'][0]
+         > tmp[t]['control_random_same_size']['rmse_ci95'][1] for t in _tt), '')
+_covsep = sum(tmp[t]['conformal_coverage_adaptive_ci95'][1]
+              < tmp[t]['control_random_same_size']['conformal_coverage_adaptive_ci95'][0]
+              for t in _tt)
+cond('semantic', 'coverage intervals separate on exactly two targets (DRD2, DRD3)',
+     _covsep == 2, f'{_covsep} of {len(_tt)}')
+cond('semantic', 'pooled coverage interval lies below the nominal 0.900',
+     tmp['pooled']['conformal_coverage_adaptive_ci95'][1] < 0.900,
+     str(tmp['pooled']['conformal_coverage_adaptive_ci95']))
+cond('semantic', 'every reported interval brackets its own point estimate',
+     all(d[k][0] <= d[k.replace('_ci95', '')] <= d[k][1]
+         for t in _tt for d in (tmp[t], tmp[t]['control_random_same_size'])
+         for k in d if k.endswith('_ci95')
+         and k.replace('_ci95', '') in d and isinstance(d[k], list)), '')
 cond('semantic', 'the pooled temporal correlation is below every per-target value',
      all(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _tt
          if t != 'drd3'), '')

@@ -93,20 +93,37 @@ tt = [t for t in T if t in tmp]
 fig, axes = plt.subplots(1, 3, figsize=(9.0, 3.0))
 x = np.arange(len(tt)); w = 0.36
 
+# 95% intervals: bootstrap over evaluation compounds for the single temporal split,
+# t interval across replicates for the control
+def _err(vals, cis):
+    lo = [v - c[0] for v, c in zip(vals, cis)]
+    hi = [c[1] - v for v, c in zip(vals, cis)]
+    return np.array([lo, hi])
+
 ax = axes[0]
-ax.bar(x - w / 2, [tmp[t]['control_random_same_size']['rmse'] for t in tt], w,
-       color=BLUE, label='size-matched random split')
-ax.bar(x + w / 2, [tmp[t]['rmse_test'] for t in tt], w, color=VERM, label='temporal split')
+_cv = [tmp[t]['control_random_same_size']['rmse'] for t in tt]
+_tv = [tmp[t]['rmse_test'] for t in tt]
+ax.bar(x - w / 2, _cv, w, color=BLUE, label='size-matched random split',
+       yerr=_err(_cv, [tmp[t]['control_random_same_size']['rmse_ci95'] for t in tt]),
+       capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
+ax.bar(x + w / 2, _tv, w, color=VERM, label='temporal split',
+       yerr=_err(_tv, [tmp[t]['rmse_test_ci95'] for t in tt]),
+       capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
 ax.set_xticks(x); ax.set_xticklabels([LAB[t] for t in tt])
 ax.set_ylabel('RMSE (pIC$_{50}$)'); ax.grid(alpha=0.22, axis='y', lw=0.6)
-ax.set_ylim(0, max(tmp[t]['rmse_test'] for t in tt) * 1.32)
+ax.set_ylim(0, max(tmp[t]['rmse_test_ci95'][1] for t in tt) * 1.30)
 ax.legend(fontsize=7, frameon=False, loc='upper left', borderpad=0.2)
 ax.set_title('a  Error', loc='left', pad=6)
 
 ax = axes[1]
-ax.bar(x - w / 2, [tmp[t]['control_random_same_size']['spearman_sigma_err'] for t in tt], w,
-       color=BLUE)
-ax.bar(x + w / 2, [tmp[t]['spearman_sigma_err'] for t in tt], w, color=VERM)
+_cr = [tmp[t]['control_random_same_size']['spearman_sigma_err'] for t in tt]
+_tr = [tmp[t]['spearman_sigma_err'] for t in tt]
+ax.bar(x - w / 2, _cr, w, color=BLUE,
+       yerr=_err(_cr, [tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'] for t in tt]),
+       capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
+ax.bar(x + w / 2, _tr, w, color=VERM,
+       yerr=_err(_tr, [tmp[t]['spearman_sigma_err_ci95'] for t in tt]),
+       capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
 ax.axhline(0, color=DARK, lw=0.8)
 ax.set_xticks(x); ax.set_xticklabels([LAB[t] for t in tt])
 ax.set_ylabel('Spearman $\\rho$($\\sigma_T$, absolute error)')

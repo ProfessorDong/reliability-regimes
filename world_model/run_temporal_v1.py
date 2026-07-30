@@ -42,6 +42,7 @@ DATA = os.path.join(BASE, 'data', 'chembl_v2')
 OUT = os.path.join(BASE, 'outputs', 'cwm_v1', 'temporal_analysis.json')
 RF_KW = dict(n_estimators=300, min_samples_leaf=2, n_jobs=-1, random_state=0)
 YEAR_FIELD = 'year_min'      # set from --year-field; first disclosure by default
+N_BOOT = 2000                # percentile bootstrap resamples for the temporal intervals
 EPS = 1e-3
 
 
@@ -64,6 +65,9 @@ def main():
     ap.add_argument('--targets', nargs='+', default=['scd1', 'nk1r', 'drd2', 'drd3'])
     ap.add_argument('--cut', type=int, default=2015)
     ap.add_argument('--out', default=OUT)
+    ap.add_argument('--control-reps', type=int, default=20,
+                    help='random size-matched control replicates; the control interval is '
+                         'taken across these, so more of them narrows it')
     ap.add_argument('--year-field', default='year_min', choices=['year_min', 'year_median'],
                     help='year_min is first disclosure and is the prospective default; '
                          'year_median is retained only as a sensitivity analysis')
@@ -99,11 +103,20 @@ def main():
         cov_ada = err_t <= q_ada * (st_ + EPS)
         dtr = 1.0 - max_tanimoto_to_set(X[te], X[ptr])
         rho_sig = stats.spearmanr(st_, err_t)
-        # percentile bootstrap CI, so per-target degradation can be read with its uncertainty
+        # The temporal split is a single realisation, so its uncertainty is the uncertainty of
+        # the evaluation set. One percentile bootstrap over the test compounds gives the error,
+        # the coverage and the ranking their intervals from the same resamples. The conformal
+        # quantile is held fixed, since it is calibrated on past compounds and is not itself
+        # being resampled.
         _bs = np.random.default_rng(7)
-        _b = [stats.spearmanr(st_[i], err_t[i])[0]
-              for i in (_bs.integers(0, len(err_t), len(err_t)) for _ in range(2000))]
-        rho_ci = [float(np.percentile(_b, 2.5)), float(np.percentile(_b, 97.5))]
+        _br, _bc, _bq = [], [], []
+        for _ in range(N_BOOT):
+            i = _bs.integers(0, len(err_t), len(err_t))
+            _br.append(np.sqrt(np.mean(err_t[i] ** 2)))
+            _bc.append(cov_ada[i].mean())
+            _bq.append(stats.spearmanr(st_[i], err_t[i])[0])
+        pct = lambda v: [float(np.percentile(v, 2.5)), float(np.percentile(v, 97.5))]
+        rho_ci, rmse_ci, cov_ci = pct(_bq), pct(_br), pct(_bc)
         rho_dtr = stats.spearmanr(dtr, err_t)
         part = partial_spearman(err_t, st_, dtr)
         # risk-coverage on the future compounds
@@ -115,22 +128,27 @@ def main():
             train_years=[int(yr[tr].min()), int(yr[tr].max())],
             test_years=[int(yr[te].min()), int(yr[te].max())],
             rmse_test=float(np.sqrt(np.mean(err_t ** 2))),
+            rmse_test_ci95=rmse_ci,
             spearman_sigma_err=float(rho_sig[0]), p_sigma_err=float(rho_sig[1]),
             spearman_sigma_err_ci95=rho_ci,
             spearman_dtr_err=float(rho_dtr[0]),
             partial_err_sigma_given_dtr=part[0],
             conformal_coverage_standard=float(cov_std.mean()),
             conformal_coverage_adaptive=float(cov_ada.mean()),
+            conformal_coverage_adaptive_ci95=cov_ci,
             conformal_width_standard=float(2 * q_std),
             conformal_width_adaptive_median=float(np.median(2 * q_ada * (st_ + EPS))),
             risk_coverage_rmse=rc,
         )
         # SIZE-MATCHED RANDOM CONTROL: same n_train / n_cal / n_test, drawn at random.
         # If the temporal degradation were only a sample-size effect, this control would
-        # degrade equally. Repeated over 5 draws.
+        # degrade equally. Unlike the temporal split, which happens once, the control is a
+        # distribution over random splits, so its interval is taken across replicates rather
+        # than by bootstrap: a t interval on the mean, and the replicate range, which is what
+        # the single temporal value should be judged extreme against.
         ctl = {'rho': [], 'rmse': [], 'cov': []}
         allidx = np.arange(len(y))
-        for rep in range(5):
+        for rep in range(args.control_reps):
             r2 = np.random.default_rng(100 + rep)
             pe = r2.permutation(allidx)
             c_te = pe[:len(te)]; c_cal = pe[len(te):len(te) + len(cal)]
@@ -145,13 +163,30 @@ def main():
             ctl['rho'].append(float(stats.spearmanr(st2, e_t)[0]))
             ctl['rmse'].append(float(np.sqrt(np.mean(e_t ** 2))))
             ctl['cov'].append(float(np.mean(e_t <= qa2 * (st2 + EPS))))
+        nrep = args.control_reps
+        tcrit = float(stats.t.ppf(0.975, nrep - 1))
+
+        def ctl_stats(v):
+            v = np.asarray(v, float)
+            m, sd = float(v.mean()), float(v.std(ddof=1))
+            return m, sd, [m - tcrit * sd / np.sqrt(nrep), m + tcrit * sd / np.sqrt(nrep)], \
+                [float(v.min()), float(v.max())]
+
+        c_rho, c_rmse, c_cov = ctl_stats(ctl['rho']), ctl_stats(ctl['rmse']), ctl_stats(ctl['cov'])
         out[tgt]['control_random_same_size'] = dict(
-            spearman_sigma_err=float(np.mean(ctl['rho'])),
-            rmse=float(np.mean(ctl['rmse'])),
-            conformal_coverage_adaptive=float(np.mean(ctl['cov'])), n_reps=5,
-            spearman_sigma_err_sd=float(np.std(ctl['rho'], ddof=1)),
-            rmse_sd=float(np.std(ctl['rmse'], ddof=1)),
-            conformal_coverage_adaptive_sd=float(np.std(ctl['cov'], ddof=1)))
+            spearman_sigma_err=c_rho[0], rmse=c_rmse[0], conformal_coverage_adaptive=c_cov[0],
+            n_reps=nrep,
+            spearman_sigma_err_sd=c_rho[1], rmse_sd=c_rmse[1],
+            conformal_coverage_adaptive_sd=c_cov[1],
+            spearman_sigma_err_ci95=c_rho[2], rmse_ci95=c_rmse[2],
+            conformal_coverage_adaptive_ci95=c_cov[2],
+            spearman_sigma_err_range=c_rho[3], rmse_range=c_rmse[3],
+            conformal_coverage_adaptive_range=c_cov[3],
+            # whether the single temporal value lies outside the whole replicate range
+            temporal_outside_range=dict(
+                rmse=bool(out[tgt]['rmse_test'] > c_rmse[3][1]),
+                coverage=bool(out[tgt]['conformal_coverage_adaptive'] < c_cov[3][0]),
+                spearman=bool(out[tgt]['spearman_sigma_err'] < c_rho[3][0])))
         for k, v in (('err', err_t), ('sig', st_), ('dtr', dtr), ('cov', cov_ada)):
             P[k].append(v)
         o = out[tgt]
@@ -162,18 +197,39 @@ def main():
               f"90% coverage: std {o['conformal_coverage_standard']:.3f} "
               f"adaptive {o['conformal_coverage_adaptive']:.3f}  "
               f"RC {rc['0.2']:.2f}->{rc['1.0']:.2f}", flush=True)
+        print(f"        95% CI: RMSE [{o['rmse_test_ci95'][0]:.2f}, {o['rmse_test_ci95'][1]:.2f}]  "
+              f"sig->err [{o['spearman_sigma_err_ci95'][0]:+.3f}, {o['spearman_sigma_err_ci95'][1]:+.3f}]  "
+              f"coverage [{o['conformal_coverage_adaptive_ci95'][0]:.3f}, "
+              f"{o['conformal_coverage_adaptive_ci95'][1]:.3f}]", flush=True)
         c = out[tgt]['control_random_same_size']
-        print(f"        size-matched RANDOM control: RMSE {c['rmse']:.2f}  "
-              f"sig->err {c['spearman_sigma_err']:+.3f}  90% coverage {c['conformal_coverage_adaptive']:.3f}",
-              flush=True)
+        print(f"        size-matched RANDOM control (n={c['n_reps']}): "
+              f"RMSE {c['rmse']:.2f} [{c['rmse_ci95'][0]:.2f}, {c['rmse_ci95'][1]:.2f}]  "
+              f"sig->err {c['spearman_sigma_err']:+.3f} "
+              f"[{c['spearman_sigma_err_ci95'][0]:+.3f}, {c['spearman_sigma_err_ci95'][1]:+.3f}]  "
+              f"coverage {c['conformal_coverage_adaptive']:.3f} "
+              f"[{c['conformal_coverage_adaptive_ci95'][0]:.3f}, "
+              f"{c['conformal_coverage_adaptive_ci95'][1]:.3f}]", flush=True)
+        _o = c['temporal_outside_range']
+        print(f"        temporal outside the full control replicate range?  "
+              f"RMSE {_o['rmse']}  coverage {_o['coverage']}  ranking {_o['spearman']}", flush=True)
     if P['err']:
         err = np.concatenate(P['err']); sig = np.concatenate(P['sig'])
         dtr = np.concatenate(P['dtr']); cov = np.concatenate(P['cov'])
         order = np.argsort(sig); e = err[order]
         rc = {f'{c:.1f}': float(np.sqrt(np.mean(e[:max(1, int(c * len(e)))] ** 2)))
               for c in (0.2, 0.4, 0.6, 0.8, 1.0)}
+        _bs = np.random.default_rng(11)
+        _pr, _pc, _pq = [], [], []
+        for _ in range(N_BOOT):
+            i = _bs.integers(0, len(err), len(err))
+            _pr.append(np.sqrt(np.mean(err[i] ** 2)))
+            _pc.append(cov[i].mean())
+            _pq.append(stats.spearmanr(sig[i], err[i])[0])
+        pct = lambda v: [float(np.percentile(v, 2.5)), float(np.percentile(v, 97.5))]
         out['pooled'] = dict(
             n=int(len(err)), rmse=float(np.sqrt(np.mean(err ** 2))),
+            rmse_ci95=pct(_pr), conformal_coverage_adaptive_ci95=pct(_pc),
+            spearman_sigma_err_ci95=pct(_pq),
             spearman_sigma_err=float(stats.spearmanr(sig, err)[0]),
             spearman_dtr_err=float(stats.spearmanr(dtr, err)[0]),
             partial_err_sigma_given_dtr=partial_spearman(err, sig, dtr)[0],
@@ -208,6 +264,9 @@ def main():
             k: {'temporal': m['temporal'][k], 'control': m['control'][k],
                 'delta': m['temporal'][k] - m['control'][k]}
             for k in ('rmse', 'spearman_sigma_err', 'conformal_coverage_adaptive')}
+        out['macro']['temporal_outside_control_range'] = {
+            k: sum(out[t]['control_random_same_size']['temporal_outside_range'][k] for t in _t)
+            for k in ('rmse', 'coverage', 'spearman')}
         out['delta_vs_control']['rmse_pct_increase_vs_control'] = 100.0 * (
             m['temporal']['rmse_pooled_nweighted'] / m['control']['rmse_pooled_nweighted'] - 1.0)
         out['per_target_delta'] = {k: {

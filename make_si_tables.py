@@ -65,8 +65,9 @@ tab('tab:s-data',
     'Dataset composition after standardization. Records are grouped on the standardized '
     'parent InChIKey, so salts, charge states and tautomer variants of one compound collapse '
     'to a single structure. Within-compound spread is the mean standard deviation of the '
-    'replicate measurements of compounds that have more than one record, and bounds the error '
-    'any model can reach on that target.',
+    'replicate measurements of compounds that have more than one record. Models are scored '
+    'against the median aggregated activity rather than a fresh replicate, so this is a measure '
+    'of label noise and not a demonstrated lower bound on attainable error.',
     r'Target & Records & Parent structures & Duplicates removed & With replicates & Within-compound SD',
     rows, 'lrrrrr')
 
@@ -182,8 +183,9 @@ if os.path.exists(_sens):
         'article: it is the quantity a prospective split requires, and it guarantees that no '
         'evaluation compound carries a pre-cutoff record. The median year of a compound\'s '
         'records is shown for comparison. The error increase over the size-matched control, the '
-        'set of targets that retain the error ranking and the set that lose it are the same '
-        'under both.',
+        'set of targets that lose the error ranking are the same under both. They differ on '
+        'SCD-1, where median dating lifts the temporal correlation above its own control, '
+        'because compounds disclosed before the cutoff are dated into the future set.',
         r'Target & \multicolumn{4}{c}{First disclosure (used)} & \multicolumn{4}{c}{Median year}\\'
         r'\cmidrule(lr){2-5}\cmidrule(lr){6-9}'
         r' & $n_{\mathrm{test}}$ & RMSE & $\rho(\sigma_T,e)$ & Coverage'
@@ -196,16 +198,32 @@ for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
     if t not in tmp:
         continue
     d = tmp[t]; c = d['control_random_same_size']
-    ci = d.get('spearman_sigma_err_ci95')
-    rho = sg(d['spearman_sigma_err'], 2) + (
-        f" [{ci[0]:+.2f}, {ci[1]:+.2f}]" if ci else '')
-    rows.append(f"{LAB[t]} & {d['n_train']:,} & {d['n_test']:,} & {f(d['rmse_test'])} & {f(c['rmse'])} & "
-                f"{rho} & {sg(c['spearman_sigma_err'],2)} & "
-                f"{f(d['conformal_coverage_adaptive'],3)} & {f(c['conformal_coverage_adaptive'],3)}".replace(',', '{,}'))
+    def _pair(val, ci, dec=2, signed=False):
+        v = sg(val, dec) if signed else f(val, dec)
+        if not ci:
+            return v
+        lo, hi = (f"{ci[0]:+.{dec}f}", f"{ci[1]:+.{dec}f}") if signed else \
+                 (f"{ci[0]:.{dec}f}", f"{ci[1]:.{dec}f}")
+        return v + r' \tiny{[' + lo + ', ' + hi + ']}'
+    rows.append(
+        f"{LAB[t]} & {d['n_train']:,} & {d['n_test']:,} & "
+        f"{_pair(d['rmse_test'], d.get('rmse_test_ci95'))} & "
+        f"{_pair(c['rmse'], c.get('rmse_ci95'))} & "
+        f"{_pair(d['spearman_sigma_err'], d.get('spearman_sigma_err_ci95'), signed=True)} & "
+        f"{_pair(c['spearman_sigma_err'], c.get('spearman_sigma_err_ci95'), signed=True)} & "
+        f"{_pair(d['conformal_coverage_adaptive'], d.get('conformal_coverage_adaptive_ci95'), 3)} & "
+        f"{_pair(c['conformal_coverage_adaptive'], c.get('conformal_coverage_adaptive_ci95'), 3)}"
+        .replace(',', '{,}').replace('{,} ', ', '))
 tp = tmp['pooled']
-rows.append(r'\midrule Pooled & --- & ' + f"{tp['n']:,}".replace(',', '{,}') + ' & ' + f(tp['rmse']) +
-            ' & --- & ' + sg(tp['spearman_sigma_err'], 2) + ' & --- & ' +
-            f(tp['conformal_coverage_adaptive'], 3) + ' & ---')
+_pci = lambda k, dec=2, signed=False: (
+    (lambda c: '' if not c else r' \tiny{[' +
+     (f"{c[0]:+.{dec}f}, {c[1]:+.{dec}f}" if signed else f"{c[0]:.{dec}f}, {c[1]:.{dec}f}") + ']}')(
+        tp.get(k)))
+rows.append(r'\midrule Pooled & --- & ' + f"{tp['n']:,}".replace(',', '{,}') + ' & ' +
+            f(tp['rmse']) + _pci('rmse_ci95') + ' & --- & ' +
+            sg(tp['spearman_sigma_err'], 2) + _pci('spearman_sigma_err_ci95', signed=True) +
+            ' & --- & ' + f(tp['conformal_coverage_adaptive'], 3) +
+            _pci('conformal_coverage_adaptive_ci95', 3) + ' & ---')
 tab('tab:s-temporal',
     'Temporal shift and its size-matched control. Models are trained on compounds published '
     'before 2015 and evaluated on those published later. Each temporal split is repeated five '
@@ -214,9 +232,11 @@ tab('tab:s-temporal',
     'split implies, and is the only like-for-like comparator because this cohort is re-curated '
     'independently of the five datasets of Table S1. Error rises on every target and coverage '
     'falls below nominal on three of four, whereas the error ranking degrades on DRD2 and DRD3 '
-    'and is unchanged on SCD-1 and NK1R. Brackets give the 95\\% percentile bootstrap interval on '
-    'the temporal rank correlation. The pooled correlation is lower than any per-target value '
-    'because pooling mixes targets whose errors differ in scale.',
+    'and is unchanged on SCD-1 and NK1R. Brackets give 95\\% intervals: for the temporal split, '
+    'which happens once, a percentile bootstrap over the test compounds with the conformal '
+    'quantile held fixed; for the control, a t interval across its random replicates. The pooled '
+    'correlation is lower than any per-target value because pooling mixes targets whose errors '
+    'differ in scale.',
     r'Target & $n_{\mathrm{train}}$ & $n_{\mathrm{test}}$ & \multicolumn{2}{c}{RMSE} & '
     r'\multicolumn{2}{c}{$\rho(\sigma_T,e)$} & \multicolumn{2}{c}{Coverage at 0.900}\\'
     r'\cmidrule(lr){4-5}\cmidrule(lr){6-7}\cmidrule(lr){8-9}'
