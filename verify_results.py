@@ -202,9 +202,9 @@ cond('Results/pool', 'optimistic (UCB) is the best strategy', enr['ucb'] == max(
 import re as _re, os as _os
 NUM = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..',
                     'WritePaper', 'theranostics', 'JournalPapers_npjDD', 'numbers.tex')
+mac = {}          # always defined: a clean clone has no numbers.tex and must still run
 if _os.path.exists(NUM):
     _txt = open(NUM).read()
-    mac = {}
     for _m in _re.finditer(r'\\newcommand\{\\(\w+)\}\{', _txt):
         _i = _m.end(); _d = 1; _b = ''
         while _i < len(_txt) and _d:
@@ -414,11 +414,14 @@ if _os.path.exists(_mvf) and _os.path.exists(_g3):
     _gg = open(_g3, encoding='utf-8').read()
     cond('figure 3', 'intervals are Student t, not the normal approximation',
          'sps.t.ppf(0.975' in _gg and '1.96 *' not in _gg, '')
-    cond('figure 3', 'the figure and the manuscript quote the same target-level interval',
-         abs((_np.mean(_tm) - _tci) - float(mac['MethodCIlo'])) < 0.0006
-         and abs((_np.mean(_tm) + _tci) - float(mac['MethodCIhi'])) < 0.0006,
-         f'figure [{_np.mean(_tm)-_tci:+.4f}, {_np.mean(_tm)+_tci:+.4f}] vs '
-         f"macro [{mac['MethodCIlo']}, {mac['MethodCIhi']}]") if 'MethodCIlo' in mac else None
+    # only comparable where the manuscript macro file is present; a clean clone skips it
+    _m = globals().get('mac') or {}
+    if 'MethodCIlo' in _m:
+        cond('figure 3', 'the figure and the manuscript quote the same target-level interval',
+             abs((_np.mean(_tm) - _tci) - float(_m['MethodCIlo'])) < 0.0006
+             and abs((_np.mean(_tm) + _tci) - float(_m['MethodCIhi'])) < 0.0006,
+             f'figure [{_np.mean(_tm)-_tci:+.4f}, {_np.mean(_tm)+_tci:+.4f}] vs '
+             f"macro [{_m['MethodCIlo']}, {_m['MethodCIhi']}]")
     cond('figure 3', 'caption: gain positive and interval clear of zero in all 15 cells',
          len(_cell) == 15 and all(m - h > 0 for m, h in _cell), '')
     cond('figure 3', 'caption: the target-level interval is the widest in the figure',
@@ -595,6 +598,34 @@ if all(_os.path.exists(f) for f in _SRC.values()):
          'the exception must come from the macro the data sets')
     cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
          'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
+
+# Literals that duplicate a macro. Twelve numbers were typed into the article while a macro
+# already held the same quantity, and one of them (0.97, where the data give 0.975) was simply
+# wrong. Flag any numeric literal in the body that equals a macro value.
+if _os.path.exists(NUM) and _os.path.exists(_art):
+    import re as _r2
+    _m2 = dict(_r2.findall(r'\\newcommand\{\\(\w+)\}\{(.*)\}', open(NUM, encoding='utf-8').read()))
+    _vals = {v.replace('{,}', '').replace('$', ''): k for k, v in _m2.items()
+             if _r2.fullmatch(r'[+-]?\d+\.\d+', v.replace('$', ''))}
+    _body = open(_art, encoding='utf-8').read().split(r'\section{Introduction}')[-1]
+    # Nominal levels, alpha values and reported P values are legitimately typed: they are design
+    # constants, not measurements, even when one coincides with a macro value.
+    _DESIGN = {'0.900', '0.90', '0.95', '0.80', '0.05', '0.10', '0.20', '0.25', '0.0625'}
+    _bad = []
+    for _mm in _r2.finditer(r'\$([+-]?\d+\.\d{2,})\$', _body):
+        _v = _mm.group(1)
+        _pre = _body[max(0, _mm.start() - 30):_mm.start()]
+        if _v in _DESIGN or _r2.search(r'(P=|P\s*=|alpha|nominal)\s*$', _pre):
+            continue
+        if _v in _vals:
+            _bad.append(f'{_v} (=\\{_vals[_v]})')
+    cond('literals', 'no measured value is typed where a macro already holds it',
+         not _bad, 'use the macro: ' + ', '.join(sorted(set(_bad))[:6]))
+
+# The clean-clone path must run. It once crashed on a name defined only when numbers.tex exists.
+cond('portability', 'the manuscript macro table is defined even without numbers.tex',
+     isinstance(mac, dict),
+     'a clean clone has no numbers.tex and must still complete')
 
 # Layout. A table that runs past the text block is a defect a reader sees before any number,
 # and pdflatex already reports it, so the logs are checked rather than the pages eyeballed.

@@ -92,11 +92,13 @@ M = {
     # --- negatives
     'BetaDelta': f"{st.mean([beta[t]['beta1_vs_beta0_novel']['delta'] for t in T]):+.3f}",
     'BetaBestP': f"{min(beta[t]['beta1_vs_beta0_novel']['p'] for t in T):.3f}",
+    'BetaOtherPLo': f"{sorted(beta[t]['beta1_vs_beta0_novel']['p'] for t in T)[1]:.2f}",
+    'BetaOtherPHi': f"{max(beta[t]['beta1_vs_beta0_novel']['p'] for t in T):.2f}",
     'CompatR': f"{cg['pair_pearson_r']:.2f}", 'CompatP': f"{cg['pair_pearson_p']:.2f}",
     'CompatGain': f"{cg.get('mean_gain', -0.011):.3f}",
     # --- frontier
-    'FrontNovDtrLo': f"{min(fr[k]['nov_dtrain'] for k in fr):.2f}",
-    'FrontNovDtrHi': f"{max(fr[k]['nov_dtrain'] for k in fr):.2f}",
+    'FrontNovDtrLo': f"{min(fr[k]['nov_dtrain'] for k in fr):.3f}",
+    'FrontNovDtrHi': f"{max(fr[k]['nov_dtrain'] for k in fr):.3f}",
     'FrontNovSigLo': f"{min(fr[k]['nov_sig'] for k in fr):.2f}",
     'FrontNovSigHi': f"{max(fr[k]['nov_sig'] for k in fr):.2f}",
     'FrontNovPotLo': f"{max(fr[k]['nov_pot'] for k in fr):.2f}",
@@ -235,6 +237,25 @@ for t in T:
     M[f'Rows{CAP[t]}'] = thou(d['n_rows'])
     M[f'Struct{CAP[t]}'] = thou(d['n_unique'])
 M['Nrows'] = thou(sum(rel[t]['duplicates']['n_rows'] for t in T))
+
+# Quantities that were still literals in the text. Each is read from the same frozen output
+# the sentence describes, so the sentence cannot drift from it.
+_om2 = {e['target']: e for e in L('oracle_metrics.json')['results']}
+_sp = [_om2[t]['bakeoff'][_om2[t]['selected_model']]['spearman'][0] for t in T]
+M['ProtoRhoLo'] = f"{min(_sp):.2f}"
+M['ProtoRhoHi'] = f"{max(_sp):.2f}"
+for _t, _c in CAP.items():
+    M[f'WithinSD{_c}'] = f"{rel[_t]['duplicates']['mean_within_compound_sd']:.2f}"
+    M[f'NrepPar{_c}'] = str(rel[_t]['duplicates']['n_compounds_with_replicates'])
+M['RecSimLo'] = f"{min(rec[t]['rec_stga'] for t in T):.2f}"
+M['RecSimHi'] = f"{max(rec[t]['rec_stga'] for t in T):.2f}"
+M['RecNullLo'] = f"{min(rec[t]['null_sim'] for t in T):.2f}"
+M['RecNullHi'] = f"{max(rec[t]['null_sim'] for t in T):.2f}"
+M['RecScdMeas'] = f"{rec['scd1']['measured']:.2f}"
+M['RecScdGap'] = f"{rec['scd1']['measured'] - rec['scd1']['retrained_pred']:.1f}"
+M['MethodRuns'] = str(sum(len(r['per_seed']) for r in meth))
+M['ConfWidthPct'] = f"{100 * (1 - float(L('conformal_analysis.json')['pooled']['alpha0.1']['width_ratio_adaptive_over_standard'])):.0f}"
+
 
 # Activity thresholds were the last hand-typed numbers in Table 1. Read them from the frozen
 # oracle metrics, which record the cutoff each run actually used, so the table cannot drift
