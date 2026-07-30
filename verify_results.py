@@ -533,6 +533,29 @@ if all(_os.path.exists(x) for x in (_sit, _sir, _art, _sid)):
     cond('SI tables', 'every generated table is referenced from the SI text',
          all(f'tab:s-{l}' in _d for l in _labels),
          str([l for l in _labels if f'tab:s-{l}' not in _d]))
+    # Figures cross the same document boundary as the tables and were cited the same way.
+    _sfig = _r.findall(r'\\begin\{figure\}.*?\\label\{sfig:(.*?)\}.*?\\end\{figure\}', _d, _r.S)
+    _afig = _r.findall(r'\\begin\{figure\}.*?\\label\{fig:(.*?)\}.*?\\end\{figure\}', _a, _r.S)
+    _fm = dict(_r.findall(r'\\newcommand\{\\SFig(\w+)\}\{S(\d+)\}',
+                          open(_sir, encoding='utf-8').read()))
+    _am = dict(_r.findall(r'\\newcommand\{\\ArtFig(\w+)\}\{(\d+)\}',
+                          open(_sir, encoding='utf-8').read()))
+    cond('SI figures', 'every Supplementary figure carries a label',
+         len(_sfig) == 3, f'{len(_sfig)} labelled')
+    cond('SI figures', 'Supplementary figure macros match the order they appear in',
+         all(int(_fm[l.capitalize()]) == i for i, l in enumerate(_sfig, 1)), str(_sfig))
+    cond('SI figures', 'article figure macros match the order they appear in',
+         all(int(_am[l.capitalize()]) == i for i, l in enumerate(_afig, 1)), str(_afig))
+    cond('SI figures', 'the article cites Supplementary figures by macro, never by literal',
+         not _r.search(r'Supplementary Fig[a-z.]*~S\d', _a), '')
+    cond('SI figures', 'the Supplementary text cites article figures by macro, never by literal',
+         not _r.search(r'Figure \d+[a-d]? of the main', _d), '')
+    cond('SI figures', 'every Supplementary figure is cited from the article',
+         all(f'SFig{l.capitalize()}' in _a for l in _sfig),
+         str([l for l in _sfig if f'SFig{l.capitalize()}' not in _a])),
+    cond('SI figures', 'the Supplementary Information loads the generated numbers',
+         '\\input{si_refs}' in _d, '')
+
     cond('SI tables', 'the compatibility negative result has a table of its own',
          'compat' in _labels and 'TabCompat' in _a, '')
     _cg = L('compat_gen_analysis.json')
