@@ -46,7 +46,8 @@ pool, NSEED = _po['summary'], _po['config']['seeds']
 # =====================================================================  S1 calibration
 # (a) empirical coverage against nominal, per target, for the disagreement-normalized
 #     intervals. (b) coverage of the same intervals within the low- and high-disagreement
-#     halves, which is what shows the guarantee is marginal and not conditional.
+#     fifths, which is what shows the guarantee is marginal and not conditional. The source
+#     splits at the 20th and 80th percentiles of sigma, so these are quintiles, not halves.
 ALPHA = [('alpha0.2', 0.80), ('alpha0.1', 0.90), ('alpha0.05', 0.95)]
 fig, axes = plt.subplots(1, 2, figsize=(7.2, 3.0))
 
@@ -69,8 +70,8 @@ ax = axes[1]
 x = np.arange(len(T)); w = 0.36
 lo = [con[t]['alpha0.1']['adaptive_coverage_low_sigma'] for t in T]
 hi = [con[t]['alpha0.1']['adaptive_coverage_high_sigma'] for t in T]
-ax.bar(x - w / 2, lo, w, color=SKY, label='low $\\sigma_T$ half')
-ax.bar(x + w / 2, hi, w, color=VERM, label='high $\\sigma_T$ half')
+ax.bar(x - w / 2, lo, w, color=SKY, label='lowest $\\sigma_T$ fifth')
+ax.bar(x + w / 2, hi, w, color=VERM, label='highest $\\sigma_T$ fifth')
 ax.axhline(0.90, color=DARK, ls=':', lw=1.1, label='nominal 0.90')
 ax.set_xticks(x); ax.set_xticklabels([LAB[t] for t in T])
 ax.set_ylabel('Empirical coverage'); ax.set_ylim(0.6, 1.15)

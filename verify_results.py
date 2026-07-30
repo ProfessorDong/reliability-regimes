@@ -428,6 +428,57 @@ if _os.path.exists(_mvf) and _os.path.exists(_g3):
     cond('figure 3', 'axis label names the same metric as the caption',
          'Top-10 reward gain' in _gg, '')
 
+# The Supplementary figures. An audit found S1 describing a quintile split as a "half" and
+# claiming under-coverage on every target when FADS is over-covered in its lowest fifth.
+_gsi = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_si_figures.py')
+_conf = L('conformal_analysis.json')
+_T5 = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+_a1 = lambda t: _conf[t]['alpha0.1']
+cond('figure S1', 'the sigma split is labelled a fifth, matching the 20/80 percentile source',
+     _os.path.exists(_gsi) and 'fifth' in open(_gsi, encoding='utf-8').read()
+     and 'half' not in open(_gsi, encoding='utf-8').read(), '')
+cond('figure S1', 'coverage rises with disagreement on every target',
+     all(_a1(t)['adaptive_coverage_high_sigma'] > _a1(t)['adaptive_coverage_low_sigma']
+         for t in _T5), '')
+cond('figure S1', 'the highest fifth is over-covered on all five targets',
+     all(_a1(t)['adaptive_coverage_high_sigma'] >= 0.90 for t in _T5), '')
+_under = [t for t in _T5 if _a1(t)['adaptive_coverage_low_sigma'] < 0.90]
+cond('figure S1', 'the lowest fifth is under-covered on four of five, FADS excepted',
+     len(_under) == 4 and 'fads' not in _under, f'under-covered: {_under}')
+cond('figure S1', 'pooled coverage tracks nominal at all three levels',
+     all(abs(_conf['pooled'][a]['adaptive_coverage'] - n) < 0.01
+         for a, n in [('alpha0.2', 0.80), ('alpha0.1', 0.90), ('alpha0.05', 0.95)]), '')
+
+_ov = lambda a, b: a[0] <= b[1] and b[0] <= a[1]
+cond('figure S2', 'panels a and b plot both arms with their intervals',
+     all(k in tmp[t] for t in _tt for k in ('rmse_test_ci95', 'spearman_sigma_err_ci95'))
+     and all(k in tmp[t]['control_random_same_size'] for t in _tt
+             for k in ('rmse_ci95', 'spearman_sigma_err_ci95')), '')
+cond('figure S2', 'caption: the ranking matches its control on SCD-1 and NK1R',
+     all(_ov(tmp[t]['spearman_sigma_err_ci95'],
+             tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'])
+         for t in ('scd1', 'nk1r')), '')
+cond('figure S2', 'caption: the ranking separates from control on DRD2 and DRD3',
+     all(not _ov(tmp[t]['spearman_sigma_err_ci95'],
+                 tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'])
+         for t in ('drd2', 'drd3')), '')
+
+_pl = L('poolopt_analysis.json')
+_ps, _ns = _pl['summary'], _pl['config']['seeds']
+cond('figure S3', 'error bars use the seed count the config records',
+     _ns == 20 and _os.path.exists(_gsi) and 'np.sqrt(NSEED)' in open(_gsi, encoding='utf-8').read(),
+     f'seeds={_ns}')
+cond('figure S3', 'caption: both conservative rules trail the predicted mean on every target',
+     all(_ps[t]['lcb']['hits'] < _ps[t]['greedy']['hits']
+         and _ps[t]['conformal']['hits'] < _ps[t]['greedy']['hits'] for t in _ps), '')
+cond('figure S3', 'caption: which of mean and optimistic leads varies by target',
+     len({('greedy' if _ps[t]['greedy']['hits'] > _ps[t]['ucb']['hits']
+           else 'ucb' if _ps[t]['ucb']['hits'] > _ps[t]['greedy']['hits'] else 'tie')
+          for t in _ps}) > 1, '')
+cond('figure S3', 'every model-guided rule beats random on every target',
+     all(_ps[t][m]['hits'] > _ps[t]['random']['hits']
+         for t in _ps for m in ('greedy', 'ucb', 'lcb', 'conformal')), '')
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
