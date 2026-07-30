@@ -55,13 +55,13 @@ cond('Results/risk', 'sigma_T -> |error| positive in every target',
      all(cal[t]['spearman_sigma_err'] > 0 for t in T))
 
 rel = L('reliability_v2_analysis.json')
-cond('Results/risk', 'structure-disjoint n = 21,037 predictions', rel['pooled']['n'] == 21037, str(rel['pooled']['n']))
+cond('Results/risk', 'structure-disjoint n = 20,853 parent structures', rel['pooled']['n'] == 20853, str(rel['pooled']['n']))
 rc = rel['pooled']['risk_coverage_micro']
-close('Results/risk (Fig 1)', 'micro RMSE at 20% coverage', rc['0.2'], 0.40, 0.02)
+close('Results/risk (Fig 1)', 'micro RMSE at 20% coverage', rc['0.2'], 0.41, 0.02)
 close('Results/risk (Fig 1)', 'micro RMSE at 100% coverage', rc['1.0'], 0.71, 0.02)
 _ma = rel['pooled']['risk_coverage_macro']
-close('Results/risk (macro)', 'macro RMSE at 20% coverage', _ma['0.2'], 0.44, 0.02)
-close('Results/risk (macro)', 'macro RMSE at 100% coverage', _ma['1.0'], 0.75, 0.02)
+close('Results/risk (macro)', 'macro RMSE at 20% coverage', _ma['0.2'], 0.48, 0.02)
+close('Results/risk (macro)', 'macro RMSE at 100% coverage', _ma['1.0'], 0.76, 0.02)
 cond('Methods/leakage', 'structure-disjoint: SCD-1 duplicates removed (762 -> 626)',
      rel['scd1']['duplicates']['n_unique'] == 626 and rel['scd1']['duplicates']['n_duplicate_rows'] == 136)
 cond('Results/in-domain novelty', 'novelty gap positive for 99.6% of compounds',
@@ -70,19 +70,20 @@ cond('Results/in-domain novelty', 'error falls as the novelty gap widens',
      rel['pooled']['err_by_gap_quintile'][0] > rel['pooled']['err_by_gap_quintile'][-1])
 cond('Results/in-domain novelty', 'novel in-domain beats out-of-domain on 4 of 5 targets',
      sum(rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse'] for t in T) == 4)
-cond('Results/risk (Fig 1)', 'risk-coverage monotone increasing (pooled)',
+cond('Results/risk (Fig 1)', 'pooled risk-coverage monotone increasing',
      all(rc[f'{a:.1f}'] <= rc[f'{b:.1f}'] + 1e-9 for a, b in [(.2, .4), (.4, .6), (.6, .8), (.8, 1.)]))
-cond('SI Table S4', 'risk-coverage monotone in every target',
-     all(all(rel[t]['risk_coverage_rmse'][f'{a:.1f}'] <= rel[t]['risk_coverage_rmse'][f'{b:.1f}'] + 1e-9
-             for a, b in [(.2, .4), (.4, .6), (.6, .8), (.8, 1.)]) for t in T))
+_mono = [t for t in T if all(rel[t]['risk_coverage_rmse'][f'{a:.1f}'] <= rel[t]['risk_coverage_rmse'][f'{b:.1f}'] + 1e-9
+         for a, b in [(.2, .4), (.4, .6), (.6, .8), (.8, 1.)])]
+cond('SI Table S4', 'risk-coverage monotone on 4 of 5 targets (SCD-1 flat)',
+     len(_mono) == 4 and 'scd1' not in _mono, 'monotone: ' + ','.join(_mono))
 close('Results/risk', 'partial rho(err, sigma_T | novelty, d_train)',
       rel['pooled']['partial_err_sig_given_nov_dtr'], 0.381, 0.01)
 
 # --------------------------------------------------------------- Results 5.3
-close('Results/drift', 'pooled Spearman(support-novelty, |error|)', rel['pooled']['spearman_nov_err'], 0.068, 0.01)
-close('Results/drift', 'partial rho(err, novelty | d_train) ~ 0', rel['pooled']['partial_err_nov_given_dtr'], 0.047, 0.01)
-close('Results/drift', 'FADS Spearman(novelty, |error|) is negative', rel['fads']['spearman_nov_err'], -0.140, 0.01)
-close('Results/drift', 'pooled Spearman(d_train, |error|)', rel['pooled']['spearman_dtr_err'], 0.141, 0.01)
+close('Results/drift', 'pooled Spearman(support-novelty, |error|)', rel['pooled']['spearman_nov_err'], 0.042, 0.01)
+close('Results/drift', 'partial rho(err, novelty | d_train) ~ 0', rel['pooled']['partial_err_nov_given_dtr'], 0.022, 0.01)
+close('Results/drift', 'FADS Spearman(novelty, |error|) is negative', rel['fads']['spearman_nov_err'], -0.232, 0.01)
+close('Results/drift', 'pooled Spearman(d_train, |error|)', rel['pooled']['spearman_dtr_err'], 0.135, 0.01)
 
 app = L('applicability_analysis.json')
 close('SI Note 4', 'pooled Spearman(d_train, sigma_T)', app['pooled']['spearman_dtrain_sigma'], 0.435, 0.01)
@@ -152,6 +153,79 @@ cond('Results/negatives (Table S12)', 'recovery above chemical-space null on eve
 cond('Results/negatives (Table S12)', 'triage does NOT improve recovery (Graph GA >= ST-GA)',
      all(rv[t]['rec_graphga'] >= rv[t]['rec_stga'] - 1e-9 for t in T))
 
+# =============================================================== Regime 2: temporal
+tmp = L('temporal_analysis.json')
+tp = tmp['pooled']
+cond('Methods/temporal', 'temporal split trains pre-2015, tests 2015+', tmp['cut_year'] == 2015)
+close('Results/temporal', 'future-compound RMSE', tp['rmse'], 1.07, 0.03)
+close('Results/temporal', 'sigma->err degrades under shift', tp['spearman_sigma_err'], 0.13, 0.03)
+close('Results/temporal', 'conformal coverage falls below nominal', tp['conformal_coverage_adaptive'], 0.838, 0.02)
+cond('Results/temporal', 'temporal coverage is BELOW nominal 0.90',
+     tp['conformal_coverage_adaptive'] < 0.90, f"{tp['conformal_coverage_adaptive']:.3f}")
+cond('Results/temporal', 'DRD3 loses the signal entirely under shift',
+     abs(tmp['drd3']['spearman_sigma_err']) < 0.05, f"{tmp['drd3']['spearman_sigma_err']:.3f}")
+for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
+    c = tmp[t]['control_random_same_size']
+    cond('Results/temporal (control)', f'{t}: size-matched control has LOWER error than temporal',
+         c['rmse'] < tmp[t]['rmse_test'], f"{c['rmse']:.2f} vs {tmp[t]['rmse_test']:.2f}")
+    cond('Results/temporal (control)', f'{t}: size-matched control recovers ~nominal coverage',
+         c['conformal_coverage_adaptive'] > 0.87, f"{c['conformal_coverage_adaptive']:.3f}")
+cond('Results/temporal (control)', 'DRD3 control recovers the ranking the temporal split loses',
+     tmp['drd3']['control_random_same_size']['spearman_sigma_err'] > 0.25)
+
+# =============================================================== Regime 1: conformal
+con = L('conformal_analysis.json')['pooled']
+for a, tol in [('alpha0.2', 0.02), ('alpha0.1', 0.02), ('alpha0.05', 0.02)]:
+    c = con[a]
+    close('Results/conformal', f'{a}: adaptive coverage hits nominal',
+          c['adaptive_coverage'], c['target_coverage'], tol)
+cond('Results/conformal', 'sigma-normalised intervals are narrower at 90%',
+     con['alpha0.1']['width_ratio_adaptive_over_standard'] < 1.0,
+     f"ratio={con['alpha0.1']['width_ratio_adaptive_over_standard']:.2f}")
+
+# =============================================================== acquisition vs real labels
+po = L('poolopt_analysis.json')['summary']
+import statistics as _st
+enr = {m: _st.mean([po[t][m]['enrichment_vs_random'] for t in po])
+       for m in ['greedy', 'ucb', 'lcb', 'conformal']}
+cond('Results/pool', 'all model-guided strategies beat random',
+     all(v > 1.5 for v in enr.values()), str({k: round(v, 2) for k, v in enr.items()}))
+cond('Results/pool', 'CONSERVATIVE acquisition finds FEWER true actives than greedy',
+     enr['lcb'] < enr['greedy'] and enr['conformal'] < enr['greedy'],
+     f"greedy={enr['greedy']:.2f} lcb={enr['lcb']:.2f} conformal={enr['conformal']:.2f}")
+cond('Results/pool', 'optimistic (UCB) is the best strategy', enr['ucb'] == max(enr.values()),
+     f"ucb={enr['ucb']:.2f}")
+
+# =============================================================== cross-document consistency
+# The original defect was hand-copied numbers desyncing between manuscript and SI.
+# numbers.tex is generated from these same JSONs; check the macros agree with the source.
+import re as _re, os as _os
+NUM = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..',
+                    'WritePaper', 'theranostics', 'JournalPapers_npjDM', 'numbers.tex')
+if _os.path.exists(NUM):
+    _txt = open(NUM).read()
+    mac = {}
+    for _m in _re.finditer(r'\\newcommand\{\\(\w+)\}\{', _txt):
+        _i = _m.end(); _d = 1; _b = ''
+        while _i < len(_txt) and _d:
+            _c = _txt[_i]
+            if _c == '{': _d += 1
+            elif _c == '}':
+                _d -= 1
+                if not _d: break
+            _b += _c; _i += 1
+        mac[_m.group(1)] = _b
+    cond('numbers.tex', 'Nstruct macro matches the frozen structure count',
+         mac.get('Nstruct', '').replace('{,}', '').replace(',', '') == str(rel['pooled']['n']),
+         f"macro={mac.get('Nstruct')} json={rel['pooled']['n']}")
+    close('numbers.tex', 'RhoSigErr macro matches source', float(mac['RhoSigErr']),
+          rel['pooled']['spearman_sigma_err'], 0.005)
+    close('numbers.tex', 'TempRhoSigErr macro matches source', float(mac['TempRhoSigErr']),
+          tp['spearman_sigma_err'], 0.005)
+    close('numbers.tex', 'PoolUCB macro matches source', float(mac['PoolUCB']), enr['ucb'], 0.01)
+else:
+    cond('numbers.tex', 'numbers.tex present for cross-check', False, 'not found')
+
 # --------------------------------------------------------------- summary
 print('\n' + '=' * 72)
 if FAILED:
@@ -160,3 +234,4 @@ if FAILED:
         print('  -', f)
     sys.exit(1)
 print(f'All {CHECKED} numeric claims verified against the frozen outputs.')
+

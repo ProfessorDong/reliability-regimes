@@ -1,0 +1,117 @@
+{
+  "scd1": {
+    "target": "scd1",
+    "chembl_id": "CHEMBL5555",
+    "n_raw_records": 926,
+    "n_after_filters": 910,
+    "dropped": {
+      "standard_type_not_affinity": 16
+    },
+    "n_unique_parents": 765,
+    "n_with_replicates": 116,
+    "mean_within_compound_sd": 0.6265630702282721,
+    "year_range": [
+      2007,
+      2021
+    ],
+    "year_quartiles": [
+      2010,
+      2015,
+      2018
+    ],
+    "type_mix": {
+      "EC50": 0,
+      "IC50": 764,
+      "Kd": 1,
+      "Ki": 0
+    }
+  },
+  "nk1r": {
+    "target": "nk1r",
+    "chembl_id": "CHEMBL249",
+    "n_raw_records": 3319,
+    "n_after_filters": 3286,
+    "dropped": {
+      "standard_type_not_affinity": 32,
+      "no_value": 1
+    },
+    "n_unique_parents": 2554,
+    "n_with_replicates": 421,
+    "mean_within_compound_sd": 0.4671675658710068,
+    "year_range": [
+      1991,
+      2022
+    ],
+    "year_quartiles": [
+      1997,
+      2002,
+      2008
+    ],
+    "type_mix": {
+      "EC50": 12,
+      "IC50": 1721,
+      "Kd": 112,
+      "Ki": 839
+    }
+  },
+  "drd2": {
+    "target": "drd2",
+    "chembl_id": "CHEMBL217",
+    "n_raw_records": 15410,
+    "n_after_filters": 14853,
+    "dropped": {
+      "standard_type_not_affinity": 526,
+      "unparsable_structure": 24,
+      "nonpositive_value": 5,
+      "no_value": 2
+    },
+    "n_unique_parents": 9274,
+    "n_with_replicates": 2857,
+    "mean_within_compound_sd": 0.28129858784810163,
+    "year_range": [
+      1985,
+      2025
+    ],
+    "year_quartiles": [
+      2006,
+      2014,
+      2019
+    ],
+    "type_mix": {
+      "EC50": 675,
+      "IC50": 884,
+      "Kd": 100,
+      "Ki": 8403
+    }
+  },
+  "drd3": {
+    "target": "drd3",
+    "chembl_id": "CHEMBL234",
+    "n_raw_records": 10007,
+    "n_after_filters": 9495,
+    "dropped": {
+      "unparsable_structure": 32,
+      "nonpositive_value": 2,
+      "standard_type_not_affinity": 477,
+      "no_value": 1
+    },
+    "n_unique_parents": 6167,
+    "n_with_replicates": 1973,
+    "mean_within_compound_sd": 0.21974638602078259,
+    "year_range": [
+      1993,
+      2025
+    ],
+    "year_quartiles": [
+      2007,
+      2014,
+      2019
+    ],
+    "type_mix": {
+      "EC50": 434,
+      "IC50": 386,
+      "Kd": 26,
+      "Ki": 5858
+    }
+  }
+}

@@ -51,25 +51,27 @@ COVS = [0.2, 0.4, 0.6, 0.8, 1.0]
 
 
 def load_deduplicated(target):
-    """One row per canonical structure (median pIC50); returns smiles, y, thr, dup stats."""
-    path, thr = TARGETS[target]
-    df = pd.read_csv(path)
-    can = []
-    for s in df['SMILES']:
-        m = Chem.MolFromSmiles(str(s))
-        can.append(Chem.MolToSmiles(m) if m else None)
-    df['canon'] = can
-    df = df.dropna(subset=['canon'])
-    n_rows = len(df)
-    g = df.groupby('canon')['pIC50']
-    agg = g.median()
-    sd = g.std().dropna()
-    stats_d = dict(n_rows=int(n_rows), n_unique=int(len(agg)),
-                   n_duplicate_rows=int(n_rows - len(agg)),
-                   n_compounds_with_replicates=int(len(sd)),
-                   mean_within_compound_sd=float(sd.mean()) if len(sd) else 0.0,
-                   max_replicates=int(g.size().max()))
-    return list(agg.index), agg.values.astype(float), thr, stats_d
+    """One row per STANDARDIZED PARENT (InChIKey), median activity.
+
+    Delegates to world_model.standardize so that every analysis in the study uses the
+    same grouping. Canonical-SMILES grouping leaves salt and charge variants of the same
+    compound in different folds; parent-InChIKey grouping removes them.
+    """
+    from world_model.standardize import load_standardized
+    smiles, y, thr, st = load_standardized(target)
+    stats_d = dict(n_rows=st['n_rows_raw'], n_unique=st['n_unique_parents'],
+                   n_duplicate_rows=st['n_duplicate_rows'],
+                   n_compounds_with_replicates=st['n_compounds_with_replicates'],
+                   mean_within_compound_sd=st['mean_within_compound_sd'],
+                   max_replicates=st['max_replicates'])
+    return smiles, y, thr, stats_d
+
+
+def rmse_quintile(key, err):
+    """RMSE within equal-count quintiles of `key` (Q1 = lowest)."""
+    order = stats.rankdata(key, method='ordinal') - 1
+    b = (order * 5 // len(key)).astype(int)
+    return [float(np.sqrt(np.mean(err[b == i] ** 2))) for i in range(5)]
 
 
 def main():
@@ -107,6 +109,7 @@ def main():
             partial_err_nov_given_dtr=partial_spearman(err, oof['nov'], oof['dtr'])[0],
             partial_err_sig_given_nov_dtr=partial2(err, oof['sig'], oof['nov'], oof['dtr'])[0],
             risk_coverage_rmse=rc, error_retention_auc=rc_auc,
+            rmse_by_sigma_quintile=rmse_quintile(oof['sig'], err),
             gap_mean=float(np.nanmean(gap)), gap_frac_positive=float(np.mean(gap > 1e-9)),
             novel_in_domain_rmse=float(np.sqrt(np.mean(err[in_dom] ** 2))),
             novel_out_domain_rmse=float(np.sqrt(np.mean(err[out_dom] ** 2))),
@@ -137,6 +140,7 @@ def main():
         partial_err_nov_given_dtr=partial_spearman(err, nov, dtr)[0],
         partial_err_sig_given_nov_dtr=partial2(err, sig, nov, dtr)[0],
         risk_coverage_micro=rc_micro, risk_coverage_macro=rc_macro,
+        rmse_by_sigma_quintile=rmse_quintile(sig, err),
         gap_mean=float(np.nanmean(gap)), gap_frac_positive=float(np.mean(gap > 1e-9)),
         err_by_gap_quintile=quintile_mean(gap, err),
         sigma_by_gap_quintile=quintile_mean(gap, sig),
