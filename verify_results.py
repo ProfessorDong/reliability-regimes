@@ -317,6 +317,23 @@ _mm = L('mixedmodel_method.json')
 close('semantic', 'random-intercept model reproduces the target-level point estimate',
       _mm['mixed_model']['intercept'], _mm['target_level']['mean'], 0.001)
 
+# The README states results in prose and drifted out of date once already. Pin the claims
+# that would be wrong if an analysis changed under it.
+_rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
+if _os.path.exists(_rm):
+    _r = open(_rm, encoding='utf-8').read()
+    for _bad, _why in [('roughly doubles', 'RMSE rises ~50%, it does not double'),
+                       ('7,067', 'superseded temporal n from median-year dating'),
+                       ('true actives', 'pool labels are measurements, not ground truth')]:
+        cond('README', f'no stale claim: "{_bad}"', _bad not in _r, _why)
+    cond('README', 'quotes the temporal n that the frozen output actually has',
+         f"{tmp['pooled']['n']:,}" in _r, f"expected {tmp['pooled']['n']:,}")
+    cond('README', 'quotes the temporal RMSE increase over control',
+         f"{tmp['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}%" in _r,
+         f"expected {tmp['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}%")
+    cond('README', 'quotes the pooled temporal coverage',
+         f"{tmp['pooled']['conformal_coverage_adaptive']:.3f}" in _r, '')
+
 # manuscript-side checks: only runnable where the .tex lives
 _tex = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
                      'theranostics', 'JournalPapers_npjDM', 'npjDM_Reliability.tex')
@@ -338,6 +355,14 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
          'tropsha2010best' not in _s, '')
 else:
     print('skip [manuscript] checks: the manuscript is intentionally not in this repository')
+
+# The README quotes how many checks this script runs. That can only be compared once every
+# check has run, and only in the clean-clone case, where the manuscript macros are absent.
+if _os.path.exists(_rm) and not _os.path.exists(NUM):
+    _r = open(_rm, encoding='utf-8').read()
+    cond('README', 'states the assertion count this script actually reports',
+         f'{CHECKED + 1} claims' in _r or f'{CHECKED + 1} assertions' in _r,
+         f'clean-clone total is {CHECKED + 1}')
 
 # --------------------------------------------------------------- summary
 print('\n' + '=' * 72)
