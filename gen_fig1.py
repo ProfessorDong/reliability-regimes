@@ -71,27 +71,43 @@ keep = ((tx - 4.0) / 3.4) ** 2 + ((ty - 4.35) / 1.9) ** 2 < 0.92
 ax.scatter(tx[keep], ty[keep], s=11, color=SKY, alpha=0.85, lw=0, zorder=2)
 # the k starting compounds
 sx, sy = np.array([2.30, 2.75, 2.50, 2.95, 2.62]), np.array([3.95, 4.25, 4.52, 3.75, 4.20])
+
+# The panel's job is to define the two distances, so the arrows are drawn to the actual
+# nearest neighbours rather than placed by hand: a reader who measures them must find the
+# definition the caption states. The starting compounds are part of the training set, which
+# is what forces d_train <= nu.
+TRAIN = np.vstack([np.c_[tx[keep], ty[keep]], np.c_[sx, sy]])
+START = np.c_[sx, sy]
+
+
+def nearest(pt, pool):
+    pt = np.asarray(pt, float)
+    i = int(np.argmin(np.hypot(*(pool - pt).T)))
+    return pool[i], float(np.hypot(*(pool[i] - pt)))
 ax.scatter(sx, sy, s=30, color=BLUE, edgecolor='white', lw=0.7, zorder=4)
 ax.text(2.55, 3.25, 'starting\ncompounds', fontsize=7, color=BLUE, ha='center',
         va='top', fontweight='bold', linespacing=1.2)
 
 # query molecule 1: novel vs seeds, still inside the training set
-q1 = (5.85, 5.05)
+q1 = (6.96, 4.60)
 ax.scatter(*q1, s=62, marker='D', color=GREEN, edgecolor='white', lw=0.8, zorder=5)
-ax.annotate('', xy=q1, xytext=(sx[3], sy[3]),
+q1_s, q1_nu = nearest(q1, START)
+q1_t, q1_dt = nearest(q1, TRAIN)
+ax.annotate('', xy=q1, xytext=tuple(q1_s),
             arrowprops=dict(arrowstyle='<->', color=BLUE, lw=1.2, shrinkA=3, shrinkB=5))
-ax.annotate('', xy=q1, xytext=(5.18, 4.82),
-            arrowprops=dict(arrowstyle='<->', color=VERM, lw=1.2, shrinkA=1, shrinkB=5))
-ax.scatter([5.18], [4.82], s=11, color=SKY, zorder=3)
-ax.text(6.30, 4.42, 'novel, still\nsupported', fontsize=7, color=GREEN,
-        fontweight='bold', ha='left', linespacing=1.2)
+ax.annotate('', xy=q1, xytext=tuple(q1_t),
+            arrowprops=dict(arrowstyle='<->', color=VERM, lw=1.2, shrinkA=2, shrinkB=5))
+ax.text(6.96, 3.62, 'novel, still\nsupported', fontsize=7, color=GREEN,
+        fontweight='bold', ha='center', linespacing=1.2)
 
 # query molecule 2: outside the training set
 q2 = (8.90, 6.15)
 ax.scatter(*q2, s=62, marker='D', color=ORANGE, edgecolor='white', lw=0.8, zorder=5)
-ax.annotate('', xy=q2, xytext=(6.75, 5.25),
-            arrowprops=dict(arrowstyle='<->', color=VERM, lw=1.2, shrinkA=1, shrinkB=5))
-ax.text(8.90, 7.10, 'novel and\nunsupported', fontsize=7, color='#a8560a',
+q2_t, q2_dt = nearest(q2, TRAIN)
+q2_s, q2_nu = nearest(q2, START)
+ax.annotate('', xy=q2, xytext=tuple(q2_t),
+            arrowprops=dict(arrowstyle='<->', color=VERM, lw=1.2, shrinkA=2, shrinkB=5))
+ax.text(8.95, 7.15, 'novel and\nunsupported', fontsize=7, color='#a8560a',
         fontweight='bold', ha='center', linespacing=1.2)
 
 # distance legend, stacked with clear spacing
@@ -183,8 +199,15 @@ ax.set_ylim(0, max(vals) + 1.45); ax.grid(alpha=0.22, axis='y', lw=0.6)
 ax.text(0.5, 0.995, 'penalizing uncertainty finds fewer', transform=ax.transAxes,
         ha='center', va='top', fontsize=6.8, color=VERM, fontweight='bold')
 
+# the schematic must obey the relation it is drawn to explain
+_ins = lambda p: ((p[0] - 4.0) / 3.5) ** 2 + ((p[1] - 4.35) / 2.0) ** 2
+assert q1_dt <= q1_nu and q2_dt <= q2_nu, 'panel a violates d_train <= nu'
+assert _ins(q1) < 1.0 < _ins(q2), 'panel a: q1 must sit inside the cloud and q2 outside'
+
 fig.savefig(OUT, dpi=400, bbox_inches='tight', facecolor='white')
 print('wrote', OUT)
+print(f'  (a) q1 nu={q1_nu:.2f} d_train={q1_dt:.2f} | q2 nu={q2_nu:.2f} d_train={q2_dt:.2f} '
+      f'(arrows drawn to true nearest neighbours)')
 print(f"  (b) pooled RC {mi['0.2']:.2f}->{mi['1.0']:.2f}; conformal {pc['adaptive_coverage']:.3f}")
 print(f"  (c) coverage temporal {tp['conformal_coverage_adaptive']:.3f} vs controls "
       f"{[round(tmp[t]['control_random_same_size']['conformal_coverage_adaptive'],3) for t in tt]}")

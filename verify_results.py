@@ -317,6 +317,45 @@ _mm = L('mixedmodel_method.json')
 close('semantic', 'random-intercept model reproduces the target-level point estimate',
       _mm['mixed_model']['intercept'], _mm['target_level']['mean'], 0.001)
 
+# Figure 1 is the paper's definitional figure, so its panels are pinned to the same sources
+# the text reads. An audit found its schematic drawing arrows to points that were not the
+# nearest neighbours, and its caption quoting a cross-regime contrast the panel does not show.
+_fig = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_fig1.py')
+if _os.path.exists(_fig):
+    import numpy as _np
+    _g = open(_fig, encoding='utf-8').read()
+    cond('figure 1', 'panel a computes nearest neighbours instead of hand-placing arrows',
+         'def nearest(' in _g and 'nearest(q1, START)' in _g and 'nearest(q1, TRAIN)' in _g, '')
+    cond('figure 1', 'panel a asserts the relation it illustrates',
+         'violates d_train <= nu' in _g, '')
+    cond('figure 1', 'panel b plots the micro-pooled risk-coverage curve',
+         "rel['pooled']['risk_coverage_micro']" in _g, '')
+    cond('figure 1', 'panel c plots the disagreement-normalized coverage with its intervals',
+         "K = 'conformal_coverage_adaptive'" in _g and "K + '_ci95'" in _g, '')
+    cond('figure 1', 'panel d averages over targets and shows the standard error across them',
+         "np.sqrt(5)" in _g and 'enrichment_vs_random' in _g, '')
+    # every value the caption states must still be the value the source holds
+    _mi = rel['pooled']['risk_coverage_micro']
+    close('figure 1', 'caption panel b: 42 percent reduction',
+          100 * (_mi['1.0'] - _mi['0.2']) / _mi['1.0'], 42.0, 1.0)
+    cond('figure 1', 'caption panel b: SCD-1 is the non-monotone curve',
+         not all(rel['scd1']['risk_coverage_rmse']['%.1f' % c]
+                 <= rel['scd1']['risk_coverage_rmse']['%.1f' % d]
+                 for c, d in zip([0.2, 0.4, 0.6, 0.8], [0.4, 0.6, 0.8, 1.0]))
+         and sum(all(rel[t]['risk_coverage_rmse']['%.1f' % c]
+                     <= rel[t]['risk_coverage_rmse']['%.1f' % d]
+                     for c, d in zip([0.2, 0.4, 0.6, 0.8], [0.4, 0.6, 0.8, 1.0]))
+                 for t in ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']) == 4, '')
+    _K = 'conformal_coverage_adaptive'
+    cond('figure 1', 'caption panel c: every temporal coverage is below nominal 0.900',
+         all(tmp[t][_K] < 0.900 for t in _tt), '')
+    cond('figure 1', 'caption panel c: panel covers four targets, FADS excluded',
+         len(_tt) == 4 and 'fads' not in _tt, '')
+    _po = L('poolopt_analysis.json')['summary']
+    _m = lambda k: sum(_po[t][k]['enrichment_vs_random'] for t in _po) / len(_po)
+    cond('figure 1', 'caption panel d: optimistic leads on average, conservative rules trail',
+         _m('ucb') > _m('greedy') > _m('lcb') > _m('conformal'), '')
+
 # The README states results in prose and drifted out of date once already. Pin the claims
 # that would be wrong if an analysis changed under it.
 _rm = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'README.md')
