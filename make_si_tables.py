@@ -52,7 +52,7 @@ prov = json.load(open(PROV)) if os.path.exists(PROV) else {}
 OUTL = []
 
 
-def tab(label, caption, header, rows, spec, note='', size=''):
+def tab(label, caption, header, rows, spec, note='', size='', tight=False):
     """Emit one Supplementary table.
 
     `size` shrinks a table that would otherwise run past the text block: pass 'small' or
@@ -63,12 +63,16 @@ def tab(label, caption, header, rows, spec, note='', size=''):
     OUTL.append(r'\begin{table}[htbp]\centering\caption{%s}\label{%s}' % (caption, label))
     if size:
         OUTL.append(r'{\%s\setlength{\tabcolsep}{3pt}' % size)
+    elif tight:
+        # Narrow the column padding but keep the body at full size, for a table that is wide
+        # because of its column count rather than its font.
+        OUTL.append(r'{\setlength{\tabcolsep}{3.5pt}')
     OUTL.append(r'\begin{tabular}{@{}%s@{}}\toprule' % spec)
     OUTL.append(header + r'\\\midrule')
     OUTL.extend(r + r'\\' for r in rows[:-1])
     OUTL.append(rows[-1] + r'\\\bottomrule')
     OUTL.append(r'\end{tabular}' + (('\n\\par\\smallskip\\footnotesize ' + note) if note else ''))
-    if size:
+    if size or tight:
         OUTL.append('}')
     OUTL.append(r'\end{table}' + '\n')
 
@@ -247,24 +251,24 @@ for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
     if t not in tmp:
         continue
     d = tmp[t]; c = d['control_random_same_size']
-    rows.append(f"{LAB[t]} & Temporal & {_n(d['n_train'])} & {_n(d['n_test'])} & "
+    rows.append(f"{LAB[t]} & Temporal & {_n(d['n_train'])} & {_n(d['n_cal'])} & {_n(d['n_test'])} & "
                 f"{_vc(d['rmse_test'], d.get('rmse_test_ci95'))} & "
                 f"{_vc(d['spearman_sigma_err'], d.get('spearman_sigma_err_ci95'), signed=True)} & "
                 f"{_vc(d['conformal_coverage_adaptive'], d.get('conformal_coverage_adaptive_ci95'), 3)}")
-    rows.append(" & Control & & & "
+    rows.append(" & Control & & & & "
                 f"{_vc(c['rmse'], c.get('rmse_ci95'))} & "
                 f"{_vc(c['spearman_sigma_err'], c.get('spearman_sigma_err_ci95'), signed=True)} & "
                 f"{_vc(c['conformal_coverage_adaptive'], c.get('conformal_coverage_adaptive_ci95'), 3)}")
 tp = tmp['pooled']
-rows.append(r'\midrule Pooled & Temporal & --- & ' + _n(tp['n']) + ' & ' +
+rows.append(r'\midrule Pooled & Temporal & --- & --- & ' + _n(tp['n']) + ' & ' +
             _vc(tp['rmse'], tp.get('rmse_ci95')) + ' & ' +
             _vc(tp['spearman_sigma_err'], tp.get('spearman_sigma_err_ci95'), signed=True) + ' & ' +
             _vc(tp['conformal_coverage_adaptive'], tp.get('conformal_coverage_adaptive_ci95'), 3))
 tab('tab:s-temporal',
     'Temporal shift and its size-matched control, one row per arm. Models are trained on '
     'compounds first published before 2015 and evaluated on those first published later. Each '
-    'temporal split is repeated twenty times with training, calibration and test sets of '
-    'identical size drawn at random from the same pool, so the control shares the sizes shown '
+    'target has one temporal split; the control repeats twenty random splits with proper-training, '
+    'calibration and test sets of identical size drawn from the same pool, so it shares the sizes shown '
     'on the temporal row above it; that control is the only like-for-like comparator, because '
     'this cohort is re-curated independently of the five datasets of Table S1. Error rises on '
     'every target and coverage falls below nominal on three of four, whereas the error ranking '
@@ -273,9 +277,9 @@ tab('tab:s-temporal',
     'which happens once, and a $t$ interval across replicates for the control. The pooled '
     'correlation is lower than any per-target value because pooling mixes targets whose errors '
     'differ in scale.',
-    r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{test}}$ & RMSE & '
+    r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{cal}}$ & $n_{\mathrm{test}}$ & RMSE & '
     r'$\rho(\sigma_T,e)$ & Coverage at 0.900',
-    rows, 'llrrrrr')
+    rows, 'llrrrrrr', tight=True)
 
 # ---------------------------------------------------------------- S8 pool acquisition (key)
 rows = []
@@ -478,6 +482,43 @@ if prov:
         'analysis; FADS is not included because ChEMBL holds only two activity records for it.',
         r'Target & ChEMBL ID & Raw & Non-affinity & Non-human & Unparsable & Parents & Years',
         rows, 'llrrrrrr')
+
+# Endpoint composition of the pooled response, for both cohorts, and its shift at the
+# temporal cutoff. The cross-validation files retain no endpoint field, so their mix is
+# recovered by matching structures back to ChEMBL; the matched share is reported with it.
+_ep = json.load(open(os.path.join(CW, 'endpoint_composition.json')))
+NICE = {'scd1': 'SCD-1', 'fads': 'FADS', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 'DRD3'}
+ORDER = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+TYPES = ['IC50', 'Ki', 'Kd', 'EC50']
+
+
+def _mix(d):
+    return ' & '.join(('--' if not d else f"{d.get(k, 0.0):.1f}") for k in TYPES)
+
+
+rows = []
+for t in ORDER:
+    v = _ep['cv_cohort'][t]
+    matched = '--' if not v['matched'] else f"{v['matched_pct']:.0f}"
+    rows.append(f"{NICE[t]} & cross-validation & {v['n_structures']:,} & {matched} & "
+                f"{_mix(v['types_pct'])}".replace(',', '{,}'))
+for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
+    v = _ep['temporal_cohort'][t]
+    for era, key, nkey in [('temporal, pre-%d' % _ep['cutoff'], 'pre_pct', 'n_pre'),
+                           ('temporal, %d on' % _ep['cutoff'], 'post_pct', 'n_post')]:
+        rows.append(f"{NICE[t]} & {era} & {v[nkey]:,} & -- & "
+                    f"{_mix(v[key])}".replace(',', '{,}'))
+tab('tab:s-endpoint',
+    'Activity endpoint composition of the pooled response. Every activity is reported on one '
+    'negative-logarithmic molar scale named $\\mathrm{pIC}_{50}$ by convention, but that scale '
+    'is populated from four ChEMBL standard types and most of it is an affinity rather than a '
+    'potency measurement. Percentages are of retained records. The cross-validation files keep '
+    'only structure and activity, so their composition is recovered by matching structures back '
+    'to ChEMBL and the matched share of structures is given; FADS is a literature panel and is '
+    'not recoverable this way. The temporal rows are split at the cutoff to show whether '
+    'endpoint composition itself shifts across it.',
+    r'Target & Cohort & $n$ & Matched (\%) & IC$_{50}$ & $K_i$ & $K_d$ & EC$_{50}$',
+    rows, 'llrrrrrr')
 
 # The main article is a separate document, so it cannot \\ref{} into this one and must cite
 # Supplementary tables by number. Emit those numbers as macros, in the order the tables are

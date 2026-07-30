@@ -76,7 +76,7 @@ ax.set_title('Three distances, measured separately', pad=6, loc='left')
 # training set cloud
 ax.add_patch(Ellipse((4.0, 4.35), 7.0, 4.0, facecolor=SKY, alpha=0.16,
                      edgecolor=SKY, lw=1.1))
-ax.text(0.75, 6.35, 'training set\n(all measured compounds)', fontsize=7, color='#2b6a8f',
+ax.text(0.75, 6.35, 'training set\n(model-training compounds)', fontsize=7, color='#2b6a8f',
         ha='left', va='center', linespacing=1.25)
 # scattered training compounds
 rng = np.random.default_rng(3)

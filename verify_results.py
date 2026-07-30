@@ -602,6 +602,18 @@ _BANNED = [
     ('significantly', 'give the exact P or the effect size'),
     ('fundamental', 'give the quantity instead of the adjective'),
     ('robust', 'give the quantity instead of the adjective'),
+    # the acquisition finding is that penalising uncertainty costs, not that the score is
+    # useless for acquisition; mu+sigma is itself uncertainty-aware and wins
+    ('whatever the objective', 'UCB uses uncertainty and does best; scope it to the objective'),
+    # the rule has no nominal coverage under policy-selected labels, so it is not a bound
+    ('conformal-style lower bound', 'call it the conformal-style lower score'),
+    ('with a calibrated scale', 'the scale is residual-derived, not calibrated'),
+    # no tautomer canonicalisation is applied, so tautomers do not generally collapse
+    ('tautomer variants of one compound', 'InChI merges only mobile-H tautomers'),
+    # the introduction asks four questions
+    ('we ask three questions', 'four questions are asked'),
+    # the label pools four ChEMBL endpoint types and is not pure IC50
+    ('Activities were pooled to $\\mathrm{pIC}_{50}=', 'state the endpoint mix; the pooled response is mostly Ki'),
 ]
 for _n, _f in _SRC.items():
     if not _os.path.exists(_f):
@@ -618,6 +630,46 @@ if all(_os.path.exists(f) for f in _SRC.values()):
          'the exception must come from the macro the data sets')
     cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
          'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
+
+# Activity endpoint composition. The pooled response is named pIC50 by convention but is
+# populated from four ChEMBL standard types, so the article has to state the mix rather than
+# define the label as an IC50. The pre/post-cutoff mixes also test whether endpoint turnover,
+# rather than chemistry, could explain the temporal result.
+_epf = _os.path.join(OUT, 'endpoint_composition.json')
+if _os.path.exists(_epf):
+    _ep = json.load(open(_epf))
+    _cvc, _tcc = _ep['cv_cohort'], _ep['temporal_cohort']
+    cond('numeric', 'the pooled temporal response is majority Ki, not IC50',
+         _tcc['pooled_pct']['Ki'] > 50 > _tcc['pooled_pct']['IC50'],
+         f"Ki {_tcc['pooled_pct']['Ki']}%, IC50 {_tcc['pooled_pct']['IC50']}%")
+    cond('numeric', 'SCD-1 is essentially all IC50 in the cross-validation cohort',
+         _cvc['scd1']['types_pct'].get('IC50', 0) > 99, str(_cvc['scd1']['types_pct']))
+    cond('numeric', 'DRD2 and DRD3 are majority Ki in the cross-validation cohort',
+         _cvc['drd2']['types_pct']['Ki'] > 50 and _cvc['drd3']['types_pct']['Ki'] > 50,
+         'the label name is a convention, not a measurement type')
+    cond('numeric', 'the cross-validation endpoint mix is recovered for most structures',
+         all(_cvc[t]['matched_pct'] > 80 for t in ('scd1', 'nk1r', 'drd2', 'drd3')),
+         'FADS is a literature panel and is excluded from this check')
+    # The article argues endpoint turnover does not order the targets the way transport
+    # failure does. That argument rests on NK1R shifting most while keeping its ranking.
+    _tv = {t: _tcc[t]['tv_distance'] for t in ('scd1', 'nk1r', 'drd2', 'drd3')}
+    cond('semantic', 'NK1R has the largest endpoint shift across the temporal cutoff',
+         max(_tv, key=_tv.get) == 'nk1r', str(_tv))
+    cond('semantic', 'SCD-1 has the smallest endpoint shift across the temporal cutoff',
+         min(_tv, key=_tv.get) == 'scd1',
+         'the two targets that keep their ranking bracket the shift range')
+    if _os.path.exists(_art):
+        _a = open(_art, encoding='utf-8').read()
+        cond('manuscript', 'the article states the endpoint mix and cites its table',
+             'TabEndpoint' in _a and 'K_i$' in _a, 'pIC50 is named as a convention')
+        cond('manuscript', 'the abstract restricts the nearer-training result to the novel third',
+             'within the most novel third' in _a,
+             'the comparison is inside the most novel third, not over all compounds')
+        cond('manuscript', 'the RDKit standardization order is stated',
+             'LargestFragmentChooser' in _a and 'Uncharger' in _a,
+             'the parent operation must be reproducible')
+        cond('manuscript', 'the top-percentile endpoint is defined exactly',
+             'Q_{0.99}' in _a and 'tied at that cutoff' in _a, 'including tie handling')
 
 # Literals that duplicate a macro. Twelve numbers were typed into the article while a macro
 # already held the same quantity, and one of them (0.97, where the data give 0.975) was simply

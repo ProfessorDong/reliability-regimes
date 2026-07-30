@@ -27,7 +27,7 @@ from rdkit.Chem import MolFromSmiles, MolToSmiles
 RDLogger.DisableLog('rdApp.*')
 
 BASE = os.path.dirname(os.path.abspath(__file__))
-SCD1_PATH = '/home/dong/Workspace/WritePaper/theranostics/SCD1 dataset filtered 20230412/scd1_binding.csv'
+SCD1_PATH = os.path.join(BASE, 'scd1_binding.csv')
 
 # UniProt accessions per target. SCD-1, NK1R (TACR1), DRD2 are human single chains.
 # FADS is reported as FADS1 + FADS2 union per the manuscript caption.
