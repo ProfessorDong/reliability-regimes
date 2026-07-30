@@ -562,6 +562,40 @@ if all(_os.path.exists(x) for x in (_sit, _sir, _art, _sid)):
     cond('SI tables', 'the compatibility table has one row per source-target pair',
          len(_cg['rows']) == _cg['summary']['n_pairs'] == 20, f"{len(_cg['rows'])} rows")
 
+# Banned phrasings. Every one of these was corrected once in the place it was noticed and left
+# standing somewhere else: the floor claim in the Methods after the SI was fixed, "roughly
+# doubles" in the Introduction and Discussion after the abstract was fixed, FADS named as the
+# in-domain exception in the Discussion after the Results were fixed. Scan every source file.
+_SRC = {n: _os.path.join(_D, n) for n in
+        ('npjDD_Reliability.tex', 'npjDD_SI.tex', 'si_tables.tex')}
+_BANNED = [
+    ('places a floor', 'within-parent spread is not a lower bound on attainable error'),
+    ('bounds the error any model', 'same floor claim, other wording'),
+    ('roughly doubl', 'RMSE rises ~50% over control; squared error doubles, RMSE does not'),
+    ('halves that error', 'quote the exact percentage at the stated coverage'),
+    ('halves the error', 'quote the exact percentage at the stated coverage'),
+    ('training distribution', 'd_train is a nearest-neighbour distance, not a distributional one'),
+    ('true activit', 'pool labels are measurements, not ground truth'),
+    ('true active', 'pool labels are measurements, not ground truth'),
+    ('coverage guarantee fails', 'say coverage falls below nominal once exchangeability breaks'),
+    ('most of the ranking power', 'the ranking degrades unevenly, not uniformly'),
+]
+for _n, _f in _SRC.items():
+    if not _os.path.exists(_f):
+        continue
+    _txt = open(_f, encoding='utf-8').read()
+    for _bad, _why in _BANNED:
+        cond('phrasing', f'{_n}: no "{_bad}"', _bad not in _txt, _why)
+
+# Claims that appear in more than one place must agree everywhere they appear.
+if all(_os.path.exists(f) for f in _SRC.values()):
+    _all = '\n'.join(open(f, encoding='utf-8').read() for f in _SRC.values())
+    cond('phrasing', 'SCD-1, not FADS, is named as the in-domain exception wherever it is named',
+         'NinDomExcept' in _all and 'where the in-domain novelty comparison does not hold' not in _all,
+         'the exception must come from the macro the data sets')
+    cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
+         'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
+
 # Layout. A table that runs past the text block is a defect a reader sees before any number,
 # and pdflatex already reports it, so the logs are checked rather than the pages eyeballed.
 for _doc in ('npjDD_Reliability', 'npjDD_SI'):

@@ -30,8 +30,17 @@ plt.rcParams.update({
 
 # ------------------------------------------------------------------ Fig 2: novelty sweep
 fr = L('frontier_v2_results.json')['results']
-rows = [r for rs in fr.values() for r in rs]
+rows = [dict(r, target=t) for t, rs in fr.items() for r in rs]
 nv = np.array([r['novelty'] for r in rows])
+# The 1,200 runs are 300 search trajectories, each contributing its four novelty settings, so
+# a standard error over runs treats repeated measures as independent. Intervals come instead
+# from a cluster bootstrap that resamples whole trajectories, keeping their four settings
+# together, and resamples targets first so between-target variation is carried too.
+BLOCK = np.array([f"{r['target']}|{r['seed']}|{r['opt']}|{r['lam']}" for r in rows])
+TGT = np.array([r['target'] for r in rows])
+_uT = sorted(set(TGT))
+_blocks_by_t = {t: sorted(set(BLOCK[TGT == t])) for t in _uT}
+_idx_by_block = {b: np.flatnonzero(BLOCK == b) for b in set(BLOCK)}
 series = [(np.array([r['d_train'] for r in rows]), 'Distance to training set', BLUE),
           (np.array([r['sigma'] for r in rows]), 'Ensemble disagreement $\\sigma_T$', ORANGE),
           (np.array([r['potency'] for r in rows]), 'Predicted potency (pIC$_{50}$)', GREEN)]
@@ -45,12 +54,33 @@ idx = np.clip(np.digitize(nv, bins) - 1, 0, len(bc) - 1)
 # equally prominent dots.
 nb = np.array([(idx == b).sum() for b in range(len(bc))])
 
+def cluster_ci(y, n_boot=2000, seed=5):
+    """Percentile interval per novelty bin, resampling targets then whole trajectories."""
+    rng = np.random.default_rng(seed)
+    draws = np.full((n_boot, len(bc)), np.nan)
+    for it in range(n_boot):
+        take = []
+        for t in rng.choice(_uT, len(_uT), replace=True):
+            bl = _blocks_by_t[t]
+            for b in rng.choice(bl, len(bl), replace=True):
+                take.append(_idx_by_block[b])
+        sel = np.concatenate(take)
+        yi, ii = y[sel], idx[sel]
+        for b in range(len(bc)):
+            m = ii == b
+            if m.any():
+                draws[it, b] = yi[m].mean()
+    lo = np.nanpercentile(draws, 2.5, axis=0)
+    hi = np.nanpercentile(draws, 97.5, axis=0)
+    return lo, hi
+
+
 fig, axes = plt.subplots(1, 3, figsize=(7.2, 2.6))
 for ax, (y, lab, col), tag in zip(axes, series, 'abc'):
     m = np.array([y[idx == b].mean() if (idx == b).any() else np.nan for b in range(len(bc))])
-    s = np.array([y[idx == b].std(ddof=1) / np.sqrt((idx == b).sum()) if (idx == b).sum() > 1
-                  else 0.0 for b in range(len(bc))])
-    ax.errorbar(bc, m, yerr=s, fmt='-', color=col, lw=1.4, capsize=2, zorder=2)
+    lo, hi = cluster_ci(y)
+    ax.fill_between(bc, lo, hi, color=col, alpha=0.18, lw=0, zorder=1)
+    ax.plot(bc, m, '-', color=col, lw=1.4, zorder=2)
     ax.scatter(bc, m, s=8 + 42 * np.sqrt(nb / nb.max()), color=col, zorder=3,
                edgecolor='white', lw=0.5)
     ax.set_xlabel('Generated-set novelty')

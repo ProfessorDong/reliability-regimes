@@ -10,6 +10,7 @@ mixed; macros make that failure impossible.
 """
 from __future__ import annotations
 import json, os
+import numpy as np
 
 CW = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
                   'drug_discovery', 'theranostics_current', 'outputs', 'cwm_v1')
@@ -241,6 +242,36 @@ M['Nrows'] = thou(sum(rel[t]['duplicates']['n_rows'] for t in T))
 _om = {e['target']: e for e in L('oracle_metrics.json')['results']}
 for t in T:
     M[f'Thr{CAP[t]}'] = f"{_om[t]['threshold']:.1f}"
+
+# The disagreement turnover, with an interval that respects the design: the 1,200 runs are
+# 300 trajectories of four novelty settings, so targets and then whole trajectories are
+# resampled rather than runs.
+_fr = L('frontier_v2_results.json')['results']
+_rw = [dict(r, target=t) for t, rs in _fr.items() for r in rs]
+_nv = np.array([r['novelty'] for r in _rw]); _sg = np.array([r['sigma'] for r in _rw])
+_bl = np.array([f"{r['target']}|{r['seed']}|{r['opt']}|{r['lam']}" for r in _rw])
+_tg = np.array([r['target'] for r in _rw])
+_bn = np.linspace(_nv.min(), _nv.max(), 9)
+_ix = np.clip(np.digitize(_nv, _bn) - 1, 0, 7)
+_uT = sorted(set(_tg)); _bbt = {t: sorted(set(_bl[_tg == t])) for t in _uT}
+_ib = {b: np.flatnonzero(_bl == b) for b in set(_bl)}
+_rng = np.random.default_rng(5); _D = []
+for _ in range(2000):
+    _take = []
+    for _t in _rng.choice(_uT, len(_uT), replace=True):
+        _b = _bbt[_t]
+        for _q in _rng.choice(_b, len(_b), replace=True):
+            _take.append(_ib[_q])
+    _sel = np.concatenate(_take); _yi, _ii = _sg[_sel], _ix[_sel]
+    _D.append([_yi[_ii == k].mean() if (_ii == k).any() else np.nan for k in range(8)])
+_D = np.array(_D); _d78 = _D[:, 6] - _D[:, 7]
+M.update({
+    'TurnPeak': f"{np.nanmean(_D[:, 6]):.2f}",
+    'TurnLast': f"{np.nanmean(_D[:, 7]):.2f}",
+    'TurnDrop': f"{np.nanmean(_d78):+.2f}",
+    'TurnDropCI': f"[{np.nanpercentile(_d78, 2.5):+.2f}, {np.nanpercentile(_d78, 97.5):+.2f}]",
+    'TurnDropP': f"{np.nanmean(_d78 > 0):.3f}",
+})
 
 mm = L('mixedmodel_method.json')['mixed_model']
 M.update({

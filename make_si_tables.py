@@ -82,7 +82,7 @@ tab('tab:s-data',
     'against the median aggregated activity rather than a fresh replicate, so this is a measure '
     'of label noise and not a demonstrated lower bound on attainable error.',
     r'Target & Records & \shortstack[r]{Parent\\structures} & \shortstack[r]{Duplicates\\removed} & \shortstack[r]{With\\replicates} & \shortstack[r]{Within-compound\\SD}',
-    rows, 'lrrrrr', size='small')
+    rows, 'lrrrrr')
 
 # ---------------------------------------------------------------- S2 protocols
 rows = []
@@ -223,7 +223,7 @@ def _vc(v, ci, dec=2, signed=False):
         lo, hi = ('%+.*f' % (dec, ci[0])), ('%+.*f' % (dec, ci[1]))
     else:
         lo, hi = ('%.*f' % (dec, ci[0])), ('%.*f' % (dec, ci[1]))
-    return txt + r' \tiny{[' + lo + ', ' + hi + ']}'
+    return txt + ' [' + lo + ', ' + hi + ']'
 
 
 for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
@@ -258,7 +258,7 @@ tab('tab:s-temporal',
     'differ in scale.',
     r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{test}}$ & RMSE & '
     r'$\rho(\sigma_T,e)$ & Coverage at 0.900',
-    rows, 'llrrrrr', size='small')
+    rows, 'llrrrrr')
 
 # ---------------------------------------------------------------- S8 pool acquisition (key)
 rows = []
@@ -273,12 +273,12 @@ rows.append(r'\midrule Enrichment & --- & --- & ' +
             ' & '.join(f(mean_enr[m]) + r'$\times$' for m in ['random', 'greedy', 'ucb', 'lcb', 'conformal']))
 tab('tab:s-pool',
     'Acquisition against measured activity. All labels in the pool are hidden except ten known '
-    'actives; each strategy spends 300 queries and every query reveals a compound\'s true '
+    'actives; each strategy spends 300 queries and every query reveals a compound\'s '
     'measured activity. Entries are the number of top-percentile compounds acquired, '
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
     'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal '
     'bound, finds fewer top-percentile compounds than selecting on the predicted mean.',
-    r'Target & Pool & True top 1\% & Random & Greedy & UCB & LCB & Conformal', rows, 'lrrrrrrr')
+    r'Target & Pool & Top 1\% & Random & Greedy & UCB & LCB & Conformal', rows, 'lrrrrrrr')
 
 # ---------------------------------------------------------------- S9 frontier
 rows = []
@@ -293,7 +293,7 @@ tab('tab:s-frontier',
     'and predicted potency, for two search procedures at two uncertainty penalties. The '
     'relationship holds with the penalty set to zero.',
     r'Optimizer & $\lambda$ & $\rho(\nu,d)$ & $\rho(\nu,\sigma_T)$ & $\rho(\nu,\hat y)$ & $\rho(d,\sigma_T)$ & $n$',
-    rows, 'llrrrrr', size='small')
+    rows, 'llrrrrr')
 
 # ---------------------------------------------------------------- S10 method per-cell
 rows = []
@@ -319,9 +319,9 @@ tst, pv = sps.ttest_1samp(list(tgt.values()), 0.0)
 ci = sps.t.interval(0.95, 4, loc=tl, scale=se)
 h = hier['target_level']
 rows = [
-    'Fingerprint (primary) & ' + ' & '.join(f(tgt[t], 3) for t in T) +
+    'Fingerprint & ' + ' & '.join(f(tgt[t], 3) for t in T) +
     f" & ${tl:+.3f}$ [{ci[0]:+.3f}, {ci[1]:+.3f}] & {f(pv,3)}",
-    'Dual-encoder latent & ' + ' & '.join(f(h['target_means'][t], 3) for t in T) +
+    'Dual encoder & ' + ' & '.join(f(h['target_means'][t], 3) for t in T) +
     f" & ${h['mean']:+.3f}$ [{h['ci95'][0]:+.3f}, {h['ci95'][1]:+.3f}] & {f(h['p'],3)}",
 ]
 tab('tab:s-targetlevel',
@@ -331,7 +331,7 @@ tab('tab:s-targetlevel',
     '$P=0.0625$ even when every target is positive, so the effect is best described as '
     'positive in all five targets studied.',
     r'Surrogate & ' + ' & '.join(LAB[t] for t in T) + r' & Mean [95\% CI] & $P$',
-    rows, 'lrrrrrrr', size='small')
+    rows, 'lrrrrrrr')
 
 # ---------------------------------------------------------------- S12 negatives
 rows = []
@@ -399,10 +399,12 @@ for t in T:
                 f"{r['n_novel_in_domain']:,}".replace(',', '{,}'))
 tab('tab:s-indomain',
     'Nearer- and farther-training compounds at high novelty. Within the most novel third of '
-    'each target, compounds are split at the median distance to the training set. Those nearer '
-    'the training compounds have lower error and lower disagreement on four of the five '
-    'targets. The split is a relative grouping within that third, not a validated domain '
-    'boundary.',
+    'each target, compounds are split at the median distance to the nearest training compound. '
+    'Those nearer the training compounds have lower RMSE on four of the five targets, SCD-1 '
+    'being the exception where the two groups are indistinguishable, and lower mean '
+    'disagreement on all five. The split restricts rather than matches on novelty, so residual '
+    'differences in novelty between the two groups are not controlled, and it is a relative '
+    'grouping within that third rather than a validated domain boundary.',
     r'Target & \multicolumn{2}{c}{RMSE} & \multicolumn{2}{c}{$\sigma_T$} & $n$\\'
     r'\cmidrule(lr){2-3}\cmidrule(lr){4-5}'
     r' & Nearer & Farther & Nearer & Farther & ',
