@@ -75,13 +75,15 @@ for t in T:
     rows.append(f"{LAB[t]} & {d['n_rows']:,} & {d['n_unique']:,} & {d['n_duplicate_rows']} & "
                 f"{d['n_compounds_with_replicates']} & {f(d['mean_within_compound_sd'])}".replace(',', '{,}'))
 tab('tab:s-data',
-    'Dataset composition after standardization. Records are grouped on the standardized '
-    'parent InChIKey, so salts, charge states and tautomer variants of one compound collapse '
-    'to a single structure. Within-compound spread is the mean standard deviation of the '
-    'replicate measurements of compounds that have more than one record. Models are scored '
-    'against the median aggregated activity rather than a fresh replicate, so this is a measure '
-    'of label noise and not a demonstrated lower bound on attainable error.',
-    r'Target & Records & \shortstack[r]{Parent\\structures} & \shortstack[r]{Duplicates\\removed} & \shortstack[r]{With\\replicates} & \shortstack[r]{Within-compound\\SD}',
+    'Dataset composition after parent standardization. Records sharing a standardized parent '
+    'InChIKey are aggregated to a median activity before splitting. Several source records '
+    'for one parent may be alternative molecular representations, repeated measurements, or '
+    'measurements made in different assay contexts, and the retained fields do not separate '
+    'these, so they are reported as multi-record parents rather than uniformly called '
+    'replicates. Within-parent SD is computed among parents holding more than one record and '
+    'describes label heterogeneity; because models are scored against the median aggregate '
+    'rather than against a fresh measurement, it is not a lower bound on attainable error.',
+    r'Target & Records & \shortstack[r]{Parent\\structures} & \shortstack[r]{Records\\collapsed} & \shortstack[r]{Multi-record\\parents} & \shortstack[r]{Within-parent\\SD}',
     rows, 'lrrrrr')
 
 # ---------------------------------------------------------------- S2 protocols
@@ -276,9 +278,9 @@ tab('tab:s-pool',
     'actives; each strategy spends 300 queries and every query reveals a compound\'s '
     'measured activity. Entries are the number of top-percentile compounds acquired, '
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
-    'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal '
-    'bound, finds fewer top-percentile compounds than selecting on the predicted mean.',
-    r'Target & Pool & Top 1\% & Random & Greedy & UCB & LCB & Conformal', rows, 'lrrrrrrr')
+    'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal-style lower '
+    'score, finds fewer top-percentile compounds than selecting on the predicted mean.',
+    r'Target & Pool & Top 1\% & Random & Greedy & UCB & LCB & Conf.-style', rows, 'lrrrrrrr')
 
 # ---------------------------------------------------------------- S9 frontier
 rows = []
@@ -287,6 +289,40 @@ for k in ['graphga_lam0.0', 'graphga_lam0.1', 'stga_lam0.0', 'stga_lam0.1']:
     opt, lam = ('Graph GA' if 'graphga' in k else 'Surrogate-triaged'), k.split('lam')[1]
     rows.append(f"{opt} & {lam} & {f(a['nov_dtrain'],3)} & {f(a['nov_sig'],3)} & "
                 f"{sg(a['nov_pot'],3)} & {f(a['dtrain_sig'],3)} & {a['n']}")
+# ------------------------------------------------- TURNOVER of disagreement, per target
+_frr = L('frontier_v2_results.json')['results']
+_rw2 = [dict(r, target=t) for t, rs in _frr.items() for r in rs]
+_nv2 = [r['novelty'] for r in _rw2]
+_lo2, _hi2 = min(_nv2), max(_nv2)
+_edge = [_lo2 + (_hi2 - _lo2) * i / 8 for i in range(9)]
+
+
+def _bin_of(v):
+    for i in range(8):
+        if v <= _edge[i + 1]:
+            return i
+    return 7
+
+
+_turn_rows = []
+for _t in T:
+    _sel = [r for r in _rw2 if r['target'] == _t]
+    _mm, _nn = [], []
+    for _k in (6, 7):
+        _v = [r['sigma'] for r in _sel if _bin_of(r['novelty']) == _k]
+        _nn.append(len(_v)); _mm.append(sum(_v) / len(_v) if _v else float('nan'))
+    _turn_rows.append(f"{LAB[_t]} & {_nn[0]} & {f(_mm[0])} & {_nn[1]} & {f(_mm[1])} & "
+                      f"{sg(_mm[0] - _mm[1], 2)}")
+tab('tab:s-turnover',
+    'Disagreement in the two highest novelty bins, per target. Runs are grouped into eight '
+    'equal-width bins of achieved generated-set novelty; the table gives the mean disagreement '
+    'in the seventh and eighth bins and their difference. A positive difference means '
+    'disagreement falls at the highest novelty rather than continuing to rise. It does so on '
+    'four of the five targets, NK1R excepted. The pooled difference and its interval, from a '
+    'bootstrap over target-seed blocks, are given in the main article.',
+    r'Target & $n_7$ & Bin 7 & $n_8$ & Bin 8 & Difference',
+    _turn_rows, 'lrrrrr')
+
 tab('tab:s-frontier',
     'Novelty-driven shift during optimization. Correlations across runs between the achieved '
     'novelty of the generated set and its distance to the training compounds, disagreement, '
@@ -384,7 +420,7 @@ for t in T:
 tab('tab:s-recovery',
     'Similarity to withheld scaffold clusters. An entire Bemis--Murcko cluster of actives is '
     'removed from both the seeds and the training set and the model retrained. The retrained '
-    'model still ranks the withheld actives highly on four of five targets, SCD-1 being '
+    'model still predicts the withheld actives above the target threshold on four of five targets, SCD-1 being '
     'underpredicted, and flags them with elevated disagreement. Recovery is the mean closest '
     'Tanimoto similarity of any generated molecule to the withheld cluster, and is not improved '
     'by the triage.',

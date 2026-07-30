@@ -36,7 +36,9 @@ nv = np.array([r['novelty'] for r in rows])
 # a standard error over runs treats repeated measures as independent. Intervals come instead
 # from a cluster bootstrap that resamples whole trajectories, keeping their four settings
 # together, and resamples targets first so between-target variation is carried too.
-BLOCK = np.array([f"{r['target']}|{r['seed']}|{r['opt']}|{r['lam']}" for r in rows])
+# One support set per target and seed, reused across optimizers, penalties and novelty
+# weights, so a block is a target-seed pair carrying all 16 conditions.
+BLOCK = np.array([f"{r['target']}|{r['seed']}" for r in rows])
 TGT = np.array([r['target'] for r in rows])
 _uT = sorted(set(TGT))
 _blocks_by_t = {t: sorted(set(BLOCK[TGT == t])) for t in _uT}

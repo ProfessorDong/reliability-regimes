@@ -270,7 +270,10 @@ for t in T:
 _fr = L('frontier_v2_results.json')['results']
 _rw = [dict(r, target=t) for t, rs in _fr.items() for r in rs]
 _nv = np.array([r['novelty'] for r in _rw]); _sg = np.array([r['sigma'] for r in _rw])
-_bl = np.array([f"{r['target']}|{r['seed']}|{r['opt']}|{r['lam']}" for r in _rw])
+# One support set is drawn per target and seed and reused across both optimizers, both
+# uncertainty penalties and all four novelty weights, so the resampling unit is the
+# target-seed block of 16 observations, not the 300 method-penalty trajectories.
+_bl = np.array([f"{r['target']}|{r['seed']}" for r in _rw])
 _tg = np.array([r['target'] for r in _rw])
 _bn = np.linspace(_nv.min(), _nv.max(), 9)
 _ix = np.clip(np.digitize(_nv, _bn) - 1, 0, 7)

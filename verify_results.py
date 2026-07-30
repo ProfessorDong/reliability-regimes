@@ -386,14 +386,19 @@ if _os.path.exists(_frf):
     cond('figure 2', 'disagreement turns over on four of the five targets', _dec == 4, f'{_dec} of 5')
     cond('figure 2', 'caption: bin counts run from 8 to 244',
          _n[0] == 8 and _n[7] == 244, f'{_n[0]} to {_n[7]}')
-    _tr = _co.Counter((r['target'], r['seed'], r['opt'], r['lam']) for r in _rows)
-    cond('figure 2', 'caption: 1,200 runs from 300 trajectories of four settings each',
-         len(_rows) == 1200 and len(_tr) == 300 and set(_tr.values()) == {4},
-         f'{len(_rows)} runs, {len(_tr)} trajectories')
+    _blk2 = _co.Counter((r['target'], r['seed']) for r in _rows)
+    cond('figure 2', 'caption: 1,200 runs from 75 blocks of sixteen matched conditions',
+         len(_rows) == 1200 and len(_blk2) == 75 and set(_blk2.values()) == {16},
+         f'{len(_rows)} runs, {len(_blk2)} blocks')
     _gf = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_main_figures.py')
     if _os.path.exists(_gf):
         _g = open(_gf, encoding='utf-8').read()
-        cond('figure 2', 'marker area encodes bin occupancy',
+        _blk = _co.Counter((r['target'], r['seed']) for r in _rows)
+    cond('figure 2', 'one support set per target and seed, so blocks carry all 16 conditions',
+         len(_blk) == 75 and set(_blk.values()) == {16}, f'{len(_blk)} blocks')
+    cond('figure 2', 'the bootstrap resamples target-seed blocks, not method-penalty runs',
+         "f\"{r['target']}|{r['seed']}\"" in _g and "|{r['opt']}" not in _g, '')
+    cond('figure 2', 'marker area encodes bin occupancy',
              'nb / nb.max()' in _g and 'turns over' in _g, '')
 
 # Figure 3 drew normal-approximation intervals while the text quoted Student t ones, so the
@@ -582,6 +587,21 @@ _BANNED = [
     ('true active', 'pool labels are measurements, not ground truth'),
     ('coverage guarantee fails', 'say coverage falls below nominal once exchangeability breaks'),
     ('most of the ranking power', 'the ranking degrades unevenly, not uniformly'),
+    # the acquisition rule carries no nominal guarantee; one name for it everywhere
+    ('conformal lower bound', 'call it the conformal-style lower score'),
+    ('conformal bound', 'call it the conformal-style lower score'),
+    ('conformal-constrained', 'call it the conformal-style lower score'),
+    # the acquisition conclusion is objective-dependent
+    ('not a good rule for deciding which compound to test next', 'scope it to the objective'),
+    # collapsed records are not all replicates
+    ('With replicates', 'multi-record parents; provenance is not in the retained fields'),
+    ('Duplicates removed', 'records collapsed by parent grouping'),
+    ('Within-compound SD', 'within-parent SD'),
+    # adjectives standing in for quantities
+    ('substantial', 'give the quantity instead of the adjective'),
+    ('significantly', 'give the exact P or the effect size'),
+    ('fundamental', 'give the quantity instead of the adjective'),
+    ('robust', 'give the quantity instead of the adjective'),
 ]
 for _n, _f in _SRC.items():
     if not _os.path.exists(_f):

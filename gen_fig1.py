@@ -184,7 +184,7 @@ panel_label(ax, 'd')
 ax.set_title('Acquiring measured activities', pad=6, loc='left')
 meths = ['random', 'greedy', 'ucb', 'lcb', 'conformal']
 names = ['Random', 'Predicted\nmean', 'Optimistic\n$\\mu+\\sigma$',
-         'Cautious\n$\\mu-\\sigma$', 'Conformal\nbound']
+         'Cautious\n$\\mu-\\sigma$', 'Scaled lower\nscore']
 vals = [np.mean([pool[t][m]['enrichment_vs_random'] for t in T]) for m in meths]
 sds = [np.std([pool[t][m]['enrichment_vs_random'] for t in T], ddof=1) / np.sqrt(5) for m in meths]
 cols = [GREY, BLUE, SKY, ORANGE, VERM]
