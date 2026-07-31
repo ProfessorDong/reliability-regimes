@@ -1704,6 +1704,31 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
          'raw-record total must come from the macro, inside Table 1 only')
     cond('manuscript', 'the removed duplicate reference is no longer cited',
          'tropsha2010best' not in _s, '')
+    # The abstract described the temporal ranking as "surviving on two targets and vanishing
+    # on one", which accounts for three of the four temporal targets and silently drops DRD2,
+    # whose ranking neither survives against its control nor vanishes. Any description of the
+    # spread has to span all four.
+    _ntemp = len([t for t in ('scd1', 'nk1r', 'drd2', 'drd3') if t in tmp])
+    cond('manuscript', 'the abstract accounts for every temporal target, not a subset',
+         'surviving on two targets' not in _ab and 'across the four' in _ab,
+         f'{_ntemp} temporal targets; two survive, one weakens, one is lost')
+    # npj Drug Discovery caps the title at 15 words, and the user's standing rule forbids a
+    # colon in it.
+    _ti = _re.search(r'\\title(?:\[.*?\])?\{(.*?)\}', _s, _re.S).group(1)
+    cond('manuscript', 'title is within the npj Drug Discovery 15-word limit',
+         len(_ti.split()) <= 15, f'{len(_ti.split())} words')
+    cond('manuscript', 'title carries no colon', ':' not in _ti, _ti)
+    # Keywords carry the discoverability the title deliberately does not. "uncertainty" is the
+    # paper's central object and the term this literature is indexed under, so it has to be a
+    # keyword; the journal's own scope phrase is not a distinguishing one.
+    _kw = [k.strip() for k in
+           _re.search(r'\\keywords\{(.*?)\}', _s, _re.S).group(1).split(',')]
+    cond('manuscript', 'keywords name uncertainty quantification',
+         any('uncertainty' in k for k in _kw), ', '.join(_kw))
+    cond('manuscript', 'keywords are not padded with the journal\'s own scope phrase',
+         'machine learning in drug discovery' not in _kw, ', '.join(_kw))
+    cond('manuscript', 'every keyword names something the manuscript actually does',
+         all(k.lower().split()[0] in _s.lower() for k in _kw), ', '.join(_kw))
 else:
     print('skip [manuscript] checks: the manuscript is intentionally not in this repository')
 
