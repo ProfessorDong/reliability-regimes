@@ -194,8 +194,11 @@ assert min(_all) - _pad < min(_all) and max(_all) + _pad > max(_all), 'panel c c
 ax.grid(alpha=0.22, axis='x', lw=0.6)
 ax.scatter([], [], s=34, color=BLUE, label='size-matched random split')
 ax.scatter([], [], s=34, color=VERM, label='temporal split')
+# Sit the legend in the clear band between the DRD2 and DRD3 rows. Anchored at 0.30 its body
+# ran down into the DRD3 bars; the band runs from the DRD3 control bar at 0.209 to the DRD2
+# temporal bar at 0.359, so anchor the top just under the latter.
 ax.legend(fontsize=6.4, frameon=False, loc='upper left', handletextpad=0.3,
-          borderpad=0.2, bbox_to_anchor=(-0.01, 0.30))
+          borderpad=0.2, labelspacing=0.35, bbox_to_anchor=(-0.01, 0.355))
 tp = tmp['pooled']
 # the panel shows coverage, so annotate coverage. The pooled error-ranking contrast is
 # not stated here: it is a target-dependent effect and a single pooled number misreads it.
