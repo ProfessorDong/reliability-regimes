@@ -186,6 +186,10 @@ M['RecGapLo'] = f"{min(_gaps.values()):.2f}"
 M['RecGapHi'] = f"{max(_gaps.values()):.2f}"
 M['RecGapFads'] = f"{_gaps['fads']:.2f}"
 
+# FADS is the one target whose lowest-disagreement fifth is not under-covered. The value was
+# typed into Supplementary Note 4 rather than generated.
+M['ConfFadsLowCov'] = f"{L('conformal_analysis.json')['fads']['alpha0.1']['adaptive_coverage_low_sigma']:.3f}"
+
 # --- temporal shift (Regime 2) ---
 tmp = L('temporal_analysis.json')
 tp = tmp['pooled']

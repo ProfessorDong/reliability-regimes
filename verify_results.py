@@ -1377,6 +1377,32 @@ if _os.path.exists(_m20):
          'behind the matched structures rather than of the dataset' in _c20,
          'the CV percentages are of matched ChEMBL records, not of the dataset')
 
+# The Supplementary Information opens by promising that every procedure is in the main
+# Methods, which npj requires since it forbids Supplementary Methods. Each resampling scheme
+# the paper uses must therefore appear in the article, not only in an SI caption.
+_artN = _os.path.join(_D, 'npjDD_Reliability.tex')
+_siN = _os.path.join(_D, 'npjDD_SI.tex')
+if _os.path.exists(_artN) and _os.path.exists(_siN):
+    _aN = open(_artN, encoding='utf-8').read()
+    _sN = open(_siN, encoding='utf-8').read()
+    cond('manuscript', 'the Methods describe every resampling scheme the paper uses',
+         'Resampling respects whatever grouping' in _aN
+         and 'resample seeds within one target' in _aN
+         and 'permuting the five target labels' in _aN,
+         'the SI promises the Methods carry every procedure')
+    cond('SI notes', 'each Supplementary figure is cited from the note it belongs to',
+         all(('sfig:' + k) in _sN for k in ('calibration', 'temporal', 'acquisition'))
+         and _sN.count('\\ref{sfig:') >= 3,
+         'they were cited only from the article, so the SI narrative skipped past them')
+    _body = _sN.split('\\section{', 1)[1]
+    import re as _reN
+    _lits = [v for v in _reN.findall(r'(?<![\w.])(\d+\.\d+)(?![\w])', _body)
+             if v not in ('0.900', '0.90', '0.95', '0.80', '0.05', '0.0625')]
+    cond('SI notes', 'no measured value is typed into the notes',
+         not _lits, 'literals found: ' + ', '.join(sorted(set(_lits))))
+    for _pat, _why in (('---', 'em-dash'), ('honest', 'the word honest')):
+        cond('SI notes', f'the notes contain no {_why}', _pat not in _body, '')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
