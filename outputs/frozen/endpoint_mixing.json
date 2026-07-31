@@ -1,0 +1,43 @@
+{
+  "drd2": {
+    "n_mixed_type": 727,
+    "n_multi_record": 2857,
+    "n_parents": 9274,
+    "pct_mixed_of_parents": 7.8391201207677375,
+    "sd_mixed_type": 0.6129592709949238,
+    "sd_single_type": 0.16809796970362284
+  },
+  "drd3": {
+    "n_mixed_type": 467,
+    "n_multi_record": 1973,
+    "n_parents": 6167,
+    "pct_mixed_of_parents": 7.572563645208367,
+    "sd_mixed_type": 0.6244249141576032,
+    "sd_single_type": 0.09425842278048031
+  },
+  "nk1r": {
+    "n_mixed_type": 124,
+    "n_multi_record": 421,
+    "n_parents": 2554,
+    "pct_mixed_of_parents": 4.85512920908379,
+    "sd_mixed_type": 0.3915839227758741,
+    "sd_single_type": 0.4987243730891766
+  },
+  "pooled": {
+    "n_mixed_type": 1318,
+    "n_parents": 18760,
+    "pct_mixed_of_parents": 7.025586353944563
+  },
+  "scd1": {
+    "n_mixed_type": 0,
+    "n_multi_record": 116,
+    "n_parents": 765,
+    "pct_mixed_of_parents": 0.0,
+    "sd_mixed_type": null,
+    "sd_single_type": 0.6265630702282722
+  },
+  "targets_sd_inflated": [
+    "drd2",
+    "drd3"
+  ]
+}

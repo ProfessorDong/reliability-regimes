@@ -383,10 +383,15 @@ _tnote = (r'One-sided empirical $P$ against the %d size-matched control replicat
             r'also given from a bootstrap resampling Bemis-Murcko scaffold groups rather than '
             r'compounds, which is the weaker basis and the one any separation should be read '
             r'against: '
-          + '; '.join('%s RMSE [%.2f, %.2f] over %d scaffolds, ranking [%+.2f, %+.2f]'
+          # Coverage belongs here too: the main text reads the coverage separation off this
+          # bootstrap, so leaving it out of the note left that claim without displayed support.
+          + '; '.join('%s RMSE [%.2f, %.2f] over %d scaffolds, coverage [%.3f, %.3f], '
+                      'ranking [%+.2f, %+.2f]'
                       % (LAB[t], tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][0],
                          tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][1],
                          tmp[t]['scaffold_cluster_bootstrap']['n_scaffolds'],
+                         tmp[t]['scaffold_cluster_bootstrap']['conformal_coverage_adaptive_ci95'][0],
+                         tmp[t]['scaffold_cluster_bootstrap']['conformal_coverage_adaptive_ci95'][1],
                          tmp[t]['scaffold_cluster_bootstrap']['spearman_sigma_err_ci95'][0],
                          tmp[t]['scaffold_cluster_bootstrap']['spearman_sigma_err_ci95'][1])
                       for t in _TT)
@@ -766,7 +771,8 @@ if prov:
         'ChEMBL curation flow for the re-curated targets. The query returns only records with '
         'an exact relation, nanomolar units and a human target, so those filters remove nothing '
         'here and no species column is shown. Of what returns, records are dropped for a '
-        'non-affinity endpoint, for a missing or non-positive value, and for a structure RDKit '
+        'standard type outside the four eligible ones, for a missing or non-positive value, '
+        'and for a structure RDKit '
         'cannot parse; the remainder are then grouped on the standardized parent InChIKey. '
         'Every stage is listed, so raw minus the three drop columns gives Records, and Records '
         'minus Collapsed gives Parents, on each row. Parent grouping is the largest reduction: '
@@ -775,7 +781,7 @@ if prov:
         'because ChEMBL holds only two activity records for it.'
         % ('{:,}'.format(prov['drd2']['n_after_filters'] - prov['drd2']['n_unique_parents']).replace(',', '{,}'),
            '{:,}'.format(prov['drd2']['n_raw_records'] - prov['drd2']['n_after_filters']).replace(',', '{,}')),
-        r'Target & ChEMBL & Raw & \shortstack[r]{Non-\\affinity} & Invalid & '
+        r'Target & ChEMBL & Raw & \shortstack[r]{Ineli-\\gible} & Invalid & '
         r'\shortstack[r]{Unpar-\\sable} & Records & \shortstack[r]{Col-\\lapsed} & '
         r'Parents & Years',
         rows, 'llrrrrrrrr', tight=True)

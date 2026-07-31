@@ -375,7 +375,7 @@ if _os.path.exists(_fig):
         cond('figure 1', 'the caption describes the per-target points in panel d',
              'Open circles' in _cap, 'every drawn element must be accounted for')
         cond('figure 1', 'the caption describes the control bar as the replicate spread',
-             'central $95\\%$ of its' in _cap or 'central 95' in _cap,
+             'central' in _cap and 'replicates' in _cap,
              'it previously described a t interval on the mean')
         cond('figure 1', 'the caption does not claim the optimistic rule reliably wins',
              'not separated from zero' in _cap,
@@ -713,6 +713,22 @@ _BANNED = [
     ('Activities were pooled to $\\mathrm{pIC}_{50}=', 'state the endpoint mix; the pooled response is mostly Ki'),
     # only one score on one model family was validated against measured error
     ('reliability of whatever model', 'only RF per-tree disagreement was validated; another predictor needs its own score'),
+    # the macro-average temporal effect is a t interval across the four target-level effects;
+    # the bootstrap-plus-control-SE construction is what the PER-TARGET effects use
+    ('the interval combining the temporal resampling', 'the macro interval is a t interval across targets'),
+    # random CV measures within-pool generalization; a search selects adaptively, so CV is not
+    # "the regime a search occupies"
+    ('the regime a search occupies', 'random CV is within-pool generalization, not the search regime'),
+    # sigma_T stops rising at the extreme; the generated molecules were never assayed, so
+    # nothing establishes that it stops carrying information
+    ('losing its meaning', 'say it ceases to be monotonic; error there is unobserved'),
+    # the encoder and search settings are given but not exhaustively, so do not claim completeness
+    ('fully specified choice', 'give the reason it is preferred, not a completeness claim'),
+    # EC50 is retained and is not an affinity endpoint, so the dropped records are not "non-affinity"
+    ('non-affinity endpoint', 'EC50 is retained; the filter drops ineligible standard types'),
+    # (1+k)/(R+1) over 1000 random draws is a Monte Carlo tail probability, not an enumerated test
+    ('exact one-sided\nempirical', 'call it a one-sided Monte Carlo empirical P'),
+    ('exact one-sided empirical', 'call it a one-sided Monte Carlo empirical P'),
     # mu+sigma's advantage covers zero, so the upside claim must carry the asymmetry that
     # supports it: penalising costs compounds, seeking them out does not reliably gain any
     ('upside lies.', 'unqualified; state the asymmetry, since the optimistic rule covers zero'),
@@ -1391,6 +1407,20 @@ cond('SI tables', 'S20: every endpoint mix sums to 100 percent',
      and all(abs(sum(_ep20['temporal_cohort'][t][k].values()) - 100) < 0.3
              for t in ('scd1', 'nk1r', 'drd2', 'drd3')
              for k in ('overall_pct', 'pre_pct', 'post_pct')), '')
+# Aggregating to a median across DIFFERENT endpoint types is a stronger assumption than
+# aggregating within one, so the share of parents where that happens, and what it costs in
+# within-parent spread, are reported rather than left to a citation about mixed IC50 data.
+_emx = json.load(open(_os.path.join(OUT, 'endpoint_mixing.json')))
+close('Methods/endpoints', 'share of parents pooling more than one endpoint type',
+      _emx['pooled']['pct_mixed_of_parents'], 7.0, 0.1)
+cond('Methods/endpoints', 'mixed-type parents carry a wider within-parent spread on DRD2 and DRD3',
+     _emx['drd2']['sd_mixed_type'] > _emx['drd2']['sd_single_type']
+     and _emx['drd3']['sd_mixed_type'] > _emx['drd3']['sd_single_type'],
+     'DRD2 %.2f vs %.2f, DRD3 %.2f vs %.2f'
+     % (_emx['drd2']['sd_mixed_type'], _emx['drd2']['sd_single_type'],
+        _emx['drd3']['sd_mixed_type'], _emx['drd3']['sd_single_type']))
+cond('Methods/endpoints', 'SCD-1 pools no endpoint types, matching its single-type composition',
+     _emx['scd1']['n_mixed_type'] == 0, 'SCD-1 is entirely IC50')
 cond('SI tables', 'S20: the pre and post counts reconcile with the parent total',
      all(_ep20['temporal_cohort'][t]['n_pre'] + _ep20['temporal_cohort'][t]['n_post']
          + _ep20['temporal_cohort'][t]['n_undated'] == _ep20['temporal_cohort'][t]['n_parents']
@@ -1699,6 +1729,23 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     _w = [w for w in _t.split() if _re.search(r'[A-Za-z0-9]', w)]
     cond('manuscript', 'abstract is within the npj Drug Discovery 150-word limit',
          len(_w) <= 150, f'{len(_w)} words')
+    # The macro-expanded count above is not the count a journal makes. Math splits "$P=0.005$"
+    # into three whitespace tokens and a subscript sheds a stray comma, so the rendered abstract
+    # ran three words longer than this check reported and sat over the cap while it passed.
+    # Count what a reader of the PDF sees, which is the conservative convention.
+    _pdf = _os.path.join(_os.path.dirname(_tex), 'npjDD_Reliability.pdf')
+    if _os.path.exists(_pdf):
+        import subprocess as _sp
+        try:
+            _txt = _sp.run(['pdftotext', _pdf, '-'], capture_output=True, text=True,
+                           timeout=120).stdout
+            _m = _re.search(r'\nAbstract\n(.*?)\nKeywords', _txt, _re.S)
+            if _m:
+                _rw = len(_m.group(1).split())
+                cond('manuscript', 'rendered abstract is also within 150 words',
+                     _rw <= 150, f'{_rw} whitespace-delimited words in the compiled PDF')
+        except (OSError, _sp.SubprocessError):
+            pass
     cond('manuscript', 'no reference to the superseded raw-record count in the text',
          '21,173' not in _s.replace('{,}', ',') or '\\Nrows' in _s,
          'raw-record total must come from the macro, inside Table 1 only')
@@ -1727,6 +1774,21 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     cond('manuscript', 'title is within the npj Drug Discovery 15-word limit',
          len(_ti.split()) <= 15, f'{len(_ti.split())} words')
     cond('manuscript', 'title carries no colon', ':' not in _ti, _ti)
+    # The main text reads the coverage separation off the scaffold-cluster bootstrap, so the
+    # table that carries that bootstrap has to display coverage and not only RMSE and ranking.
+    _st = open(_os.path.join(_os.path.dirname(_tex), 'si_tables.tex'), encoding='utf-8').read()
+    cond('manuscript', 'the scaffold-cluster bootstrap reports coverage, not only RMSE and ranking',
+         _st.count('scaffolds, coverage [') >= 4,
+         'the article claims coverage separation survives scaffold resampling')
+    # ChEMBL changes between releases, so a bare "curated from ChEMBL" is not reproducible.
+    cond('manuscript', 'the ChEMBL retrieval date is stated',
+         _re.search(r'web\s+services on \d{4}-\d{2}-\d{2}', _s) is not None,
+         'the curated files are archived, but the retrieval date still has to be given')
+    # The pooled response mixes endpoint types; the Methods must quantify how often the median
+    # itself crosses them rather than resting on a mixed-IC50 citation.
+    cond('manuscript', 'the Methods quantify how often aggregation crosses endpoint types',
+         '\\MixPct' in _s and '\\MixSdDtwoMixed' in _s,
+         'a citation about mixed IC50 data does not cover pooling four types')
     # Keywords carry the discoverability the title deliberately does not. "uncertainty" is the
     # paper's central object and the term this literature is indexed under, so it has to be a
     # keyword; the journal's own scope phrase is not a distinguishing one.
