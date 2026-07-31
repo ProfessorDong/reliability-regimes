@@ -221,8 +221,12 @@ bars = ax.bar(range(5), vals, yerr=sds, capsize=2.5, color=cols, width=0.66,
 # that the optimistic rule's higher mean is carried by one target rather than shared.
 _rng = np.random.default_rng(0)
 for i, m in enumerate(meths):
+    if m == 'random':
+        continue          # enrichment is defined against random, so these are 1.00 by
+                          # construction and drawing five of them implies a spread that
+                          # cannot exist
     pts = [pool[t][m]['enrichment_vs_random'] for t in T]
-    ax.scatter(i + _rng.uniform(-0.17, 0.17, len(pts)), pts, s=7, facecolor='white',
+    ax.scatter(i + _rng.uniform(-0.17, 0.17, len(pts)), pts, s=9, facecolor='white',
                edgecolor=DARK, lw=0.7, zorder=5, clip_on=False)
 _top = [max(v + s, max(pool[t][m]['enrichment_vs_random'] for t in T))
         for v, s, m in zip(vals, sds, meths)]

@@ -347,6 +347,9 @@ if _os.path.exists(_fig):
     cond('figure 1', 'panel d overlays the individual targets, not only their mean',
          'ax.scatter(i + _rng.uniform' in _g,
          'with five targets the points carry more than a standard error does')
+    cond('figure 1', 'panel d draws no per-target points on the random bar',
+         "if m == 'random':" in _g,
+         'enrichment is 1.0 there by definition, so five points imply a spread that cannot exist')
     # The article path is resolved again here: this block runs long before the manuscript
     # section defines it, and referring to it early crashed the whole script.
     _art1 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
