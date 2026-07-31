@@ -335,6 +335,33 @@ if _os.path.exists(_fig):
          "K = 'conformal_coverage_adaptive'" in _g and "K + '_ci95'" in _g, '')
     cond('figure 1', 'panel d averages over targets and shows the standard error across them',
          "np.sqrt(5)" in _g and 'enrichment_vs_random' in _g, '')
+    # Panel c compares one temporal observation against the control. The right reference is the
+    # spread of control replicates, not the interval on their mean: at 1000 replicates the
+    # latter is under 2% of the axis and rendered as an artefact rather than as data.
+    cond('figure 1', 'panel c shows the control replicate spread, not the interval on its mean',
+         "_csd" in _g and "1.96 * _csd" in _g,
+         'one observation is judged against a distribution, not against a mean')
+    cond('figure 1', 'panel c sets its limits from the data and asserts nothing is clipped',
+         'panel c clips a drawn interval' in _g,
+         'two control bands ran past a hand-set axis limit')
+    cond('figure 1', 'panel d overlays the individual targets, not only their mean',
+         'ax.scatter(i + _rng.uniform' in _g,
+         'with five targets the points carry more than a standard error does')
+    # The article path is resolved again here: this block runs long before the manuscript
+    # section defines it, and referring to it early crashed the whole script.
+    _art1 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                          'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
+    if _os.path.exists(_art1):
+        _c1 = open(_art1, encoding='utf-8').read()
+        _cap = _c1[_c1.find(r'\textbf{Where and when the activity model'):][:3200]
+        cond('figure 1', 'the caption describes the per-target points in panel d',
+             'Open circles' in _cap, 'every drawn element must be accounted for')
+        cond('figure 1', 'the caption describes the control bar as the replicate spread',
+             'central $95\\%$ of its' in _cap or 'central 95' in _cap,
+             'it previously described a t interval on the mean')
+        cond('figure 1', 'the caption does not claim the optimistic rule reliably wins',
+             'not separated from zero' in _cap,
+             'its advantage covers zero across targets')
     # every value the caption states must still be the value the source holds
     _mi = rel['pooled']['risk_coverage_micro']
     close('figure 1', 'caption panel b: 42 percent reduction',

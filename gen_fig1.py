@@ -165,9 +165,15 @@ for i, t in enumerate(tt):
     a, b = c[K], d[K]
     ax.annotate('', xy=(b, y[i]), xytext=(a, y[i]),
                 arrowprops=dict(arrowstyle='-|>', color=VERM, lw=1.6, shrinkA=0, shrinkB=0))
-    # 95% intervals: bootstrap over the evaluation compounds for the single temporal split,
-    # t interval across replicates for the control
-    for v, ci, col, dy in ((a, c.get(K + '_ci95'), BLUE, 0.17), (b, d.get(K + '_ci95'), VERM, -0.17)):
+    # The two arms need different intervals, and not the two that look symmetric. The temporal
+    # split happens once, so it carries a bootstrap over its evaluation compounds. The control
+    # is a distribution over random splits, and the question is whether one observation is
+    # extreme against that distribution, so it carries the central 95% of the replicate spread
+    # rather than the interval on its mean. At 1000 replicates the interval on the mean is
+    # under 2% of the axis width and renders as an artefact rather than as data.
+    _csd = c.get(K + '_sd')
+    _cband = [a - 1.96 * _csd, a + 1.96 * _csd] if _csd else c.get(K + '_ci95')
+    for v, ci, col, dy in ((a, _cband, BLUE, 0.17), (b, d.get(K + '_ci95'), VERM, -0.17)):
         if ci:
             ax.plot(ci, [y[i] + dy] * 2, color=col, lw=1.1, solid_capstyle='butt', zorder=4)
             for e in ci:
@@ -178,7 +184,14 @@ ax.axvline(0.90, color=DARK, ls=':', lw=1.1)
 ax.text(0.906, len(tt) - 0.62, 'nominal 0.90', fontsize=6.4, color=DARK, ha='left')
 ax.set_yticks(y); ax.set_yticklabels([LAB[t] for t in tt]); ax.set_ylim(-0.75, len(tt) - 0.35)
 ax.set_xlabel('Coverage of 90% prediction intervals')
-ax.set_xlim(0.70, 0.96); ax.grid(alpha=0.22, axis='x', lw=0.6)
+_all = [v for t in tt for v in
+        ([tmp[t]['control_random_same_size'][K] - 1.96 * tmp[t]['control_random_same_size'][K + '_sd'],
+          tmp[t]['control_random_same_size'][K] + 1.96 * tmp[t]['control_random_same_size'][K + '_sd']]
+         + list(tmp[t][K + '_ci95']))]
+_pad = 0.04 * (max(_all) - min(_all))
+ax.set_xlim(min(_all) - _pad, max(_all) + _pad)
+assert min(_all) - _pad < min(_all) and max(_all) + _pad > max(_all), 'panel c clips a drawn interval'
+ax.grid(alpha=0.22, axis='x', lw=0.6)
 ax.scatter([], [], s=34, color=BLUE, label='size-matched random split')
 ax.scatter([], [], s=34, color=VERM, label='temporal split')
 ax.legend(fontsize=6.4, frameon=False, loc='upper left', handletextpad=0.3,
@@ -213,12 +226,14 @@ for i, m in enumerate(meths):
                edgecolor=DARK, lw=0.7, zorder=5, clip_on=False)
 _top = [max(v + s, max(pool[t][m]['enrichment_vs_random'] for t in T))
         for v, s, m in zip(vals, sds, meths)]
+# Clear the highest point as well as the error bar, or the value label sits on top of a target
+# marker: the two collided once the per-target points were added.
 for i, (v, s) in enumerate(zip(vals, sds)):
-    ax.text(i, _top[i] + 0.10, f'{v:.1f}×', ha='center', fontsize=7.0, fontweight='bold')
+    ax.text(i, _top[i] + 0.34, f'{v:.1f}×', ha='center', fontsize=7.0, fontweight='bold')
 ax.axhline(1.0, color=DARK, ls=':', lw=1.0)
 ax.set_xticks(range(5)); ax.set_xticklabels(names, fontsize=6.6, linespacing=1.15)
 ax.set_ylabel('Top-percentile compounds found\n(relative to random)')
-ax.set_ylim(0, max(_top) + 1.45); ax.grid(alpha=0.22, axis='y', lw=0.6)
+ax.set_ylim(0, max(_top) + 1.70); ax.grid(alpha=0.22, axis='y', lw=0.6)
 ax.text(0.5, 0.995, 'penalizing uncertainty finds fewer', transform=ax.transAxes,
         ha='center', va='top', fontsize=6.8, color=VERM, fontweight='bold')
 
