@@ -652,8 +652,12 @@ if all(_os.path.exists(x) for x in (_sit, _sir, _art, _sid)):
 # standing somewhere else: the floor claim in the Methods after the SI was fixed, "roughly
 # doubles" in the Introduction and Discussion after the abstract was fixed, FADS named as the
 # in-domain exception in the Discussion after the Results were fixed. Scan every source file.
+# The scan covered the three TeX files only, so "Conformal bound" survived as a visible axis
+# label in Figure S3 for as long as the term had been banned everywhere else. Anything a reader
+# sees is in scope, and figure labels are read by a reader.
 _SRC = {n: _os.path.join(_D, n) for n in
-        ('npjDD_Reliability.tex', 'npjDD_SI.tex', 'si_tables.tex')}
+        ('npjDD_Reliability.tex', 'npjDD_SI.tex', 'si_tables.tex',
+         'gen_fig1.py', 'gen_main_figures.py', 'gen_si_figures.py')}
 _BANNED = [
     ('places a floor', 'within-parent spread is not a lower bound on attainable error'),
     ('bounds the error any model', 'same floor claim, other wording'),
@@ -785,6 +789,21 @@ if _os.path.exists(_tj2):
     _inv = [t for t in ('scd1', 'nk1r', 'drd2', 'drd3') if _rc(t)['0.2'] >= _rc(t)['1.0']]
     cond('SI figures', 'DRD3 alone has an inverted risk-coverage curve after the shift',
          _inv == ['drd3'], f'inverted on {_inv}; it is the target whose ranking does not survive')
+
+# Figure S3's per-target ordering claim, including the tie the earlier wording hid.
+_p3 = json.load(open(_os.path.join(OUT, 'poolopt_analysis.json')))['summary']
+_h = lambda t, k: _p3[t][k]['hits']
+_T3 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+cond('SI figures', 'S3: both unpenalised rules beat both penalised ones on every target',
+     all(_h(t, g) > _h(t, p) for t in _T3 for g in ('greedy', 'ucb')
+         for p in ('lcb', 'conformal')), '')
+cond('SI figures', 'S3: the optimistic rule leads on SCD-1, FADS and DRD3',
+     [t for t in _T3 if _h(t, 'ucb') > _h(t, 'greedy')] == ['scd1', 'fads', 'drd3'], '')
+cond('SI figures', 'S3: the predicted mean leads on DRD2 alone',
+     [t for t in _T3 if _h(t, 'greedy') > _h(t, 'ucb')] == ['drd2'], '')
+cond('SI figures', 'S3: the two are exactly equal on NK1R',
+     _h('nk1r', 'ucb') == _h('nk1r', 'greedy'),
+     'the caption names the tie rather than implying one leads')
 
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
