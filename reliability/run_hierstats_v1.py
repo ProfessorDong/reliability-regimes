@@ -1,10 +1,15 @@
-"""Hierarchical / target-level statistics for the ST-GA vs Graph GA gain
-(reviewer section 8; npj DM statistics requirements).
+"""Hierarchical / target-level statistics for the DUAL-ENCODER search against Graph GA.
+
+This script differences wmga_results.json, the dual-encoder (latent-surrogate) search, against
+graphga_results.json. It is the ablation reported as the "Dual encoder" row of Supplementary
+Table S13, not the headline fingerprint-surrogate result, which is computed from
+methods_v2_results.json instead. The docstring used to say "ST-GA vs Graph GA", which names the
+fingerprint comparison and points a reader at the wrong file.
 
 The pooled paired t-test over 375 nested runs treats runs as independent
 (pseudoreplication). Here we respect the hierarchy: runs are nested within
 target-by-k cells within five targets. We report, for the paired difference
-d = top10(ST-GA) - top10(Graph GA):
+d = top10(dual-encoder search) - top10(Graph GA):
   * per-cell mean, paired t-test p, effect size dz, fraction of seeds > 0
   * per-target mean (over 3 k x 25 seeds)
   * TARGET-LEVEL test: one-sample t on the 5 per-target means (df=4) -- the honest

@@ -1116,6 +1116,49 @@ for _f12 in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
              'P<0.05' not in open(_pp, encoding='utf-8').read().replace(' ', ''),
              'npj forbids reporting significance against a threshold alone')
 
+# Table S13's two rows come from different files, and the dual-encoder one could not be
+# regenerated from a clone at all: wmga_results.json was the single script input the repository
+# did not ship. Check every script input is present, not just this one.
+import re as _re13
+_have13 = set(_os.listdir(OUT))
+_missing13 = {}
+for _f13 in sorted(_os.listdir(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                                             'reliability'))):
+    if not _f13.endswith('.py'):
+        continue
+    _src13 = open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'reliability', _f13),
+                  encoding='utf-8').read()
+    _need = set(_re13.findall(r"outputs/frozen/([A-Za-z0-9_]+\.json)", _src13))
+    _gone = sorted(n for n in _need if n not in _have13)
+    if _gone:
+        _missing13[_f13] = _gone
+# The README documents four superseded _v1 entry points as off the reproduction path, some of
+# which read inputs that are deliberately not distributed. Everything else must be runnable.
+_EXEMPT13 = {'run_fewshot_v1.py', 'run_reliability_v1.py', 'run_ecfp_baseline_v1.py',
+             'analyze_frontier.py'}
+_missing13 = {k: v for k, v in _missing13.items() if k not in _EXEMPT13}
+cond('portability', 'every reproduction-path script has its frozen inputs shipped',
+     not _missing13,
+     str(_missing13) + ' (four superseded _v1 entry points are exempt, as the README states)')
+_h13 = json.load(open(_os.path.join(OUT, 'hierstats_analysis.json')))['target_level']
+cond('SI tables', 'S13: the dual-encoder effect is positive on all five targets',
+     all(v > 0 for v in _h13['target_means'].values()), '')
+cond('SI tables', 'S13: the dual-encoder test uses the five targets as the unit',
+     _h13['n_targets'] == 5, 'df = 4')
+_mt13 = json.load(open(_os.path.join(OUT, 'methods_v2_results.json')))['results']
+import statistics as _st13
+_fp13 = {t: _st13.mean([c['stga_ecfp'] - c['graphga'] for r in _mt13 if r['target'] == t
+                        for c in r['per_seed']]) for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')}
+cond('SI tables', 'S13: the fingerprint surrogate beats the dual encoder on every target',
+     all(_fp13[t] > _h13['target_means'][t] for t in _fp13),
+     'which is the point of showing the two rows together')
+_rh = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'reliability',
+                    'run_hierstats_v1.py')
+if _os.path.exists(_rh):
+    cond('SI tables', 'the hierstats script says which comparison it computes',
+         'DUAL-ENCODER' in open(_rh, encoding='utf-8').read(),
+         'its docstring named the fingerprint comparison it does not compute')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
