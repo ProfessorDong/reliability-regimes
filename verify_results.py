@@ -873,6 +873,30 @@ if _os.path.exists(_mst3):
          '_mono = [LAB[t] for t in T' in open(_mst3, encoding='utf-8').read(),
          'so it cannot drift if a target moves')
 
+# Table S4 is the cumulative form of Table S3: retaining the lowest-disagreement fraction is
+# the same as accumulating quintiles in order. That makes the two tables checkable against each
+# other, which is stronger than checking either against itself.
+import math as _math
+_r4 = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+_C4 = ['0.2', '0.4', '0.6', '0.8', '1.0']
+_worst = 0.0
+for _t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3', 'pooled'):
+    _q = _r4[_t]['rmse_by_sigma_quintile']
+    _rc = (_r4[_t]['risk_coverage_rmse'] if _t != 'pooled'
+           else _r4['pooled']['risk_coverage_micro'])
+    _worst = max(_worst, max(abs(_math.sqrt(sum(v ** 2 for v in _q[:k]) / k) - _rc[_C4[k - 1]])
+                             for k in range(1, 6)))
+cond('SI tables', 'S4 is the cumulative form of S3 on every row',
+     _worst < 0.005, f'worst discrepancy {_worst:.4f} pIC50')
+_ma4 = _r4['pooled']['risk_coverage_macro']
+cond('SI tables', 'the S4 macro row is the unweighted mean of the five target curves',
+     all(abs(sum(_r4[t]['risk_coverage_rmse'][c] for t in
+                 ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')) / 5 - _ma4[c]) < 5e-4 for c in _C4),
+     'not an RMS average, which would differ in the third decimal')
+cond('SI tables', 'the S4 micro row sits below the macro row at every coverage',
+     all(_r4['pooled']['risk_coverage_micro'][c] < _ma4[c] for c in _C4),
+     'pooling is dominated by the two largest and easiest targets')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

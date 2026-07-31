@@ -94,6 +94,12 @@ def tab(label, caption, header, rows, spec, note='', size='', tight=False):
     OUTL.append(r'\end{table}' + '\n')
 
 
+def _andlist(xs):
+    """Join names as English prose: 'a, b and c'."""
+    xs = list(xs)
+    return xs[0] if len(xs) == 1 else ', '.join(xs[:-1]) + ' and ' + xs[-1]
+
+
 def f(x, d=2):
     """Fixed-point, with negatives set in math so they get a real minus rather than a hyphen."""
     t = ('%.' + str(d) + 'f') % x
@@ -183,7 +189,7 @@ tab('tab:s-strat',
     'quintile on %s and on the pooled row. %s is the exception: its quintiles are not ordered, '
     'and at a correlation of %s it carries little ranking information, the same weakness its '
     'risk--coverage curve shows in Supplementary Table~\\ref{tab:s-riskcov}.'
-    % (', '.join(_mono), ' and '.join(_nonmono),
+    % (_andlist(_mono), _andlist(_nonmono),
        f(rel['scd1']['spearman_sigma_err'], 3)),
     r'Target & $\rho(\sigma_T,|e|)$ & Q1 & Q2 & Q3 & Q4 & Q5', rows, 'lrrrrrr')
 
@@ -199,7 +205,11 @@ tab('tab:s-riskcov',
     'Risk--coverage in distribution. RMSE of the retained predictions when the fraction with '
     'the lowest disagreement is kept. The micro row pools all structures and is dominated by '
     'the two largest targets; the macro row averages the five per-target curves with equal '
-    'weight. The curve is monotone on four targets; on SCD-1 it is flat.',
+    'weight. Error rises monotonically with coverage on %s; on %s the curve is flat, varying by %s across the '
+    'whole range, which is the same weak ranking Supplementary Table~\\ref{tab:s-strat} shows.'
+    % (_andlist(_mono), _andlist(_nonmono),
+       f(max(rel['scd1']['risk_coverage_rmse'][c] for c in COV)
+         - min(rel['scd1']['risk_coverage_rmse'][c] for c in COV))),
     r'Target & 20\% & 40\% & 60\% & 80\% & 100\%', rows, 'lrrrrr')
 
 # ---------------------------------------------------------------- S5 novelty/distance/error
