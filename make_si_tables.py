@@ -532,8 +532,14 @@ tab('tab:s-turnover',
 tab('tab:s-frontier',
     'Novelty-driven shift during optimization. Correlations across runs between the achieved '
     'novelty of the generated set and its distance to the training compounds, disagreement, '
-    'and predicted potency, for two search procedures at two uncertainty penalties. The '
-    'relationship holds with the penalty set to zero.',
+    'and predicted potency, for two search procedures at two uncertainty penalties, with the '
+    'distance-to-disagreement correlation in the last column. Novelty rises with distance and '
+    'with disagreement, and falls with predicted potency, in all four rows including the two '
+    'with the uncertainty penalty at zero, so none of it is induced by that penalty. Part of '
+    'the novelty-to-distance association is definitional: the starting compounds are drawn '
+    'from the training set, so $d\\leq\\nu$ for every molecule and the two cannot be '
+    'independent. What the column adds is that a search pushed toward novelty leaves the '
+    'support of the whole training set, not only of its own seeds.',
     r'Optimizer & $\lambda$ & $\rho(\nu,d)$ & $\rho(\nu,\sigma_T)$ & $\rho(\nu,\hat y)$ & $\rho(d,\sigma_T)$ & $n$',
     rows, 'llrrrrr')
 

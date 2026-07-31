@@ -1067,6 +1067,28 @@ if _os.path.exists(_m10):
          '_ci_fmt(_ci2)' in open(_m10, encoding='utf-8').read(),
          'five sign counts alone cannot say whether any is distinguishable')
 
+# Table S11 shows novelty-to-distance correlations of 0.975 to 0.983. Part of that is
+# definitional, since the starting compounds are drawn from the training set, so d <= nu for
+# every molecule. The main text and the note say so; the caption did not, and a caption is read
+# on its own.
+_fr11 = json.load(open(_os.path.join(OUT, 'frontier_v2_analysis.json')))
+_K11 = ('graphga_lam0.0', 'graphga_lam0.1', 'stga_lam0.0', 'stga_lam0.1')
+cond('SI tables', 'S11: every row rests on 300 runs, 1200 in total',
+     all(_fr11[k]['n'] == 300 for k in _K11) and sum(_fr11[k]['n'] for k in _K11) == 1200, '')
+cond('SI tables', 'S11: novelty rises with distance and disagreement in all four rows',
+     all(_fr11[k]['nov_dtrain'] > 0 and _fr11[k]['nov_sig'] > 0 for k in _K11), '')
+cond('SI tables', 'S11: predicted potency falls with novelty in all four rows',
+     all(_fr11[k]['nov_pot'] < 0 for k in _K11), '')
+cond('SI tables', 'S11: the pattern holds at zero uncertainty penalty',
+     all(_fr11[k]['nov_dtrain'] > 0 and _fr11[k]['nov_sig'] > 0 and _fr11[k]['nov_pot'] < 0
+         for k in ('graphga_lam0.0', 'stga_lam0.0')),
+     'so it is not induced by the penalty')
+_m11 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m11):
+    cond('SI tables', 'the S11 caption discloses the definitional part of the association',
+         'is definitional' in open(_m11, encoding='utf-8').read(),
+         '0.98 would otherwise read as an empirical finding')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
