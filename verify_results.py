@@ -1588,7 +1588,7 @@ if _os.path.exists(_epf):
         cond('manuscript', 'the article states the endpoint mix and cites its table',
              'TabEndpoint' in _a and 'K_i$' in _a, 'pIC50 is named as a convention')
         cond('manuscript', 'the abstract restricts the nearer-training result to the novel third',
-             'within the most novel third' in _a,
+             'within the most novel third' in _a.lower(),
              'the comparison is inside the most novel third, not over all compounds')
         cond('manuscript', 'the RDKit standardization order is stated',
              'LargestFragmentChooser' in _a and 'Uncharger' in _a,
@@ -1712,6 +1712,15 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     cond('manuscript', 'the abstract accounts for every temporal target, not a subset',
          'surviving on two targets' not in _ab and 'across the four' in _ab,
          f'{_ntemp} temporal targets; two survive, one weakens, one is lost')
+    # The Introduction promises four contributions, but the abstract covered only three: the
+    # fingerprint-surrogate method had no sentence at all. It must stay, and it must keep the
+    # qualifier that the gain is on the model's own score rather than on measured activity.
+    cond('manuscript', 'the abstract states the surrogate-triage contribution',
+         'fingerprint surrogate' in _ab and '\\MethodGain' in _ab,
+         'the Introduction promises four contributions; the abstract must carry all four')
+    cond('manuscript', 'the abstract marks the surrogate gain as model-scored, not measured',
+         'model-scored' in _ab,
+         'generated molecules were never assayed; the gain is on the reward the model defines')
     # npj Drug Discovery caps the title at 15 words, and the user's standing rule forbids a
     # colon in it.
     _ti = _re.search(r'\\title(?:\[.*?\])?\{(.*?)\}', _s, _re.S).group(1)
