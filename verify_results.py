@@ -1026,6 +1026,47 @@ if _os.path.exists(_m9):
          'little room to separate there' in open(_m9, encoding='utf-8').read(),
          'otherwise the per-target pattern reads as a rule difference')
 
+# Table S10 reported five per-target turnover differences as a bare sign count. The cells are
+# small and unbalanced, DRD2's seventh bin holding 7 runs and DRD3's 9, and a per-target
+# bootstrap over seeds shows DRD3's difference covers zero. A sign count cannot show that.
+import numpy as _np10
+_f10 = json.load(open(_os.path.join(OUT, 'frontier_v2_results.json')))['results']
+_r10 = [dict(r, target=t) for t, rs in _f10.items() for r in rs]
+_n10 = [r['novelty'] for r in _r10]
+_e10 = [min(_n10) + (max(_n10) - min(_n10)) * i / 8 for i in range(9)]
+def _b10(v):
+    for i in range(8):
+        if v <= _e10[i + 1]:
+            return i
+    return 7
+_cov0, _small = [], {}
+for _t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3'):
+    _s10 = [r for r in _r10 if r['target'] == _t]
+    _small[_t] = sum(1 for r in _s10 if _b10(r['novelty']) == 6)
+    _sd = sorted({r['seed'] for r in _s10})
+    _by = {x: [r for r in _s10 if r['seed'] == x] for x in _sd}
+    _mk = lambda rs, k: (_np10.mean([r['sigma'] for r in rs if _b10(r['novelty']) == k])
+                         if any(_b10(r['novelty']) == k for r in rs) else _np10.nan)
+    _rg = _np10.random.default_rng(3); _dd = []
+    for _ in range(2000):
+        _pk = [x for q in _rg.choice(_sd, len(_sd), replace=True) for x in _by[q]]
+        _v = _mk(_pk, 6) - _mk(_pk, 7)
+        if not _np10.isnan(_v):
+            _dd.append(_v)
+    _lo, _hi = _np10.percentile(_dd, [2.5, 97.5])
+    if _lo <= 0 <= _hi:
+        _cov0.append(_t)
+cond('SI tables', 'S10: DRD3 alone has a turnover interval covering zero',
+     _cov0 == ['drd3'], f'covers zero on {_cov0}, so a sign count of four overstates it')
+cond('SI tables', 'S10: the seventh bin is thin on DRD2 and DRD3',
+     _small['drd2'] < 10 and _small['drd3'] < 10,
+     f"n7 = {_small['drd2']} and {_small['drd3']}, against {_small['nk1r']} on NK1R")
+_m10 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m10):
+    cond('SI tables', 'S10 carries a per-target interval column',
+         '_ci_fmt(_ci2)' in open(_m10, encoding='utf-8').read(),
+         'five sign counts alone cannot say whether any is distinguishable')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

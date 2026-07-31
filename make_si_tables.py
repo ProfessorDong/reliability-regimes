@@ -94,6 +94,11 @@ def tab(label, caption, header, rows, spec, note='', size='', tight=False):
     OUTL.append(r'\end{table}' + '\n')
 
 
+def _ci_fmt(ci):
+    """A signed interval in math mode, so negatives get a real minus rather than a hyphen."""
+    return '$[%+.2f, %+.2f]$' % (ci[0], ci[1])
+
+
 def _andlist(xs):
     """Join names as English prose: 'a, b and c'."""
     xs = list(xs)
@@ -479,24 +484,50 @@ def _bin_of(v):
     return 7
 
 
-_turn_rows = []
+# The per-target cells are small and unbalanced: DRD2's seventh bin holds 7 runs and DRD3's
+# holds 9, and those two carry the largest differences. A sign count over five targets says
+# nothing about whether any of them is distinguishable, so each row carries its own interval
+# from a bootstrap that resamples seeds within the target, the same block unit Figure 2 uses.
+import numpy as _np2
+_turn_rows, _turn_ci, _turn_diff = [], {}, {}
 for _t in T:
     _sel = [r for r in _rw2 if r['target'] == _t]
     _mm, _nn = [], []
     for _k in (6, 7):
         _v = [r['sigma'] for r in _sel if _bin_of(r['novelty']) == _k]
         _nn.append(len(_v)); _mm.append(sum(_v) / len(_v) if _v else float('nan'))
+    _sd2 = sorted({r['seed'] for r in _sel})
+    _by2 = {_s: [r for r in _sel if r['seed'] == _s] for _s in _sd2}
+    _mean_k = lambda rs, k: (_np2.mean([r['sigma'] for r in rs if _bin_of(r['novelty']) == k])
+                             if any(_bin_of(r['novelty']) == k for r in rs) else _np2.nan)
+    _rng2 = _np2.random.default_rng(3)
+    _draws = []
+    for _ in range(2000):
+        _pick = [x for _s in _rng2.choice(_sd2, len(_sd2), replace=True) for x in _by2[_s]]
+        _d2 = _mean_k(_pick, 6) - _mean_k(_pick, 7)
+        if not _np2.isnan(_d2):
+            _draws.append(_d2)
+    _ci2 = [float(_np2.percentile(_draws, 2.5)), float(_np2.percentile(_draws, 97.5))]
+    _turn_ci[_t] = _ci2
+    _turn_diff[_t] = _mm[0] - _mm[1]
     _turn_rows.append(f"{LAB[_t]} & {_nn[0]} & {f(_mm[0])} & {_nn[1]} & {f(_mm[1])} & "
-                      f"{sg(_mm[0] - _mm[1], 2)}")
+                      f"{sg(_mm[0] - _mm[1], 2)} & {_ci_fmt(_ci2)}")
 tab('tab:s-turnover',
     'Disagreement in the two highest novelty bins, per target. Runs are grouped into eight '
     'equal-width bins of achieved generated-set novelty; the table gives the mean disagreement '
     'in the seventh and eighth bins and their difference. A positive difference means '
-    'disagreement falls at the highest novelty rather than continuing to rise. It does so on '
-    'four of the five targets, NK1R excepted. The pooled difference and its interval, from a '
-    'bootstrap over target-seed blocks, are given in the main article.',
-    r'Target & $n_7$ & Bin 7 & $n_8$ & Bin 8 & Difference',
-    _turn_rows, 'lrrrrr')
+    'disagreement falls at the highest novelty rather than continuing to rise. '
+    'It does so on %s, and rises instead on %s. The cells are small and unbalanced, so each '
+    'row carries a 95\\%% interval from a bootstrap resampling seeds within the target: the '
+    'difference is separated from zero on %s, and on %s it is not, which a sign count over five '
+    'targets would not show. The pooled difference and its interval, from a bootstrap over '
+    'target-seed blocks, are given in the main article.'
+    % (_andlist([LAB[t] for t in T if _turn_diff[t] > 0]),
+       _andlist([LAB[t] for t in T if _turn_diff[t] <= 0]),
+       _andlist([LAB[t] for t in T if _turn_ci[t][0] > 0 or _turn_ci[t][1] < 0]),
+       _andlist([LAB[t] for t in T if _turn_ci[t][0] <= 0 <= _turn_ci[t][1]])),
+    r'Target & $n_7$ & Bin 7 & $n_8$ & Bin 8 & Difference & 95\% interval',
+    _turn_rows, 'lrrrrrr')
 
 tab('tab:s-frontier',
     'Novelty-driven shift during optimization. Correlations across runs between the achieved '
