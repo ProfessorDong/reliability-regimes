@@ -350,7 +350,7 @@ for _m in ['random', 'ucb', 'lcb', 'conformal']:
     _pd[_m] = '%+.2f [%+.2f, %+.2f]' % (_mu, _mu - _tc * _se, _mu + _tc * _se)
 _note = (r'Paired against the predicted-mean rule, seed by seed, as the mean per-target '
          r'difference in compounds acquired with a 95\% $t$ interval across the five targets: '
-         r'UCB ' + _pd['ucb'] + r', LCB ' + _pd['lcb'] + r', conformal-style ' +
+         r'$\mu+\sigma$ ' + _pd['ucb'] + r', $\mu-\sigma$ ' + _pd['lcb'] + r', lower score ' +
          _pd['conformal'] + r', random ' + _pd['random'] + r'. Both penalized rules are '
          r'separated from the predicted mean; the optimistic rule is not.')
 tab('tab:s-pool',
@@ -362,7 +362,7 @@ tab('tab:s-pool',
     'score, finds fewer top-percentile compounds than selecting on the predicted mean. The last '
     'row is the mean enrichment over random selection; the paired comparisons against the '
     'predicted-mean rule are given below the table.',
-    r'Target & Pool & Top 1\% & Random & Greedy & UCB & LCB & Conf.-style', rows, 'lrrrrrrr',
+    r'Target & Pool & Top 1\% & Random & $\mu$ & $\mu+\sigma$ & $\mu-\sigma$ & Lower score', rows, 'lrrrrrrr',
     note=_note)
 
 # ---------------------------------------------------------------- S9 frontier
