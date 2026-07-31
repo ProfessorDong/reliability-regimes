@@ -378,16 +378,28 @@ _tnote = (r'One-sided empirical $P$ against the %d size-matched control replicat
 tab('tab:s-temporal',
     'Temporal shift and its size-matched control, one row per arm. Models are trained on '
     'compounds first published before 2015 and evaluated on those first published later. Each '
-    'target has one temporal split; the control repeats twenty random splits with proper-training, '
-    'calibration and test sets of identical size drawn from the same pool, so it shares the sizes shown '
-    'on the temporal row above it; that control is the only like-for-like comparator, because '
-    'this cohort is re-curated independently of the five datasets of Table S1. Error rises on '
-    'every target and coverage falls below nominal on three of four, whereas the error ranking '
-    'degrades on DRD2 and DRD3 and is unchanged on SCD-1 and NK1R. Brackets give 95\\% '
-    'intervals: a percentile bootstrap over the evaluation compounds for the temporal split, '
-    'which happens once, and a $t$ interval across replicates for the control. The pooled '
-    'correlation is lower than any per-target value because pooling mixes targets whose errors '
-    'differ in scale.',
+    'target has one temporal split; the control repeats %s random splits with proper-training, '
+    'calibration and test sets of identical size drawn from the same pool, so it shares the sizes '
+    'shown on the temporal row above it; that control is the only like-for-like comparator, '
+    'because this cohort is re-curated independently of the five datasets of Table S1. Error '
+    'rises on every target, coverage falls below the nominal 0.900 on all %s and its interval '
+    'clears the control on %s of them, and the error ranking degrades on DRD2 and DRD3 while '
+    'staying level on SCD-1 and NK1R. Brackets give 95\\%% intervals: a percentile bootstrap '
+    'over the evaluation compounds for the temporal split, which happens once, and for the '
+    'control a $t$ interval on its mean, which is how precisely that mean is estimated. '
+    'Figure~\\ArtFigOverview{}c and Supplementary Figure~\\ref{sfig:temporal} instead draw the '
+    'spread of the replicates themselves, the wider quantity a single temporal observation is '
+    'judged extreme against. The pooled correlation sits below %s of the %s per-target '
+    'values and above %s, because '
+    'pooling mixes targets whose errors differ in scale.'
+    % (_R, len(_TT),
+       sum(tmp[t]['conformal_coverage_adaptive_ci95'][1]
+           < tmp[t]['control_random_same_size']['conformal_coverage_adaptive_ci95'][0]
+           for t in _TT),
+       sum(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _TT),
+       len(_TT),
+       next(LAB[t] for t in _TT
+            if tmp['pooled']['spearman_sigma_err'] >= tmp[t]['spearman_sigma_err'])),
     r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{cal}}$ & $n_{\mathrm{test}}$ & RMSE & '
     r'$\rho(\sigma_T,e)$ & Coverage at 0.900',
     rows, 'llrrrrrr', tight=True, note=_tnote)

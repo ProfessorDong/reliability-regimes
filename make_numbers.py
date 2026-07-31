@@ -231,6 +231,15 @@ for _t, _c in _CAPT.items():
     M[f'TempN{_c}'] = thou(tmp[_t]['n_test'])
     M[f'TempCov{_c}'] = f"{tmp[_t]['conformal_coverage_adaptive']:.3f}"
     M[f'TempCtlCov{_c}'] = f"{tmp[_t]['control_random_same_size']['conformal_coverage_adaptive']:.3f}"
+# How the pooled temporal correlation sits against the per-target ones. It is NOT below all of
+# them: DRD3 is lower. The claim that it is was in the article, the SI note and the S8 caption.
+_pb = sum(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _CAPT)
+M['TempPooledBelow'] = str(_pb)
+M['TempPooledBelowWord'] = {1: 'one', 2: 'two', 3: 'three', 4: 'four'}[_pb]
+M['TempPooledAboveTgt'] = next(
+    {'scd1': 'SCD-1', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 'DRD3'}[t] for t in _CAPT
+    if tmp['pooled']['spearman_sigma_err'] >= tmp[t]['spearman_sigma_err'])
+
 # Exact comparison against the size-matched control. Three quantities that the replicate range
 # alone cannot give: the one-sided empirical P, whose smallest attainable value is 1/(R+1) and
 # is therefore set by how many replicates were run; the direct effect against the control mean

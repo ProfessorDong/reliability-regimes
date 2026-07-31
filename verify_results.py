@@ -974,6 +974,33 @@ if _os.path.exists(_mbp):
         cond('SI tables', 'the S7 caption does not claim the two increases are the same',
              'are the same under both' not in open(_m7, encoding='utf-8').read(), '')
 
+# The pooled temporal correlation was said, in the article, the SI note and the S8 caption, to
+# be lower than ANY per-target value. It is not: DRD3 sits below it. The point being made,
+# that pooling is not a summary, survives; the universal quantifier did not.
+_t8 = json.load(open(_os.path.join(OUT, 'temporal_analysis.json')))
+_T8 = ('scd1', 'nk1r', 'drd2', 'drd3')
+_pl = _t8['pooled']['spearman_sigma_err']
+_below = [t for t in _T8 if _pl < _t8[t]['spearman_sigma_err']]
+cond('SI tables', 'S8: the pooled correlation is below three of four per-target values, not all',
+     len(_below) == 3 and 'drd3' not in _below,
+     f'pooled {_pl:.3f}; above DRD3 at {_t8["drd3"]["spearman_sigma_err"]:.3f}')
+cond('SI tables', 'S8: coverage falls below nominal on all four targets',
+     all(_t8[t]['conformal_coverage_adaptive'] < 0.900 for t in _T8),
+     'the caption said three of four')
+cond('SI tables', 'S8: the control replicate count in the caption comes from the data',
+     _t8['scd1']['control_random_same_size']['n_reps'] == 1000,
+     'the caption hard-coded twenty after the run moved to 1000')
+cond('SI tables', 'S8: error rises above its control on every target',
+     all(_t8[t]['rmse_test'] > _t8[t]['control_random_same_size']['rmse'] for t in _T8), '')
+cond('SI tables', 'S8: the pooled evaluation count is the sum of the per-target ones',
+     sum(_t8[t]['n_test'] for t in _T8) == _t8['pooled']['n'], '')
+for _f8 in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
+    _p8 = _os.path.join(_D, _f8)
+    if _os.path.exists(_p8):
+        cond('phrasing', f'{_f8}: no claim that pooled is below every per-target value',
+             'lower than any of the' not in open(_p8, encoding='utf-8').read(),
+             'DRD3 is below the pooled value')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
