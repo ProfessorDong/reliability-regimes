@@ -851,6 +851,28 @@ if _os.path.exists(_sfp):
         cond('SI tables', 'S2 carries a scaffold RMSE column beside the R2',
              "rmse_s" in _c2, 'the absolute error is what shows the model is not broken')
 
+# Table S3 is the error-stratification table. Four targets and the pooled row increase across
+# every quintile; SCD-1 does not, and a table headed "stratification" that shows an unordered
+# row without comment invites the reader to distrust the rest.
+_r3 = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+_mono3 = [t for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+          if all(_r3[t]['rmse_by_sigma_quintile'][i] <= _r3[t]['rmse_by_sigma_quintile'][i + 1]
+                 for i in range(4))]
+cond('SI tables', 'S3: SCD-1 is the only target whose quintiles are not ordered',
+     _mono3 == ['fads', 'nk1r', 'drd2', 'drd3'], f'monotone on {_mono3}')
+cond('SI tables', 'S3: the pooled quintiles are ordered',
+     all(_r3['pooled']['rmse_by_sigma_quintile'][i] <= _r3['pooled']['rmse_by_sigma_quintile'][i + 1]
+         for i in range(4)), '')
+cond('SI tables', 'S3: the top quintile exceeds the bottom on every row',
+     all(_r3[t]['rmse_by_sigma_quintile'][4] > _r3[t]['rmse_by_sigma_quintile'][0]
+         for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3', 'pooled')),
+     'the ranking holds end to end even where it is not monotone')
+_mst3 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_mst3):
+    cond('SI tables', 'the S3 caption derives its monotone list from the data',
+         '_mono = [LAB[t] for t in T' in open(_mst3, encoding='utf-8').read(),
+         'so it cannot drift if a target moves')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

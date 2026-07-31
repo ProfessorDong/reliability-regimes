@@ -169,11 +169,22 @@ for t in T:
 p = rel['pooled']
 rows.append(r'\midrule Pooled & ' + f(p['spearman_sigma_err'], 3) + ' & ' +
             ' & '.join(f(v) for v in p.get('rmse_by_sigma_quintile', [float('nan')] * 5)))
+# Which rows actually increase across the quintiles, worked out from the data rather than
+# asserted, so the caption cannot drift if a target moves.
+_mono = [LAB[t] for t in T
+         if all(rel[t]['rmse_by_sigma_quintile'][i] <= rel[t]['rmse_by_sigma_quintile'][i + 1]
+                for i in range(4))]
+_nonmono = [LAB[t] for t in T if LAB[t] not in _mono]
 tab('tab:s-strat',
     'Error stratification by ensemble disagreement, in distribution. Spearman correlation '
     'between the disagreement score and the absolute out-of-fold error, and RMSE within '
     'quintiles of the disagreement score (Q1 lowest). This is a ranking result, not a '
-    'calibration; calibrated coverage is reported separately.',
+    'calibration; calibrated coverage is reported separately. Error increases across every '
+    'quintile on %s and on the pooled row. %s is the exception: its quintiles are not ordered, '
+    'and at a correlation of %s it carries little ranking information, the same weakness its '
+    'risk--coverage curve shows in Supplementary Table~\\ref{tab:s-riskcov}.'
+    % (', '.join(_mono), ' and '.join(_nonmono),
+       f(rel['scd1']['spearman_sigma_err'], 3)),
     r'Target & $\rho(\sigma_T,|e|)$ & Q1 & Q2 & Q3 & Q4 & Q5', rows, 'lrrrrrr')
 
 # ---------------------------------------------------------------- S4 risk-coverage
