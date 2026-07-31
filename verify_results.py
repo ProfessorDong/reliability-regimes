@@ -805,6 +805,24 @@ cond('SI figures', 'S3: the two are exactly equal on NK1R',
      _h('nk1r', 'ucb') == _h('nk1r', 'greedy'),
      'the caption names the tie rather than implying one leads')
 
+# Table S1's within-parent SD is a mean over parents holding more than one record. FADS has
+# none, so the quantity is undefined there; the table printed 0.00, which reads as a measured
+# spread of zero. Check the generator emits n/a and that the arithmetic of the table closes.
+_relS1 = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+for _t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3'):
+    _d = _relS1[_t]['duplicates']
+    cond('SI tables', f'S1 arithmetic closes for {_t}: records minus collapsed equals parents',
+         _d['n_rows'] - _d['n_duplicate_rows'] == _d['n_unique'],
+         f"{_d['n_rows']} - {_d['n_duplicate_rows']} = {_d['n_unique']}")
+cond('SI tables', 'S1 reports no within-parent SD where there are no multi-record parents',
+     _relS1['fads']['duplicates']['n_compounds_with_replicates'] == 0,
+     'FADS has none, so the entry must be n/a rather than 0.00')
+_mst1 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_mst1):
+    cond('SI tables', 'the S1 generator prints n/a for an undefined within-parent SD',
+         "else 'n/a'" in open(_mst1, encoding='utf-8').read(),
+         'zero and undefined are different statements')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

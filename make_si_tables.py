@@ -107,15 +107,18 @@ def sg(x, d=3):
 rows = []
 for t in T:
     d = rel[t]['duplicates']
+    # With no multi-record parent the within-parent SD is undefined, not zero. FADS printed
+    # 0.00, which reads as a measured spread of zero rather than as nothing to measure.
+    _sd = f(d['mean_within_compound_sd']) if d['n_compounds_with_replicates'] else 'n/a'
     rows.append(f"{LAB[t]} & {d['n_rows']:,} & {d['n_unique']:,} & {d['n_duplicate_rows']} & "
-                f"{d['n_compounds_with_replicates']} & {f(d['mean_within_compound_sd'])}".replace(',', '{,}'))
+                f"{d['n_compounds_with_replicates']} & {_sd}".replace(',', '{,}'))
 tab('tab:s-data',
     'Dataset composition after parent standardization. Records sharing a standardized parent '
     'InChIKey are aggregated to a median activity before splitting. Several source records '
     'for one parent may be alternative molecular representations, repeated measurements, or '
     'measurements made in different assay contexts, and the retained fields do not separate '
     'these, so they are reported as multi-record parents rather than uniformly called '
-    'replicates. Within-parent SD is computed among parents holding more than one record and '
+    'replicates. Within-parent SD is computed among parents holding more than one record, is undefined and shown as n/a where a target has none, and '
     'describes label heterogeneity; because models are scored against the median aggregate '
     'rather than against a fresh measurement, it is not a lower bound on attainable error.',
     r'Target & Records & \shortstack[r]{Parent\\structures} & \shortstack[r]{Records\\collapsed} & \shortstack[r]{Multi-record\\parents} & \shortstack[r]{Within-parent\\SD}',
