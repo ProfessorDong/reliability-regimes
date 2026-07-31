@@ -437,7 +437,23 @@ tab('tab:s-pool',
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
     'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal-style lower '
     'score, finds fewer top-percentile compounds than selecting on the predicted mean. The '
-    'paired comparisons against the predicted-mean rule are given below the table.',
+    'paired comparisons against the predicted-mean rule are given below the table. The Top '
+    '1\\%% column is how many such compounds the pool contains, and on %s the best rule '
+    'already takes most of them, %s, so the rules have little room to separate there; on '
+    '%s the best rule takes %s of those available.'
+    % (_andlist([LAB[t] for t in T
+                 if max(pool[t][m]['hits'] for m in ('greedy', 'ucb', 'lcb', 'conformal'))
+                 / pool[t]['n_top1pct_in_pool'] > 0.8]),
+       _andlist(['%s of %d on %s' % (f(max(pool[t][m]['hits'] for m in
+                                           ('greedy', 'ucb', 'lcb', 'conformal')), 1),
+                                     pool[t]['n_top1pct_in_pool'], LAB[t])
+                 for t in T
+                 if max(pool[t][m]['hits'] for m in ('greedy', 'ucb', 'lcb', 'conformal'))
+                 / pool[t]['n_top1pct_in_pool'] > 0.8]),
+       LAB['drd2'],
+       '%s of %d' % (f(max(pool['drd2'][m]['hits'] for m in
+                          ('greedy', 'ucb', 'lcb', 'conformal')), 1),
+                     pool['drd2']['n_top1pct_in_pool'])),
     r'Target & Pool & Top 1\% & Random & $\mu$ & $\mu+\sigma$ & $\mu-\sigma$ & Lower score', rows, 'lrrrrrrr',
     note=_note)
 

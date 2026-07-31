@@ -1001,6 +1001,31 @@ for _f8 in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
              'lower than any of the' not in open(_p8, encoding='utf-8').read(),
              'DRD3 is below the pooled value')
 
+# Table S9's per-target comparison is compressed on the small pools: the fixed 300-query budget
+# is about half of SCD-1 but 3% of DRD2, so on SCD-1 and FADS the best rule already takes most of
+# the top-percentile compounds that exist and the rules cannot separate much there.
+_p9 = json.load(open(_os.path.join(OUT, 'poolopt_analysis.json')))['summary']
+_T9 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+_M9 = ('greedy', 'ucb', 'lcb', 'conformal')
+_share = {t: max(_p9[t][m]['hits'] for m in _M9) / _p9[t]['n_top1pct_in_pool'] for t in _T9}
+cond('SI tables', 'S9: SCD-1 and FADS are the targets near their acquisition ceiling',
+     sorted(t for t in _T9 if _share[t] > 0.8) == ['fads', 'scd1'],
+     ', '.join(f'{t} {100*_share[t]:.0f}%' for t in _T9))
+cond('SI tables', 'S9: no rule acquires more than the pool contains',
+     all(_p9[t][m]['hits'] <= _p9[t]['n_top1pct_in_pool'] for t in _T9 for m in _M9), '')
+cond('SI tables', 'S9: no rule acquires more hits than the query budget allows',
+     all(_p9[t][m]['hits'] <= 300 for t in _T9 for m in _M9), '')
+cond('SI tables', 'S9: the top-percentile set is about 1% of each pool',
+     all(0.009 < _p9[t]['n_top1pct_in_pool'] / _p9[t]['pool_size'] < 0.013 for t in _T9),
+     'ties at the cutoff make it at least 1%')
+cond('SI tables', 'S9: random enrichment is exactly 1 by construction',
+     all(abs(_p9[t]['random']['enrichment_vs_random'] - 1.0) < 1e-9 for t in _T9), '')
+_m9 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m9):
+    cond('SI tables', 'the S9 caption states the ceiling on the small pools',
+         'little room to separate there' in open(_m9, encoding='utf-8').read(),
+         'otherwise the per-target pattern reads as a rule difference')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
