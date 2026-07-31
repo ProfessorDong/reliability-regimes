@@ -943,6 +943,37 @@ if _os.path.exists(_m6):
          'is not what the case for the score rests on' in open(_m6, encoding='utf-8').read(),
          'Supplementary Note 4 rests it on the error ranking instead')
 
+# Table S7 compares the two datings. Its caption asserted that the error increase over control
+# is the same under both; it is 50% against 49%, which the table's own last row and the note
+# both state. A caption that contradicts the table it captions is the worst kind.
+_ma = json.load(open(_os.path.join(OUT, 'temporal_analysis.json')))
+_mbp = _os.path.join(OUT, 'temporal_analysis_yearmedian.json')
+if _os.path.exists(_mbp):
+    _mb = json.load(open(_mbp))
+    _T7 = ('scd1', 'nk1r', 'drd2', 'drd3')
+    _pa = _ma['delta_vs_control']['rmse_pct_increase_vs_control']
+    _pb = _mb['delta_vs_control']['rmse_pct_increase_vs_control']
+    cond('SI tables', 'S7: the two datings give a close but not identical error increase',
+         abs(_pa - _pb) < 5 and round(_pa) != round(_pb),
+         f'{_pa:.1f}% against {_pb:.1f}%, so the caption must not call them the same')
+    _lost = lambda d: [t for t in _T7
+                       if d[t]['spearman_sigma_err_ci95'][1]
+                       < d[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]]
+    cond('SI tables', 'S7: the same two targets lose the ranking under both datings',
+         _lost(_ma) == _lost(_mb) == ['drd2', 'drd3'], f'{_lost(_ma)} and {_lost(_mb)}')
+    cond('SI tables', 'S7: both datings use the same number of control replicates',
+         _ma['scd1']['control_random_same_size']['n_reps']
+         == _mb['scd1']['control_random_same_size']['n_reps'],
+         'the sensitivity must not be resolved more coarsely than the analysis')
+    cond('SI tables', 'S7: median dating lifts the SCD-1 correlation above its own control',
+         _mb['scd1']['spearman_sigma_err']
+         > _mb['scd1']['control_random_same_size']['spearman_sigma_err'],
+         'the stated difference between the two datings')
+    _m7 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+    if _os.path.exists(_m7):
+        cond('SI tables', 'the S7 caption does not claim the two increases are the same',
+             'are the same under both' not in open(_m7, encoding='utf-8').read(), '')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

@@ -293,10 +293,14 @@ if os.path.exists(_sens):
         'earliest publication year among a compound\'s records, is used throughout the main '
         'article: it is the quantity a prospective split requires, and it guarantees that no '
         'evaluation compound carries a pre-cutoff record. The median year of a compound\'s '
-        'records is shown for comparison. The error increase over the size-matched control, the '
-        'set of targets that lose the error ranking are the same under both. They differ on '
+        'records is shown for comparison. The error increase over the size-matched control is '
+        'close under the two datings, %s\\%% against %s\\%%, and the same two targets lose the '
+        'error ranking, so the conclusion does not depend on the choice. The datings differ on '
         'SCD-1, where median dating lifts the temporal correlation above its own control, '
-        'because compounds disclosed before the cutoff are dated into the future set.',
+        'because compounds disclosed before the cutoff are dated into the future set. '
+        'Correlations are given to two decimals, so the DRD3 value under median dating shows as '
+        '$-0.00$: it is negative and smaller in magnitude than $0.005$.'
+        % (f(_da['rmse_pct_increase_vs_control'], 0), f(_db['rmse_pct_increase_vs_control'], 0)),
         r'Target & \multicolumn{4}{c}{First disclosure (used)} & \multicolumn{4}{c}{Median year}\\'
         r'\cmidrule(lr){2-5}\cmidrule(lr){6-9}'
         r' & $n_{\mathrm{test}}$ & RMSE & $\rho(\sigma_T,e)$ & Coverage'
