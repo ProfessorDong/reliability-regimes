@@ -178,6 +178,14 @@ M['CompatPermP'] = f"{(1 + sum(1 for v in _nl0 if abs(v) >= abs(_obs0))) / (len(
 M['CompatPermN'] = str(len(_nl0))
 M['CompatPairs'] = str(len(_cgr0))
 
+# Every withheld cluster is underpredicted, not only the one that falls below its threshold.
+# Reporting SCD-1 alone made a threshold crossing look like a prediction failure unique to it.
+_omr = {e['target']: e for e in L('oracle_metrics.json')['results']}
+_gaps = {t: rec[t]['measured'] - rec[t]['retrained_pred'] for t in T}
+M['RecGapLo'] = f"{min(_gaps.values()):.2f}"
+M['RecGapHi'] = f"{max(_gaps.values()):.2f}"
+M['RecGapFads'] = f"{_gaps['fads']:.2f}"
+
 # --- temporal shift (Regime 2) ---
 tmp = L('temporal_analysis.json')
 tp = tmp['pooled']

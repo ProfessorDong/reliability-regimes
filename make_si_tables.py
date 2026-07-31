@@ -683,16 +683,33 @@ tab('tab:s-compat',
 rows = []
 for t in T:
     d = rec[t]
-    rows.append(f"{LAB[t]} & {f(d['retrained_pred'])} & {f(d['measured'])} & {f(d['retrained_sigma'])} & "
+    # Without the threshold a reader cannot see why 6.80 fails on SCD-1 while 6.95 passes on
+    # DRD2: the thresholds differ. The caption's central claim is uncheckable without it.
+    rows.append(f"{LAB[t]} & {f(d['retrained_pred'])} & {om[t]['threshold']:.1f} & "
+                f"{f(d['measured'])} & {f(d['retrained_sigma'])} & "
                 f"{f(d['rec_stga'])} & {f(d['rec_graphga'])} & {f(d['null_sim'])}")
 tab('tab:s-recovery',
     'Similarity to withheld scaffold clusters. An entire Bemis--Murcko cluster of actives is '
-    'removed from both the seeds and the training set and the model retrained. The retrained '
-    'model still predicts the withheld actives above the target threshold on four of five targets, SCD-1 being '
-    'underpredicted, and flags them with elevated disagreement. Recovery is the mean closest '
-    'Tanimoto similarity of any generated molecule to the withheld cluster, and is not improved '
-    'by the triage.',
-    r'Target & Predicted & Measured & $\sigma_T$ & ST-GA & Graph GA & Null', rows, 'lrrrrrr')
+    'removed from both the seeds and the training set and the model retrained. Every target is '
+    'underpredicted against the withheld cluster\'s measured mean, by %s to %s '
+    '$\\mathrm{pIC}_{50}$, and all five carry elevated disagreement. What separates them is the '
+    'threshold: the prediction still clears it on four, and falls below on %s alone. %s is '
+    'underpredicted by almost as much, %s against %s, but clears a lower threshold, so the '
+    'failure on %s is partly a matter of where its threshold sits. Recovery is the mean closest '
+    'Tanimoto similarity of any generated molecule to the withheld cluster, which is not exact '
+    'scaffold recovery, and is not improved by the triage.'
+    % (f(min(rec[t]['measured'] - rec[t]['retrained_pred'] for t in T)),
+       f(max(rec[t]['measured'] - rec[t]['retrained_pred'] for t in T)),
+       _andlist([LAB[t] for t in T if rec[t]['retrained_pred'] < om[t]['threshold']]),
+       LAB[sorted((t for t in T if rec[t]['retrained_pred'] >= om[t]['threshold']),
+                  key=lambda t: -(rec[t]['measured'] - rec[t]['retrained_pred']))[0]],
+       f(max(rec[t]['measured'] - rec[t]['retrained_pred'] for t in T
+             if rec[t]['retrained_pred'] >= om[t]['threshold'])),
+       f(max(rec[t]['measured'] - rec[t]['retrained_pred'] for t in T
+             if rec[t]['retrained_pred'] < om[t]['threshold'])),
+       _andlist([LAB[t] for t in T if rec[t]['retrained_pred'] < om[t]['threshold']])),
+    r'Target & Predicted & Threshold & Measured & $\sigma_T$ & ST-GA & Graph GA & Null',
+    rows, 'lrrrrrrr')
 
 # ---------------------------------------------------------------- S13 in-domain novelty
 rows = []

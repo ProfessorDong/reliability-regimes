@@ -1261,6 +1261,34 @@ if _os.path.exists(_m16):
     cond('SI tables', 'S16 says the compatibility score is carried over, not fitted here',
          'carried over from the companion' in _c16, '')
 
+# Table S17 claimed the model predicts above threshold on four of five with SCD-1
+# underpredicted, but showed no threshold column, so neither half could be checked: 6.80 fails
+# on SCD-1 while 6.95 passes on DRD2 only because the thresholds differ. All five are in fact
+# underpredicted, and FADS by almost as much as SCD-1.
+_rc17 = json.load(open(_os.path.join(OUT, 'recovery_v2_results.json')))['results']
+_om17 = {e['target']: e for e in json.load(open(_os.path.join(OUT, 'oracle_metrics.json')))['results']}
+_T17 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+cond('SI tables', 'S17: every withheld cluster is underpredicted, not only SCD-1',
+     all(_rc17[t]['retrained_pred'] < _rc17[t]['measured'] for t in _T17),
+     'so underprediction is not what singles SCD-1 out')
+cond('SI tables', 'S17: SCD-1 alone falls below its activity threshold',
+     [t for t in _T17 if _rc17[t]['retrained_pred'] < _om17[t]['threshold']] == ['scd1'],
+     'that is the threshold crossing, a different claim from underprediction')
+cond('SI tables', 'S17: FADS is underpredicted nearly as much as SCD-1 yet clears its threshold',
+     abs((_rc17['fads']['measured'] - _rc17['fads']['retrained_pred'])
+         - (_rc17['scd1']['measured'] - _rc17['scd1']['retrained_pred'])) < 0.05
+     and _rc17['fads']['retrained_pred'] >= _om17['fads']['threshold'],
+     'the SCD-1 failure is partly where its threshold sits')
+cond('SI tables', 'S17: recovery exceeds the chemical-space null on every target',
+     all(_rc17[t]['rec_stga'] > _rc17[t]['null_sim'] for t in _T17), '')
+cond('SI tables', 'S17: the triage does not improve recovery on any target',
+     all(_rc17[t]['rec_graphga'] >= _rc17[t]['rec_stga'] for t in _T17), '')
+_m17 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m17):
+    cond('SI tables', 'S17 shows the threshold its claim depends on',
+         "om[t]['threshold']:.1f" in open(_m17, encoding='utf-8').read(),
+         'otherwise 6.80 failing and 6.95 passing looks arbitrary')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
