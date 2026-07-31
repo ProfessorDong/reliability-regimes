@@ -601,12 +601,20 @@ for t in T:
                 + f" & {f(b['graphga']['top10_novel'],3)} & {sg(d['delta'])} & {f(d['p'],3)}")
 tab('tab:s-beta',
     'Uncertainty in the acquisition does not help. Mean top-ten reward at $k=10$ over 25 seeds '
-    'for the acquisition $\\mu+\\beta\\varsigma$. The paired difference between $\\beta=1$ and '
-    '$\\beta=0$ is negligible: it reaches an exact $P$ of %s on one target and %s to %s on '
-    'the other four, and is negative on DRD3.'
-    % (f(min(beta[t]['beta1_vs_beta0_novel']['p'] for t in T), 3),
+    'for the acquisition $\\mu+\\beta\\varsigma$, where $\\varsigma$ is the triage surrogate\'s own '
+    'dispersion and not the activity model\'s disagreement $\\sigma_T$ used elsewhere. The paired '
+    'difference between $\\beta=1$ and $\\beta=0$ is negligible everywhere: it is %s on %s, the '
+    'only target where it reaches an exact $P$ below %s, and %s to %s on the other four. It is '
+    'negative on DRD3, the one target where the reward falls monotonically as $\\beta$ rises, '
+    'by %s at $\\beta=2$. Every setting of $\\beta$ beats Graph GA, so the surrogate helps and the '
+    'uncertainty term in its acquisition does not.'
+    % (sg(beta[min(T, key=lambda t: beta[t]['beta1_vs_beta0_novel']['p'])]
+             ['beta1_vs_beta0_novel']['delta']),
+       LAB[min(T, key=lambda t: beta[t]['beta1_vs_beta0_novel']['p'])],
        f(sorted(beta[t]['beta1_vs_beta0_novel']['p'] for t in T)[1], 2),
-       f(max(beta[t]['beta1_vs_beta0_novel']['p'] for t in T), 2)),
+       f(sorted(beta[t]['beta1_vs_beta0_novel']['p'] for t in T)[1], 2),
+       f(max(beta[t]['beta1_vs_beta0_novel']['p'] for t in T), 2),
+       sg(beta['drd3']['beta2.0']['top10_novel'] - beta['drd3']['beta0.0']['top10_novel'])),
     r'Target & $\beta=0$ & $\beta=0.5$ & $\beta=1$ & $\beta=2$ & Graph GA & $\Delta_{\beta=1-0}$ & $P$',
     rows, 'lrrrrrrr')
 

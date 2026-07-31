@@ -1159,6 +1159,40 @@ if _os.path.exists(_rh):
          'DUAL-ENCODER' in open(_rh, encoding='utf-8').read(),
          'its docstring named the fingerprint comparison it does not compute')
 
+# Table S14's beta ablation. Its acquisition uses the triage surrogate's own dispersion, a
+# different quantity from the activity model's disagreement the rest of the paper calls sigma_T,
+# and the caption used the symbol without saying so.
+_b14 = json.load(open(_os.path.join(OUT, 'beta_ablation.json')))['summary']
+_T14 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+_BS = ('beta0.0', 'beta0.5', 'beta1.0', 'beta2.0')
+cond('SI tables', 'S14: the reported delta is beta=1 minus beta=0 on every target',
+     all(abs((_b14[t]['beta1.0']['top10_novel'] - _b14[t]['beta0.0']['top10_novel'])
+             - _b14[t]['beta1_vs_beta0_novel']['delta']) < 5e-4 for t in _T14), '')
+cond('SI tables', 'S14: every setting of beta beats Graph GA on every target',
+     all(_b14[t][b]['top10_novel'] > _b14[t]['graphga']['top10_novel']
+         for t in _T14 for b in _BS),
+     'the surrogate helps; the uncertainty term in its acquisition is what does not')
+cond('SI tables', 'S14: the beta effect is negative on DRD3 alone',
+     [t for t in _T14 if _b14[t]['beta1_vs_beta0_novel']['delta'] < 0] == ['drd3'], '')
+cond('SI tables', 'S14: NK1R is the one target with a small P, and its effect is positive',
+     min(_T14, key=lambda t: _b14[t]['beta1_vs_beta0_novel']['p']) == 'nk1r'
+     and _b14['nk1r']['beta1_vs_beta0_novel']['delta'] > 0,
+     'so the one precise result is a tiny help, not a harm')
+cond('SI tables', 'S14: the beta=1 minus beta=0 difference is negligible on every target',
+     max(abs(_b14[t]['beta1_vs_beta0_novel']['delta']) for t in _T14) < 0.02,
+     'this is the claim the caption makes; larger beta is a separate question')
+_mono14 = [t for t in _T14
+           if all(_b14[t][_BS[i]]['top10_novel'] >= _b14[t][_BS[i + 1]]['top10_novel']
+                  for i in range(3))]
+cond('SI tables', 'S14: DRD3 alone declines monotonically as beta rises',
+     _mono14 == ['drd3'],
+     'the only target where the uncertainty weight has a consistent effect, and it is a loss')
+_m14 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m14):
+    cond('SI tables', 'the S14 caption distinguishes the surrogate dispersion from sigma_T',
+         "not the activity model" in open(_m14, encoding='utf-8').read(),
+         'they are different quantities and the caption reuses a similar symbol')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
