@@ -156,6 +156,28 @@ M['ScafRmseFads'] = f"{_sf['fads']['implied_rmse']:.2f}"
 M['ScafRmseLo'] = f"{min(v['implied_rmse'] for v in _sf.values()):.2f}"
 M['ScafRmseHi'] = f"{max(v['implied_rmse'] for v in _sf.values()):.2f}"
 
+# The 20 ordered source-destination pairs share targets, so an ordinary Pearson P has no
+# independent-error justification. Permute the five target labels instead, exact over all 120
+# relabelings.
+import itertools as _it
+_cgr0 = L('compat_gen_analysis.json')['rows']
+_cm0 = {(x['source'], x['target']): x['C_nn'] for x in _cgr0}
+_gm0 = {(x['source'], x['target']): x['gain_mean'] for x in _cgr0}
+_T0 = sorted({x['target'] for x in _cgr0})
+_obs0 = sps.pearsonr([x['C_nn'] for x in _cgr0], [x['gain_mean'] for x in _cgr0])[0]
+_nl0 = []
+for _pm0 in _it.permutations(_T0):
+    _mp0 = dict(zip(_T0, _pm0)); _c0, _g0 = [], []
+    for (_s0, _t0) in _gm0:
+        _k0 = (_mp0[_s0], _mp0[_t0])
+        if _k0 in _cm0:
+            _c0.append(_cm0[_k0]); _g0.append(_gm0[(_s0, _t0)])
+    if len(_c0) == len(_gm0):
+        _nl0.append(sps.pearsonr(_c0, _g0)[0])
+M['CompatPermP'] = f"{(1 + sum(1 for v in _nl0 if abs(v) >= abs(_obs0))) / (len(_nl0) + 1):.2f}"
+M['CompatPermN'] = str(len(_nl0))
+M['CompatPairs'] = str(len(_cgr0))
+
 # --- temporal shift (Regime 2) ---
 tmp = L('temporal_analysis.json')
 tp = tmp['pooled']

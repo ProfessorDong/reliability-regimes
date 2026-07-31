@@ -1129,6 +1129,9 @@ for _f13 in sorted(_os.listdir(_os.path.join(_os.path.dirname(_os.path.abspath(_
     _src13 = open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'reliability', _f13),
                   encoding='utf-8').read()
     _need = set(_re13.findall(r"outputs/frozen/([A-Za-z0-9_]+\.json)", _src13))
+    # Also catch inputs referenced through os.path.join rather than a literal path; one script
+    # read outputs/compat_v8_16tgt.json that way and slipped past the first version of this.
+    _need |= set(_re13.findall(r"os\.path\.join\(BASE, 'outputs', (?:'frozen', )?'([A-Za-z0-9_]+\.json)'\)", _src13))
     _gone = sorted(n for n in _need if n not in _have13)
     if _gone:
         _missing13[_f13] = _gone
@@ -1218,6 +1221,45 @@ if _os.path.exists(_m15):
          'otherwise its dual-encoder row and S15 disagree with no explanation')
     cond('SI tables', 'S15 explains why a Graph GA column is shown',
          'not worse than no surrogate at all' in _c15, '')
+
+# Table S16's 20 ordered pairs share targets, so an ordinary Pearson P over them has no
+# independent-error justification. An exact permutation of the five target labels does. The
+# n_target column also held raw record counts where the paper's unit is the parent structure.
+import itertools as _it16v
+from scipy import stats as _sp16v
+_cg16 = json.load(open(_os.path.join(OUT, 'compat_gen_analysis.json')))['rows']
+_T16v = sorted({x['target'] for x in _cg16})
+cond('SI tables', 'S16: every target appears equally often as source and destination',
+     len({sum(1 for x in _cg16 if x['source'] == t) for t in _T16v}) == 1
+     and len({sum(1 for x in _cg16 if x['target'] == t) for t in _T16v}) == 1,
+     'which is why the pairs are not independent')
+_cm = {(x['source'], x['target']): x['C_nn'] for x in _cg16}
+_gm = {(x['source'], x['target']): x['gain_mean'] for x in _cg16}
+_obs = _sp16v.pearsonr([x['C_nn'] for x in _cg16], [x['gain_mean'] for x in _cg16])[0]
+_nl = []
+for _pm in _it16v.permutations(_T16v):
+    _mp = dict(zip(_T16v, _pm)); _c, _g = [], []
+    for (_s, _t) in _gm:
+        if (_mp[_s], _mp[_t]) in _cm:
+            _c.append(_cm[(_mp[_s], _mp[_t])]); _g.append(_gm[(_s, _t)])
+    if len(_c) == len(_gm):
+        _nl.append(_sp16v.pearsonr(_c, _g)[0])
+_pp = (1 + sum(1 for v in _nl if abs(v) >= abs(_obs))) / (len(_nl) + 1)
+cond('SI tables', 'S16: the label-permutation test is exact over all 120 relabelings',
+     len(_nl) == 120, f'{len(_nl)} permutations')
+cond('SI tables', 'S16: the warm-start correlation is null under the permutation test',
+     _pp > 0.1, f'permutation P {_pp:.2f} against a nominal {_obs:.2f} correlation')
+cond('SI tables', 'S16: warm-start gains are small and of both signs',
+     min(x['gain_mean'] for x in _cg16) < 0 < max(x['gain_mean'] for x in _cg16)
+     and max(abs(x['gain_mean']) for x in _cg16) < 0.2, '')
+_m16 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m16):
+    _c16 = open(_m16, encoding='utf-8').read()
+    cond('SI tables', 'S16 reports standardized parents, not raw records',
+         "rel[r['target']]['duplicates']['n_unique']" in _c16,
+         'the frozen n_target field is a raw record count')
+    cond('SI tables', 'S16 says the compatibility score is carried over, not fitted here',
+         'carried over from the companion' in _c16, '')
 
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been

@@ -638,17 +638,45 @@ tab('tab:s-latent',
 _cgr = L('compat_gen_analysis.json')['rows']
 rows = []
 for r in sorted(_cgr, key=lambda x: (x['target'], -x['C_nn'])):
+    # n_target in the frozen file is a raw record count. The unit everywhere else in the paper
+    # is the standardized parent, and Table 1 keeps the two apart, so report parents here too.
     rows.append(f"{LAB[r['source']]} & {LAB[r['target']]} & {f(r['C_nn'], 3)} & "
-                f"{r['n_target']:,} & {sg(r['gain_mean'], 3)} & {f(r['gain_std'], 3)}".replace(',', '{,}'))
+                f"{rel[r['target']]['duplicates']['n_unique']:,} & {sg(r['gain_mean'], 3)} & "
+                f"{f(r['gain_std'], 3)}".replace(',', '{,}'))
+# The 20 ordered pairs share targets: each of the five appears four times as source and four
+# times as destination, so an ordinary Pearson P has no independent-error justification. Permute
+# the five target labels instead and recompute, which is exact over all 120 relabelings.
+import itertools as _it16
+from scipy import stats as _sp16
+_cm16 = {(x['source'], x['target']): x['C_nn'] for x in _cgr}
+_gm16 = {(x['source'], x['target']): x['gain_mean'] for x in _cgr}
+_T16 = sorted({x['target'] for x in _cgr})
+_obs16 = _sp16.pearsonr([x['C_nn'] for x in _cgr], [x['gain_mean'] for x in _cgr])[0]
+_null16 = []
+for _pm in _it16.permutations(_T16):
+    _mp = dict(zip(_T16, _pm))
+    _c, _g = [], []
+    for (_s16, _t16) in _gm16:
+        _key = (_mp[_s16], _mp[_t16])
+        if _key in _cm16:
+            _c.append(_cm16[_key]); _g.append(_gm16[(_s16, _t16)])
+    if len(_c) == len(_gm16):
+        _null16.append(_sp16.pearsonr(_c, _g)[0])
+_pperm16 = (1 + sum(1 for v in _null16 if abs(v) >= abs(_obs16))) / (len(_null16) + 1)
+
 tab('tab:s-compat',
     'Warm-starting the surrogate on a source target does not help. Each row is a source-target '
     'pair: the surrogate is pre-trained on the source and then used on the destination, and the '
     'gain is the change in top-ten reward against the same search started cold, over 25 seeds. '
     '$C_{\\mathrm{nn}}$ is the structural compatibility of the pair. The gains are small and of '
     'both signs, and across the %d pairs they are uncorrelated with compatibility '
-    '(Pearson $r=%s$, $P=%s$), so a compatibility measure that predicts transfer for static '
-    'property prediction does not predict it here.'
-    % (len(_cgr), '%.2f' % cg['pair_pearson_r'], '%.2f' % cg['pair_pearson_p']),
+    '($r=%s$). The pairs share targets, each of the five appearing four times as source and '
+    'four times as destination, so an ordinary $P$ would have no independent-error '
+    'justification; permuting the five target labels and recomputing, which is exact over all '
+    '%d relabelings, gives $P=%s$. $C_{\\mathrm{nn}}$ is carried over from the companion '
+    'prediction study rather than fitted here, and $n_{\\mathrm{target}}$ counts standardized '
+    'parents, as in Table 1.'
+    % (len(_cgr), '%.2f' % _obs16, len(_null16), '%.2f' % _pperm16),
     r'Source & Destination & $C_{\mathrm{nn}}$ & $n_{\mathrm{target}}$ & Mean gain & SD',
     rows, 'llrrrr')
 

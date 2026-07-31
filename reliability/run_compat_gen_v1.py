@@ -35,7 +35,7 @@ WEIGHTS = {'potency': 1.0, 'selectivity': 0.0, 'qed': 0.3, 'sa': 0.3}
 
 
 def load_cnn():
-    d = json.load(open(os.path.join(BASE, 'outputs', 'compat_v8_16tgt.json')))
+    d = json.load(open(os.path.join(BASE, 'outputs', 'frozen', 'compat_v8_16tgt.json')))
     return {(r['source'], r['target']): r['C_nn'] for r in d['rows']}
 
 
