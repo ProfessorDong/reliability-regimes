@@ -27,8 +27,24 @@ def _data_dir():
 
 
 CW = _data_dir()
-PROV = os.path.join(ROOT, 'drug_discovery', 'theranostics_current', 'data', 'chembl_v2',
-                    'curation_provenance.json')
+def _prov_path():
+    """Curation provenance, whether this file sits in the repository or the workspace.
+
+    The repository ships data/chembl_v2/curation_provenance.json beside this script. Resolving
+    only against the workspace layout made the curation table vanish from a clean clone, which
+    also renumbered every table after it, so a reader reproducing the Supplementary Information
+    got different numbers from the ones the article cites.
+    """
+    here = os.path.dirname(os.path.abspath(__file__))
+    for cand in (os.path.join(here, 'data', 'chembl_v2', 'curation_provenance.json'),
+                 os.path.join(ROOT, 'drug_discovery', 'theranostics_current', 'data',
+                              'chembl_v2', 'curation_provenance.json')):
+        if os.path.isfile(cand):
+            return cand
+    return cand
+
+
+PROV = _prov_path()
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'si_tables.tex')
 L = lambda f: json.load(open(os.path.join(CW, f)))
 T = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']

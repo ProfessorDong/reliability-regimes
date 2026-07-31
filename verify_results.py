@@ -11,6 +11,7 @@ from __future__ import annotations
 import json, os, sys
 
 OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'outputs', 'frozen')
+_HERE_DIR = os.path.dirname(os.path.abspath(__file__))
 T = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
 FAILED, CHECKED = [], 0
 
@@ -630,6 +631,22 @@ if all(_os.path.exists(f) for f in _SRC.values()):
          'the exception must come from the macro the data sets')
     cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
          'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
+
+# Every input a generator needs must resolve from a clean clone. The curation provenance was
+# reachable only through the workspace layout, so a clone silently produced one table fewer and
+# renumbered every table after it, giving a reader different numbers from the ones the article
+# cites. Check both that the file resolves and that the table it feeds was actually emitted.
+_prov = _os.path.join(_HERE_DIR, 'data', 'chembl_v2', 'curation_provenance.json')
+cond('portability', 'the curation provenance ships in the repository',
+     _os.path.isfile(_prov), 'the curation table is generated from it')
+_sitl = _os.path.join(_HERE_DIR, 'si_tables.tex')
+if _os.path.exists(_sitl):
+    _txt = open(_sitl, encoding='utf-8').read()
+    cond('portability', 'a locally generated si_tables.tex contains the curation table',
+         'tab:s-curation' in _txt,
+         'a missing table renumbers every table after it')
+    cond('portability', 'a locally generated si_tables.tex has the full table count',
+         _txt.count(r'\begin{table}') == 20, f"{_txt.count(chr(92)+chr(92)+'begin{table}')} tables")
 
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
