@@ -359,9 +359,8 @@ tab('tab:s-pool',
     'measured activity. Entries are the number of top-percentile compounds acquired, '
     'averaged over twenty seeds, and the last row is the mean enrichment relative to random '
     'selection. Penalizing uncertainty, whether by a lower-confidence rule or a conformal-style lower '
-    'score, finds fewer top-percentile compounds than selecting on the predicted mean. The last '
-    'row is the mean enrichment over random selection; the paired comparisons against the '
-    'predicted-mean rule are given below the table.',
+    'score, finds fewer top-percentile compounds than selecting on the predicted mean. The '
+    'paired comparisons against the predicted-mean rule are given below the table.',
     r'Target & Pool & Top 1\% & Random & $\mu$ & $\mu+\sigma$ & $\mu-\sigma$ & Lower score', rows, 'lrrrrrrr',
     note=_note)
 
