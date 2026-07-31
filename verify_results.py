@@ -1433,6 +1433,31 @@ if _os.path.exists(_artM) and len(_srcM) == 5:
          'size $200$' in _aM and 'pool_mult=5' in _srcM['surrogate_ga.py'],
          '40 evaluated per generation times a pool multiplier of five')
 
+# The Results and Methods asserted that small neural predictors collapse toward the training
+# mean, varying by under 0.13 pIC50. Nothing in the repository could check it: the bake-off
+# fits three tree ensembles and no network. Measuring it refutes it, so the claim is gone and
+# mlp_collapse.json is the record of why.
+_mcp = _os.path.join(OUT, 'mlp_collapse.json')
+if _os.path.exists(_mcp):
+    _mc = json.load(open(_mcp))
+    _TM = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+    cond('methods', 'a small neural predictor does not collapse to the training mean',
+         all(_mc[t]['mlp_spread_ratio'] > 0.8 for t in _TM),
+         'prediction spread is '
+         + ', '.join(f"{100*_mc[t]['mlp_spread_ratio']:.0f}%" for t in _TM)
+         + ' of the measured spread')
+    cond('methods', 'the forest shrinks its predictions more than the network does',
+         all(_mc[t]['rf_spread_ratio'] < _mc[t]['mlp_spread_ratio'] for t in _TM),
+         'the opposite of the collapse the removed claim asserted')
+    _artM2 = _os.path.join(_D, 'npjDD_Reliability.tex')
+    if _os.path.exists(_artM2):
+        _t2 = open(_artM2, encoding='utf-8').read()
+        cond('methods', 'the refuted neural-collapse claim is not in the manuscript',
+             'collapsed toward the training mean' not in _t2,
+             'it was unreproducible from this repository and measurement contradicts it')
+        cond('methods', 'the model choice rests on the bake-off that was actually run',
+             'bake-off among a random forest' in _t2, '')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
