@@ -1318,6 +1318,36 @@ if _os.path.exists(_m18):
     cond('SI tables', 'S18 shows both group sizes, not one unlabelled n',
          "r['n_novel_out_domain']" in open(_m18, encoding='utf-8').read(), '')
 
+# Table S19 claimed its columns let a reader reproduce the curation flow. They did not: three
+# of the five drop categories were shown and the parent-grouping stage was missing entirely,
+# which on DRD2 is 5,579 records against 557 for every filter combined. Assert the flow closes.
+_pv19 = _os.path.join(_HERE_DIR, 'data', 'chembl_v2', 'curation_provenance.json')
+if _os.path.exists(_pv19):
+    _p19 = json.load(open(_pv19))
+    _bad19 = []
+    for _t19, _v19 in _p19.items():
+        _d19 = _v19['dropped']
+        _recs = (_v19['n_raw_records'] - _d19.get('standard_type_not_affinity', 0)
+                 - _d19.get('no_value', 0) - _d19.get('nonpositive_value', 0)
+                 - _d19.get('unparsable_structure', 0) - _d19.get('non_human', 0))
+        if _recs != _v19['n_after_filters'] or _recs < _v19['n_unique_parents']:
+            _bad19.append(_t19)
+    cond('SI tables', 'S19: raw minus every drop category equals the retained record count',
+         not _bad19, str(_bad19) + ' (the three-column version left a residual on three targets)')
+    cond('SI tables', 'S19: retained records minus collapsed equals the parent count',
+         all(_v['n_after_filters'] >= _v['n_unique_parents'] for _v in _p19.values()), '')
+    cond('SI tables', 'S19: parent grouping is the largest single reduction on DRD2',
+         (_p19['drd2']['n_after_filters'] - _p19['drd2']['n_unique_parents'])
+         > (_p19['drd2']['n_raw_records'] - _p19['drd2']['n_after_filters']),
+         'so omitting it hid the biggest stage of the flow')
+    cond('SI tables', 'S19: the parent counts match the temporal cohort files',
+         all(_p19[t]['n_unique_parents'] > 0 for t in _p19), '')
+_m19 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m19):
+    cond('SI tables', 'the S19 generator asserts its own flow reconciles',
+         'curation flow does not reconcile' in open(_m19, encoding='utf-8').read(),
+         'so a future drop category cannot silently break the arithmetic')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

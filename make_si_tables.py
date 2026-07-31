@@ -746,20 +746,39 @@ tab('tab:s-indomain',
 # ---------------------------------------------------------------- S14 curation provenance
 if prov:
     rows = []
+    # Every stage the curation script records, so raw minus the drops minus the records
+    # collapsed by parent grouping equals the parent count exactly. The previous version
+    # showed three of the five drop categories and omitted parent grouping altogether, which
+    # is the largest reduction of all: 5,579 records on DRD2.
     for t, v in prov.items():
         d = v['dropped']
+        _na = d.get('standard_type_not_affinity', 0)
+        _inv = d.get('no_value', 0) + d.get('nonpositive_value', 0)
+        _up = d.get('unparsable_structure', 0)
+        _recs = v['n_raw_records'] - _na - _inv - _up - d.get('non_human', 0)
+        _coll = _recs - v['n_unique_parents']
+        assert _recs == v['n_after_filters'], 'curation flow does not reconcile for ' + t
         rows.append(f"{LAB.get(t,t)} & {v['chembl_id']} & {v['n_raw_records']:,} & "
-                    f"{d.get('standard_type_not_affinity',0):,} & {d.get('non_human',0):,} & "
-                    f"{d.get('unparsable_structure',0)} & {v['n_unique_parents']:,} & "
+                    f"{_na:,} & {_inv} & {_up} & {_recs:,} & {_coll:,} & "
+                    f"{v['n_unique_parents']:,} & "
                     f"{v['year_range'][0]}--{v['year_range'][1]}".replace(',', '{,}'))
     tab('tab:s-curation',
-        'ChEMBL curation flow for the re-curated targets. Activities were retained with an '
-        'exact relation, nanomolar units, a human target and an affinity endpoint, then grouped '
-        'on the standardized parent InChIKey. Counts removed at each stage are given so the '
-        'flow can be reproduced. These files carry publication years and support the temporal '
-        'analysis; FADS is not included because ChEMBL holds only two activity records for it.',
-        r'Target & ChEMBL ID & Raw & Non-affinity & Non-human & Unparsable & Parents & Years',
-        rows, 'llrrrrrr')
+        'ChEMBL curation flow for the re-curated targets. The query returns only records with '
+        'an exact relation, nanomolar units and a human target, so those filters remove nothing '
+        'here and no species column is shown. Of what returns, records are dropped for a '
+        'non-affinity endpoint, for a missing or non-positive value, and for a structure RDKit '
+        'cannot parse; the remainder are then grouped on the standardized parent InChIKey. '
+        'Every stage is listed, so raw minus the three drop columns gives Records, and Records '
+        'minus Collapsed gives Parents, on each row. Parent grouping is the largest reduction: '
+        'it removes %s records on DRD2 against %s for all the filters together. These files '
+        'carry publication years and support the temporal analysis; FADS is not included '
+        'because ChEMBL holds only two activity records for it.'
+        % ('{:,}'.format(prov['drd2']['n_after_filters'] - prov['drd2']['n_unique_parents']).replace(',', '{,}'),
+           '{:,}'.format(prov['drd2']['n_raw_records'] - prov['drd2']['n_after_filters']).replace(',', '{,}')),
+        r'Target & ChEMBL & Raw & \shortstack[r]{Non-\\affinity} & Invalid & '
+        r'\shortstack[r]{Unpar-\\sable} & Records & \shortstack[r]{Col-\\lapsed} & '
+        r'Parents & Years',
+        rows, 'llrrrrrrrr', tight=True)
 
 # Endpoint composition of the pooled response, for both cohorts, and its shift at the
 # temporal cutoff. The cross-validation files retain no endpoint field, so their mix is
