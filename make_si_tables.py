@@ -584,11 +584,14 @@ rows = [
     f" & ${h['mean']:+.3f}$ [{h['ci95'][0]:+.3f}, {h['ci95'][1]:+.3f}] & {f(h['p'],3)}",
 ]
 tab('tab:s-targetlevel',
-    'Target-level summary of the method effect. Per-target mean paired difference against '
-    'Graph GA, and the two-sided one-sample $t$-test on the five per-target means '
-    '($\\mathrm{df}=4$). With five targets an assumption-free sign test cannot fall below '
-    '$P=0.0625$ even when every target is positive, so the effect is best described as '
-    'positive in all five targets studied.',
+    ('Target-level summary of the method effect. Per-target mean paired difference against '
+     'Graph GA, pooled over the support sizes $k$ of %s, and the two-sided one-sample $t$-test '
+     'on the five per-target means ($\\mathrm{df}=4$). Supplementary Table~\\ref{tab:s-latent} '
+     'reports the same dual-encoder surrogate at $k=10$ alone, so its figures differ from the '
+     'dual-encoder row here. With five targets an assumption-free sign test cannot fall below '
+     '$P=0.0625$ even when every target is positive, so the effect is best described as '
+     'positive in all five targets studied.'
+     % _andlist(['$%d$' % k for k in sorted({r['k'] for r in meth})])),
     r'Surrogate & ' + ' & '.join(LAB[t] for t in T) + r' & Mean [95\% CI] & $P$',
     rows, 'lrrrrrrr')
 
@@ -626,7 +629,9 @@ for t in T:
 tab('tab:s-latent',
     'A learned latent representation underperforms fingerprints. Mean top-ten reward at $k=10$ '
     'over 25 seeds, with the two-sided paired $P$ for the latent surrogate minus the '
-    'fingerprint surrogate.',
+    'fingerprint surrogate. The latent surrogate loses to fingerprints on all five targets, but '
+    'it still beats Graph GA on all five, which is why that column is shown: the learned '
+    'representation is worse than a fingerprint, not worse than no surrogate at all.',
     r'Target & Latent & Fingerprint & Graph GA & Latent $-$ Fingerprint & $P$', rows, 'lrrrrr')
 
 # ------------------------------------------------- COMPATIBILITY warm start (negative)

@@ -1193,6 +1193,32 @@ if _os.path.exists(_m14):
          "not the activity model" in open(_m14, encoding='utf-8').read(),
          'they are different quantities and the caption reuses a similar symbol')
 
+# Table S15 is the latent-versus-fingerprint ablation at k=10. The same surrogate also appears
+# as the dual-encoder row of Table S13, pooled over all three support sizes, so the two tables
+# report the same comparison with figures that differ by up to 0.03. Both captions now say
+# which support sizes they cover.
+_e15 = json.load(open(_os.path.join(OUT, 'ecfp_baseline.json')))['summary']
+_T15 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+cond('SI tables', 'S15: the reported difference is latent minus fingerprint on every target',
+     all(abs((_e15[t]['latent'] - _e15[t]['ecfp']) - _e15[t]['latent_minus_ecfp']) < 5e-4
+         for t in _T15), '')
+cond('SI tables', 'S15: the latent surrogate loses to fingerprints on all five targets',
+     all(_e15[t]['latent_minus_ecfp'] < 0 for t in _T15), '')
+cond('SI tables', 'S15: the latent surrogate still beats Graph GA on all five',
+     all(_e15[t]['latent'] > _e15[t]['graphga'] for t in _T15),
+     'worse than a fingerprint, not worse than no surrogate')
+cond('SI tables', 'S15: every latent-versus-fingerprint P is below 0.05',
+     max(_e15[t]['p_lat_ecfp'] for t in _T15) < 0.05,
+     f"largest {max(_e15[t]['p_lat_ecfp'] for t in _T15):.1e}")
+_m15 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m15):
+    _c15 = open(_m15, encoding='utf-8').read()
+    cond('SI tables', 'S13 states which support sizes it pools',
+         'pooled over the support sizes' in _c15,
+         'otherwise its dual-encoder row and S15 disagree with no explanation')
+    cond('SI tables', 'S15 explains why a Graph GA column is shown',
+         'not worse than no surrogate at all' in _c15, '')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
