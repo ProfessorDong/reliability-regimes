@@ -94,6 +94,17 @@ def tab(label, caption, header, rows, spec, note='', size='', tight=False):
     OUTL.append(r'\end{table}' + '\n')
 
 
+def _psci(pv):
+    """A P value in scientific notation, set in math mode.
+
+    The previous inline version chained two string replacements on '%.1e' output and produced a
+    stray brace for any P with a positive exponent. Every P here is far below 1, so it never
+    fired, but formatting should not depend on that.
+    """
+    m, e = ('%.1e' % pv).split('e')
+    return '$%s\\times10^{%d}$' % (m, int(e))
+
+
 def _ci_fmt(ci):
     """A signed interval in math mode, so negatives get a real minus rather than a hyphen."""
     return '$[%+.2f, %+.2f]$' % (ci[0], ci[1])
@@ -546,10 +557,10 @@ tab('tab:s-frontier',
 # ---------------------------------------------------------------- S10 method per-cell
 rows = []
 for r in meth:
-    a = r['agg']; pv = a['p_vs_ga']
-    ps = ('%.1e' % pv).replace('e-0', r'\times10^{-').replace('e-', r'\times10^{-') + '}'
+    a = r['agg']
     rows.append(f"{LAB[r['target']]} & {r['k']} & {f(a['stga_ecfp'],3)} & {f(a['randtriage'],3)} & "
-                f"{f(a['graphga'],3)} & {sg(a['d_vs_ga'])} & ${ps}$ & {f(a['frac_pos_ga'],2)}")
+                f"{f(a['graphga'],3)} & {sg(a['d_vs_ga'])} & {_psci(a['p_vs_ga'])} & "
+                f"{f(a['frac_pos_ga'],2)}")
 tab('tab:s-method',
     'Method comparison per target and support size. Mean reward of the top ten generated '
     'molecules, excluding the support compounds and any structure in the activity model\'s '
@@ -591,7 +602,11 @@ for t in T:
 tab('tab:s-beta',
     'Uncertainty in the acquisition does not help. Mean top-ten reward at $k=10$ over 25 seeds '
     'for the acquisition $\\mu+\\beta\\varsigma$. The paired difference between $\\beta=1$ and '
-    '$\\beta=0$ is negligible, reaches $P<0.05$ on one target only, and is negative on DRD3.',
+    '$\\beta=0$ is negligible: it reaches an exact $P$ of %s on one target and %s to %s on '
+    'the other four, and is negative on DRD3.'
+    % (f(min(beta[t]['beta1_vs_beta0_novel']['p'] for t in T), 3),
+       f(sorted(beta[t]['beta1_vs_beta0_novel']['p'] for t in T)[1], 2),
+       f(max(beta[t]['beta1_vs_beta0_novel']['p'] for t in T), 2)),
     r'Target & $\beta=0$ & $\beta=0.5$ & $\beta=1$ & $\beta=2$ & Graph GA & $\Delta_{\beta=1-0}$ & $P$',
     rows, 'lrrrrrrr')
 
@@ -599,7 +614,7 @@ rows = []
 for t in T:
     e = ecfp[t]
     rows.append(f"{LAB[t]} & {f(e['latent'],3)} & {f(e['ecfp'],3)} & {f(e['graphga'],3)} & "
-                f"{sg(e['latent_minus_ecfp'])} & {('%.1e' % e['p_lat_ecfp'])}")
+                f"{sg(e['latent_minus_ecfp'])} & {_psci(e['p_lat_ecfp'])}")
 tab('tab:s-latent',
     'A learned latent representation underperforms fingerprints. Mean top-ten reward at $k=10$ '
     'over 25 seeds, with the two-sided paired $P$ for the latent surrogate minus the '

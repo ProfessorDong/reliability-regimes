@@ -1089,6 +1089,33 @@ if _os.path.exists(_m11):
          'is definitional' in open(_m11, encoding='utf-8').read(),
          '0.98 would otherwise read as an empirical finding')
 
+# Table S12's per-cell method comparison, and the P formatting it shares with S15.
+_mt12 = json.load(open(_os.path.join(OUT, 'methods_v2_results.json')))['results']
+cond('SI tables', 'S12: the reported delta equals ST-GA minus Graph GA in every cell',
+     all(abs((r['agg']['stga_ecfp'] - r['agg']['graphga']) - r['agg']['d_vs_ga']) < 5e-4
+         for r in _mt12), '')
+cond('SI tables', 'S12: the surrogate beats Graph GA in all 15 cells',
+     all(r['agg']['d_vs_ga'] > 0 for r in _mt12), f'{len(_mt12)} cells')
+cond('SI tables', 'S12: the surrogate also beats random triage in all 15 cells',
+     all(r['agg']['stga_ecfp'] > r['agg']['randtriage'] for r in _mt12),
+     'which attributes the gain to the surrogate, not the larger pool')
+cond('SI tables', 'S12: the win fraction is a proportion on every row',
+     all(0.0 <= r['agg']['frac_pos_ga'] <= 1.0 for r in _mt12), '')
+_m12 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m12):
+    _c12 = open(_m12, encoding='utf-8').read()
+    cond('SI tables', 'S12 and S15 format P through one helper, not two ad hoc expressions',
+         _c12.count('_psci(') >= 3 and "replace('e-0'" not in _c12,
+         'the old chained-replace produced a stray brace for any P above 0.1')
+    cond('phrasing', 'no threshold-only P survives in the generated tables',
+         'P<0.05' not in _c12, 'npj requires an exact P')
+for _f12 in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
+    _pp = _os.path.join(_D, _f12)
+    if _os.path.exists(_pp):
+        cond('phrasing', f'{_f12}: no threshold-only P',
+             'P<0.05' not in open(_pp, encoding='utf-8').read().replace(' ', ''),
+             'npj forbids reporting significance against a threshold alone')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
