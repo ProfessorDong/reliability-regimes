@@ -175,7 +175,9 @@ ax.plot(cov, [rc[f'{c:.1f}'] for c in cov], '--', color=DARK, lw=2.0, label='Poo
 ax.set_xlabel('Fraction retained, most confident first')
 ax.set_ylabel('RMSE (pIC$_{50}$)'); ax.set_xlim(0.15, 1.05)
 ax.grid(alpha=0.22, lw=0.6)
-ax.legend(fontsize=7, frameon=False, ncol=2, loc='upper left', handlelength=1.5,
+# Lower right: every curve climbs to the right, so the space beneath them there is free,
+# whereas at upper left the legend sat over the DRD3 and NK1R curves.
+ax.legend(fontsize=7, frameon=False, ncol=2, loc='lower right', handlelength=1.5,
           columnspacing=0.9, borderpad=0.2)
 ax.set_title('c  Risk\u2013coverage after the shift', loc='left', pad=6)
 
