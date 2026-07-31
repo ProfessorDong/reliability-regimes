@@ -1289,6 +1289,35 @@ if _os.path.exists(_m17):
          "om[t]['threshold']:.1f" in open(_m17, encoding='utf-8').read(),
          'otherwise 6.80 failing and 6.95 passing looks arbitrary')
 
+# Table S18 carries the in-domain novelty finding. Its exception was wrong in an earlier
+# version of the paper, so pin the target by name, the direction, and the size of the gap that
+# makes "indistinguishable" a statement rather than an assertion.
+_r18 = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+_T18 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+_g18 = {t: _r18[t]['novel_out_domain_rmse'] - _r18[t]['novel_in_domain_rmse'] for t in _T18}
+cond('SI tables', 'S18: nearer-training compounds have lower error on four targets',
+     sum(_g18[t] > 0 for t in _T18) == 4, str({t: round(_g18[t], 3) for t in _T18}))
+cond('SI tables', 'S18: SCD-1 is the exception, not FADS',
+     [t for t in _T18 if _g18[t] <= 0] == ['scd1'],
+     'an earlier version of the paper named FADS here')
+cond('SI tables', 'S18: the SCD-1 gap is an order smaller than any real one',
+     min(abs(_g18[t]) for t in _T18 if t != 'scd1') / abs(_g18['scd1']) > 10,
+     'which is what makes the two groups indistinguishable there')
+cond('SI tables', 'S18: disagreement is lower in the nearer group on all five',
+     all(_r18[t]['novel_in_domain_sigma'] < _r18[t]['novel_out_domain_sigma'] for t in _T18),
+     'the direction holds even where the error gap does not')
+cond('SI tables', 'S18: the two groups are near equal in size, as a median split implies',
+     all(abs(_r18[t]['n_novel_in_domain'] - _r18[t]['n_novel_out_domain'])
+         / _r18[t]['n_novel_in_domain'] < 0.1 for t in _T18), '')
+cond('SI tables', 'S18: each group is about a sixth of the structures, as the third-then-half is',
+     all(0.13 < (_r18[t]['n_novel_in_domain'] + _r18[t]['n_novel_out_domain'])
+         / _r18[t]['duplicates']['n_unique'] < 0.36 for t in _T18),
+     'confirms the most-novel-third then median-split procedure')
+_m18 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m18):
+    cond('SI tables', 'S18 shows both group sizes, not one unlabelled n',
+         "r['n_novel_out_domain']" in open(_m18, encoding='utf-8').read(), '')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

@@ -715,21 +715,33 @@ tab('tab:s-recovery',
 rows = []
 for t in T:
     r = rel[t]
+    # Both group sizes, not one unlabelled n: the split is at the median so they are close,
+    # and showing both lets a reader confirm that rather than assume it.
     rows.append(f"{LAB[t]} & {f(r['novel_in_domain_rmse'])} & {f(r['novel_out_domain_rmse'])} & "
                 f"{f(r['novel_in_domain_sigma'])} & {f(r['novel_out_domain_sigma'])} & "
-                f"{r['n_novel_in_domain']:,}".replace(',', '{,}'))
+                f"{r['n_novel_in_domain']:,} & {r['n_novel_out_domain']:,}".replace(',', '{,}'))
 tab('tab:s-indomain',
     'Nearer- and farther-training compounds at high novelty. Within the most novel third of '
     'each target, compounds are split at the median distance to the nearest training compound. '
     'Those nearer the training compounds have lower RMSE on four of the five targets, SCD-1 '
-    'being the exception where the two groups are indistinguishable, and lower mean '
+    'being the exception, where the gap is %s against %s to %s on the other four, some %d times '
+    'smaller than the least of them, and lower mean '
     'disagreement on all five. The split restricts rather than matches on novelty, so residual '
     'differences in novelty between the two groups are not controlled, and it is a relative '
-    'grouping within that third rather than a validated domain boundary.',
-    r'Target & \multicolumn{2}{c}{RMSE} & \multicolumn{2}{c}{$\sigma_T$} & $n$\\'
-    r'\cmidrule(lr){2-3}\cmidrule(lr){4-5}'
-    r' & Nearer & Farther & Nearer & Farther & ',
-    rows, 'lrrrrr')
+    'grouping within that third rather than a validated domain boundary.'
+    % (sg(rel['scd1']['novel_out_domain_rmse'] - rel['scd1']['novel_in_domain_rmse'], 3),
+       sg(min(rel[t]['novel_out_domain_rmse'] - rel[t]['novel_in_domain_rmse']
+              for t in T if t != 'scd1'), 3),
+       sg(max(rel[t]['novel_out_domain_rmse'] - rel[t]['novel_in_domain_rmse']
+              for t in T if t != 'scd1'), 3),
+       round(min(abs(rel[t]['novel_out_domain_rmse'] - rel[t]['novel_in_domain_rmse'])
+                 for t in T if t != 'scd1')
+             / abs(rel['scd1']['novel_out_domain_rmse']
+                   - rel['scd1']['novel_in_domain_rmse']))),
+    r'Target & \multicolumn{2}{c}{RMSE} & \multicolumn{2}{c}{$\sigma_T$} & \multicolumn{2}{c}{$n$}\\'
+    r'\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}'
+    r' & Nearer & Farther & Nearer & Farther & Nearer & Farther',
+    rows, 'lrrrrrr')
 
 # ---------------------------------------------------------------- S14 curation provenance
 if prov:
