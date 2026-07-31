@@ -137,6 +137,14 @@ M['MethodHalfTarget'] = f"{_hw(_tmn):.3f}"
 M['MethodHalfPooled'] = f"{_hw(_alld):.3f}"
 M['MethodWidthRatio'] = f"{_hw(_tmn) / _hw(_alld):.1f}"
 
+# Active fractions under the per-target thresholds. The thresholds decide which compounds seed
+# a search, what counts as a hit and how AUC is computed, so the split they produce is stated
+# rather than left for a reader to reconstruct.
+_om = {e['target']: e for e in L('oracle_metrics.json')['results']}
+_fa = [100.0 * _om[t]['frac_active'] for t in T]
+M['ActiveFracLo'] = f"{min(_fa):.0f}"
+M['ActiveFracHi'] = f"{max(_fa):.0f}"
+
 # --- temporal shift (Regime 2) ---
 tmp = L('temporal_analysis.json')
 tp = tmp['pooled']

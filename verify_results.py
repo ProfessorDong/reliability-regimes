@@ -724,6 +724,28 @@ except Exception as _e:
 cond('portability', 'make_si_tables resolves the curation provenance from this directory',
      _resolved, 'unresolved, the curation table is dropped and every later table renumbers')
 
+# Table 1 lists the per-target thresholds, which decide which compounds seed a search, what
+# counts as a hit and how AUC is computed. Their origin was stated nowhere, and one of them was
+# set from the activity distribution rather than by convention, so both facts are now disclosed.
+_omt = {e['target']: e for e in json.load(open(_os.path.join(OUT, 'oracle_metrics.json')))['results']}
+_fa = [_omt[t]['frac_active'] for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')]
+cond('table 1', 'the active split is near balanced on every target, not a rare positive class',
+     all(0.3 < f < 0.8 for f in _fa),
+     'fractions ' + ', '.join(f'{100*f:.0f}%' for f in _fa))
+cond('table 1', 'only two distinct thresholds are used',
+     len({_omt[t]['threshold'] for t in _omt}) == 2,
+     'the caption and Methods describe exactly two cutoffs')
+_art4 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                      'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
+if _os.path.exists(_art4):
+    _t4 = open(_art4, encoding='utf-8').read()
+    cond('table 1', 'the threshold provenance is stated, including the one set from the data',
+         'carried over from the earlier curation pipeline' in _t4 and 'sits' in _t4,
+         'DRD3 takes the 100 nM cutoff because its distribution is higher')
+    cond('table 1', 'the caption says what the pooled activity scale pools',
+         'TabEndpoint' in _t4.split('label{tab:targets}')[0][-1400:],
+         'a reader meets the label pIC50 first in Table 1')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

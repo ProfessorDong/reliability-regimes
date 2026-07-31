@@ -9,7 +9,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(180 assertions from a clean clone; 330 when the manuscript's `numbers.tex` is also present).
+(182 assertions from a clean clone; 334 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The
@@ -97,7 +97,7 @@ python -m reliability.run_hierstats_v1         # hierarchical / target-level sta
 python verify_results.py
 ```
 
-`verify_results.py` asserts 180 claims, values and semantics alike, and exits non-zero on
+`verify_results.py` asserts 182 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
 it additionally cross-checks every macro against its source and the manuscript prose, and reports 265.
 
