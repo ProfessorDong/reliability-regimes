@@ -639,14 +639,19 @@ if all(_os.path.exists(f) for f in _SRC.values()):
 _prov = _os.path.join(_HERE_DIR, 'data', 'chembl_v2', 'curation_provenance.json')
 cond('portability', 'the curation provenance ships in the repository',
      _os.path.isfile(_prov), 'the curation table is generated from it')
-_sitl = _os.path.join(_HERE_DIR, 'si_tables.tex')
-if _os.path.exists(_sitl):
-    _txt = open(_sitl, encoding='utf-8').read()
-    cond('portability', 'a locally generated si_tables.tex contains the curation table',
-         'tab:s-curation' in _txt,
-         'a missing table renumbers every table after it')
-    cond('portability', 'a locally generated si_tables.tex has the full table count',
-         _txt.count(r'\begin{table}') == 20, f"{_txt.count(chr(92)+chr(92)+'begin{table}')} tables")
+# Test the resolution itself rather than a generated artefact, so the check runs in every
+# state and the reported total does not depend on whether the generators have been run.
+try:
+    import importlib.util as _ilu
+    _spec = _ilu.spec_from_file_location('_mst', _os.path.join(_HERE_DIR, 'make_si_tables.py'))
+    _src = open(_os.path.join(_HERE_DIR, 'make_si_tables.py'), encoding='utf-8').read()
+    _ns = {'__file__': _os.path.join(_HERE_DIR, 'make_si_tables.py'), 'os': _os}
+    exec(_src[:_src.index('PROV = _prov_path()')] + 'PROV = _prov_path()', _ns)
+    _resolved = _os.path.isfile(_ns['PROV'])
+except Exception as _e:
+    _resolved = False
+cond('portability', 'make_si_tables resolves the curation provenance from this directory',
+     _resolved, 'unresolved, the curation table is dropped and every later table renumbers')
 
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
@@ -786,12 +791,16 @@ if _os.path.exists(_pf):
 # Literals that duplicate a macro. Twelve numbers were typed into the article while a macro
 # already held the same quantity, and one of them (0.97, where the data give 0.975) was simply
 # wrong. Flag any numeric literal in the body that equals a macro value.
+# The scan originally covered the article only, and a hand-typed width reduction survived in
+# the Supplementary Information for exactly that reason. Scan both documents.
 if _os.path.exists(NUM) and _os.path.exists(_art):
     import re as _r2
     _m2 = dict(_r2.findall(r'\\newcommand\{\\(\w+)\}\{(.*)\}', open(NUM, encoding='utf-8').read()))
     _vals = {v.replace('{,}', '').replace('$', ''): k for k, v in _m2.items()
              if _r2.fullmatch(r'[+-]?\d+\.\d+', v.replace('$', ''))}
     _body = open(_art, encoding='utf-8').read().split(r'\section{Introduction}')[-1]
+    if _os.path.exists(_sid):
+        _body += '\n' + open(_sid, encoding='utf-8').read()
     # Nominal levels, alpha values and reported P values are legitimately typed: they are design
     # constants, not measurements, even when one coincides with a macro value.
     _DESIGN = {'0.900', '0.90', '0.95', '0.80', '0.05', '0.10', '0.20', '0.25', '0.0625'}

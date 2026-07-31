@@ -235,6 +235,15 @@ for _t, _c in _CAPT.items():
     M[f'TempScafRhoCI{_c}'] = _cis(_sb['spearman_sigma_err_ci95'])
     M[f'TempScafCovCI{_c}'] = _ci(_sb['conformal_coverage_adaptive_ci95'], 3)
     M[f'TempScafN{_c}'] = thou(_sb['n_scaffolds'])
+# How much the compound-level interval overstates precision: the factor by which resampling
+# scaffold groups widens the temporal RMSE interval. Quoted as a range in both documents, so it
+# is generated rather than typed.
+_wr = [( (tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][1]
+          - tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][0])
+        / (tmp[t]['rmse_test_ci95'][1] - tmp[t]['rmse_test_ci95'][0])) for t in _CAPT]
+M['TempScafWidenLo'] = f"{min(_wr):.1f}"
+M['TempScafWidenHi'] = f"{max(_wr):.1f}"
+
 # Direct effect averaged over targets, with the target as the unit of generalisation, matching
 # how the method gain is tested elsewhere in the paper.
 for _key, _tag in [('rmse', 'Rmse'), ('spearman', 'Rho'), ('coverage', 'Cov')]:
