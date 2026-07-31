@@ -920,6 +920,29 @@ if _os.path.exists(_mst5):
     cond('SI tables', 'the S5 caption derives its exception from the data',
          '_shrink = [LAB[t] for t in T' in open(_mst5, encoding='utf-8').read(), '')
 
+# Table S6 reports interval widths. Its caption used to read the narrowing as evidence the
+# score is informative, which is the inference Supplementary Note 4 explicitly declines to make:
+# the gain is 1 to 4% and at the 0.80 level is partly bought with coverage.
+_c6 = json.load(open(_os.path.join(OUT, 'conformal_analysis.json')))['pooled']
+_A6 = ('alpha0.2', 'alpha0.1', 'alpha0.05')
+cond('SI tables', 'S6: both interval kinds reach nominal coverage at all three levels',
+     all(abs(_c6[a][k] - _c6[a]['target_coverage']) < 0.02
+         for a in _A6 for k in ('standard_coverage', 'adaptive_coverage')), '')
+cond('SI tables', 'S6: the adaptive interval is narrower at all three levels',
+     all(_c6[a]['width_ratio_adaptive_over_standard'] < 1.0 for a in _A6),
+     ', '.join(f"{_c6[a]['width_ratio_adaptive_over_standard']:.3f}" for a in _A6))
+_red = [100 * (1 - _c6[a]['width_ratio_adaptive_over_standard']) for a in _A6]
+cond('SI tables', 'S6: the width reduction stays in single digits',
+     max(_red) < 10, f'{min(_red):.1f}% to {max(_red):.1f}%')
+cond('SI tables', 'S6: the 0.80 level is the one where coverage is traded for width',
+     [a for a in _A6 if _c6[a]['adaptive_coverage'] < _c6[a]['standard_coverage']] == ['alpha0.2'],
+     'the caption names that level rather than claiming equal coverage throughout')
+_m6 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m6):
+    cond('SI tables', 'the S6 caption does not read interval width as the case for the score',
+         'is not what the case for the score rests on' in open(_m6, encoding='utf-8').read(),
+         'Supplementary Note 4 rests it on the error ranking instead')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

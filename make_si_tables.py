@@ -247,11 +247,24 @@ for a in ['alpha0.2', 'alpha0.1', 'alpha0.05']:
     rows.append(f"{f(c['target_coverage'],2)} & {f(c['standard_coverage'],3)} & {f(c['standard_width_median'])} & "
                 f"{f(c['adaptive_coverage'],3)} & {f(c['adaptive_width_median'])} & "
                 f"{f(c['width_ratio_adaptive_over_standard'])}")
+# The width gain is small, and at the 0.80 level it is partly bought with coverage, so the
+# caption must not read as evidence the score is informative. Supplementary Note 4 already says
+# the evidence rests on the error ranking instead; the caption used to imply the opposite.
+_wr = [100 * (1 - con['pooled'][a_]['width_ratio_adaptive_over_standard'])
+       for a_ in ('alpha0.2', 'alpha0.1', 'alpha0.05')]
+_traded = [f(con['pooled'][a_]['target_coverage'], 2)
+           for a_ in ('alpha0.2', 'alpha0.1', 'alpha0.05')
+           if con['pooled'][a_]['adaptive_coverage'] < con['pooled'][a_]['standard_coverage']]
 tab('tab:s-conformal',
     'Split conformal intervals in distribution. Standard intervals use the absolute residual '
     'and give every compound the same width; adaptive intervals normalize the residual by the '
-    'disagreement score. Both reach their nominal coverage, and the adaptive intervals are '
-    'narrower at equal coverage, so the score carries usable information.',
+    'disagreement score. Both reach their nominal coverage at all three levels. The adaptive '
+    'intervals are narrower, but only by %s to %s\\%%, and at the nominal %s level they also '
+    'cover slightly less, so part of that narrowing is bought with coverage rather than won. '
+    'The efficiency gain is small and is not what the case for the score rests on; that case '
+    'is the error ranking and the risk--coverage relationship of Supplementary '
+    'Tables~\\ref{tab:s-strat} and~\\ref{tab:s-riskcov}.'
+    % (f(min(_wr), 0), f(max(_wr), 0), _andlist(_traded)),
     r'Nominal & \multicolumn{2}{c}{Standard} & \multicolumn{2}{c}{Adaptive} & Width ratio\\'
     r'\cmidrule(lr){2-3}\cmidrule(lr){4-5}'
     r' & Coverage & Median width & Coverage & Median width & (adaptive/standard)',
