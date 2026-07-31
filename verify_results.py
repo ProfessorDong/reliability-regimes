@@ -845,7 +845,8 @@ if _os.path.exists(_sfp):
     if _os.path.exists(_mst2):
         _c2 = open(_mst2, encoding='utf-8').read()
         cond('SI tables', 'the S2 caption explains the negative scaffold R2',
-             'is normalised by the variance of the ' in _c2,
+             'is normalised by the variance of the ' in _c2
+             and 'less well than its own mean does' in _c2,
              'otherwise -222.96 reads as a bug')
         cond('SI tables', 'S2 carries a scaffold RMSE column beside the R2',
              "rmse_s" in _c2, 'the absolute error is what shows the model is not broken')
