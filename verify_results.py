@@ -431,6 +431,20 @@ if _os.path.exists(_frf):
          "f\"{r['target']}|{r['seed']}\"" in _g and "|{r['opt']}" not in _g, '')
     cond('figure 2', 'marker area encodes bin occupancy',
              'nb / nb.max()' in _g and 'turns over' in _g, '')
+    # scatter's s is area in points squared, and the generator passes sqrt(n), so the area
+    # grows as the square root of the bin count. The caption claimed proportionality, under
+    # which the lowest bin would hold 3% of the area instead of the 31% it actually has.
+    cond('figure 2', 'the marker area is a square-root encoding, not a proportional one',
+         'np.sqrt(nb / nb.max())' in _g, 'scatter s is an area, so sqrt(n) area grows as sqrt')
+    _art2 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                          'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
+    if _os.path.exists(_art2):
+        _t2 = open(_art2, encoding='utf-8').read()
+        cond('figure 2', 'the caption does not claim marker area is proportional to bin count',
+             'marker area proportional to' not in _t2,
+             'the encoding is a square root; proportional overstates the lowest bin by 10x')
+        cond('figure 2', 'the caption states the square-root encoding',
+             'square root of the number of runs' in _t2, '')
 
 # Figure 3 drew normal-approximation intervals while the text quoted Student t ones, so the
 # same estimate carried two different 95% intervals. Pin the figure to the text's convention.

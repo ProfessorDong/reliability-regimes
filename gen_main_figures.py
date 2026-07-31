@@ -46,12 +46,11 @@ plt.rcParams.update({
 fr = L('frontier_v2_results.json')['results']
 rows = [dict(r, target=t) for t, rs in fr.items() for r in rs]
 nv = np.array([r['novelty'] for r in rows])
-# The 1,200 runs are 300 search trajectories, each contributing its four novelty settings, so
-# a standard error over runs treats repeated measures as independent. Intervals come instead
-# from a cluster bootstrap that resamples whole trajectories, keeping their four settings
-# together, and resamples targets first so between-target variation is carried too.
-# One support set per target and seed, reused across optimizers, penalties and novelty
-# weights, so a block is a target-seed pair carrying all 16 conditions.
+# A standard error over the 1,200 runs would treat repeated measures as independent. One
+# support set is drawn per target and seed and reused across both optimizers, both penalties
+# and all four novelty weights, so the design holds 75 target-seed blocks of 16 runs, and the
+# block is the unit that may be resampled. Intervals come from a cluster bootstrap that
+# resamples targets first, so between-target variation is carried too, then whole blocks.
 BLOCK = np.array([f"{r['target']}|{r['seed']}" for r in rows])
 TGT = np.array([r['target'] for r in rows])
 _uT = sorted(set(TGT))
