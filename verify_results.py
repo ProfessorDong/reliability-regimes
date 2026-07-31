@@ -746,6 +746,20 @@ if _os.path.exists(_art4):
          'TabEndpoint' in _t4.split('label{tab:targets}')[0][-1400:],
          'a reader meets the label pIC50 first in Table 1')
 
+# Figure S1 panel b compares coverage against a nominal level. Drawn as bars from a cut axis
+# at 0.6, length overstated the differences by about half; anchored on the nominal level the
+# length is the departure from it. Panel a's pooled curve was drawn over the targets and hid
+# NK1R, whose values sit within 0.002 of it.
+_gs1 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_si_figures.py')
+if _os.path.exists(_gs1):
+    _s1 = open(_gs1, encoding='utf-8').read()
+    cond('SI figures', 'figure S1b anchors its bars on the nominal level, not on a cut axis',
+         'bottom=0.90' in _s1, 'bar length must encode the departure from nominal')
+    cond('SI figures', 'figure S1b sets its limits from the data rather than by hand',
+         'ax.set_ylim(0.6, 1.15)' not in _s1, 'a hand-cut axis is what caused the distortion')
+    cond('SI figures', 'figure S1a draws the pooled curve behind the target curves',
+         "label='Pooled', zorder=0" in _s1, 'at zorder 5 it hid NK1R completely')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

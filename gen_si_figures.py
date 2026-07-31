@@ -72,8 +72,10 @@ ax.text(0.955, 0.945, 'nominal', fontsize=7, color=DARK, rotation=38, ha='right'
 for i, t in enumerate(T):
     ax.plot(nom, [con[t][a]['adaptive_coverage'] for a, _ in ALPHA], '-o',
             color=COL[i], ms=4, lw=1.3, label=LAB[t], alpha=0.9)
+# The pooled curve sat on top at lw=2 and hid NK1R, whose values are within 0.002 of it at
+# every level. Draw it behind the targets so all five stay visible.
 ax.plot(nom, [con['pooled'][a]['adaptive_coverage'] for a, _ in ALPHA], '--',
-        color=DARK, lw=2.0, label='Pooled', zorder=5)
+        color=DARK, lw=2.4, label='Pooled', zorder=0, alpha=0.55)
 ax.set_xlabel('Nominal coverage'); ax.set_ylabel('Empirical coverage')
 ax.set_xticks(nom); ax.set_xlim(0.775, 0.975); ax.grid(alpha=0.22, lw=0.6)
 ax.legend(fontsize=7, frameon=False, ncol=2, loc='upper left', handlelength=1.5,
@@ -84,11 +86,19 @@ ax = axes[1]
 x = np.arange(len(T)); w = 0.36
 lo = [con[t]['alpha0.1']['adaptive_coverage_low_sigma'] for t in T]
 hi = [con[t]['alpha0.1']['adaptive_coverage_high_sigma'] for t in T]
-ax.bar(x - w / 2, lo, w, color=SKY, label='lowest $\\sigma_T$ fifth')
-ax.bar(x + w / 2, hi, w, color=VERM, label='highest $\\sigma_T$ fifth')
+# Bar length encodes value, so a bar chart cut off at 0.6 overstates the differences: SCD-1's
+# pair reads as 1.73 to 1 against a true 1.19 to 1. Anchor the bars on the nominal level they
+# are being compared against, which is both the honest baseline and the panel's actual message,
+# over-coverage above the line and under-coverage below it.
+ax.bar(x - w / 2, [v - 0.90 for v in lo], w, bottom=0.90, color=SKY,
+       label='lowest $\\sigma_T$ fifth')
+ax.bar(x + w / 2, [v - 0.90 for v in hi], w, bottom=0.90, color=VERM,
+       label='highest $\\sigma_T$ fifth')
 ax.axhline(0.90, color=DARK, ls=':', lw=1.1, label='nominal 0.90')
 ax.set_xticks(x); ax.set_xticklabels([LAB[t] for t in T])
-ax.set_ylabel('Empirical coverage'); ax.set_ylim(0.6, 1.15)
+ax.set_ylabel('Empirical coverage')
+_span = max(max(hi), max(lo)) - min(min(hi), min(lo))
+ax.set_ylim(min(min(lo), min(hi)) - 0.30 * _span, max(max(lo), max(hi)) + 0.45 * _span)
 ax.grid(alpha=0.22, axis='y', lw=0.6)
 ax.legend(fontsize=7, frameon=False, loc='upper left', ncol=3, borderpad=0.2,
           handlelength=1.4, columnspacing=1.0)
