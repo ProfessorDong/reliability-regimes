@@ -173,6 +173,21 @@ for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
          c['conformal_coverage_adaptive'] > 0.87, f"{c['conformal_coverage_adaptive']:.3f}")
 cond('Results/temporal (control)', 'DRD3 control recovers the ranking the temporal split loses',
      tmp['drd3']['control_random_same_size']['spearman_sigma_err'] > 0.25)
+# The Discussion types two counts that a re-run could silently invalidate: the ranking
+# "vanishes on one target of four", and "the control degrades on none of these". Neither was
+# derived from a macro, so assert both against the frozen split rather than the prose.
+_tt = ['scd1', 'nk1r', 'drd2', 'drd3']
+_gone = [t for t in _tt if abs(tmp[t]['spearman_sigma_err']) < 0.05]
+cond('Results/temporal', 'the ranking vanishes on exactly one of the four temporal targets',
+     len(_gone) == 1, f"lost on {_gone}; rho=" +
+     ', '.join(f"{t} {tmp[t]['spearman_sigma_err']:.3f}" for t in _tt))
+cond('Results/temporal (control)', 'the control degrades on none of error, ranking or coverage',
+     all(tmp[t]['control_random_same_size']['rmse'] < tmp[t]['rmse_test']
+         and tmp[t]['control_random_same_size']['spearman_sigma_err'] > 0.15
+         and tmp[t]['control_random_same_size']['conformal_coverage_adaptive'] > 0.89
+         for t in _tt),
+     'control rho=' + ', '.join(
+         f"{t} {tmp[t]['control_random_same_size']['spearman_sigma_err']:.2f}" for t in _tt))
 
 # =============================================================== Regime 1: conformal
 con = L('conformal_analysis.json')['pooled']
@@ -696,6 +711,11 @@ _BANNED = [
     ('we ask three questions', 'four questions are asked'),
     # the label pools four ChEMBL endpoint types and is not pure IC50
     ('Activities were pooled to $\\mathrm{pIC}_{50}=', 'state the endpoint mix; the pooled response is mostly Ki'),
+    # only one score on one model family was validated against measured error
+    ('reliability of whatever model', 'only RF per-tree disagreement was validated; another predictor needs its own score'),
+    # mu+sigma's advantage covers zero, so the upside claim must carry the asymmetry that
+    # supports it: penalising costs compounds, seeking them out does not reliably gain any
+    ('upside lies.', 'unqualified; state the asymmetry, since the optimistic rule covers zero'),
 ]
 for _n, _f in _SRC.items():
     if not _os.path.exists(_f):
@@ -712,6 +732,17 @@ if all(_os.path.exists(f) for f in _SRC.values()):
          'the exception must come from the macro the data sets')
     cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
          'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
+    # The Discussion generalises, so its two widest claims need their scope stated in the same
+    # breath. Both were flagged in review while the Results said the qualified thing already.
+    _disc = (open(_SRC['npjDD_Reliability.tex'], encoding='utf-8').read()
+             .split('\\section{Discussion}')[-1].split('\\section{Methods}')[0])
+    cond('phrasing', 'the Discussion scopes the validated score to one predictor family',
+         'per-tree disagreement of a random forest' in _disc
+         and 'require a score appropriate to that predictor' in _disc,
+         'the framework was not shown to quantify reliability for an arbitrary model')
+    cond('phrasing', 'the Discussion states the acquisition asymmetry, not a case for optimism',
+         "optimistic rule's advantage covers zero" in _disc,
+         'mu+sigma minus mu is +1.18 [-1.36, +3.72], P=0.27, so optimism is not shown better')
 
 # Every input a generator needs must resolve from a clean clone. The curation provenance was
 # reachable only through the workspace layout, so a clone silently produced one table fewer and
