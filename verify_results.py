@@ -1403,6 +1403,36 @@ if _os.path.exists(_artN) and _os.path.exists(_siN):
     for _pat, _why in (('---', 'em-dash'), ('honest', 'the word honest')):
         cond('SI notes', f'the notes contain no {_why}', _pat not in _body, '')
 
+# The Methods must state what the code does. These read the implementation, not the frozen
+# outputs, so a hyperparameter change shows up as a Methods error rather than silently.
+_RD = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'reliability')
+_srcM = {f: open(_os.path.join(_RD, f), encoding='utf-8').read()
+         for f in ('graph_ga.py', 'surrogate_ga.py', 'reward.py', 'run_poolopt_v1.py',
+                   'run_reliability_v2.py')
+         if _os.path.exists(_os.path.join(_RD, f))}
+_artM = _os.path.join(_D, 'npjDD_Reliability.tex')
+if _os.path.exists(_artM) and len(_srcM) == 5:
+    _aM = open(_artM, encoding='utf-8').read()
+    cond('methods', 'the stated mutation probability matches the search code',
+         'probability $0.5$' in _aM and 'mutation_rate=0.5' in _srcM['graph_ga.py']
+         and 'mut_rate=0.5' in _srcM['surrogate_ga.py'], '')
+    cond('methods', 'the stated invalid-molecule reward matches the reward code',
+         'reward of $-1$' in _aM and 'invalid_reward=-1.0' in _srcM['reward.py'], '')
+    cond('methods', 'the population is described as a cap, which is what the code does',
+         'capped at $60$' in _aM and 'population_size=60' in _srcM['graph_ga.py']
+         and '[:self.pop_size]' in _srcM['graph_ga.py'],
+         'it holds the best scored so far, so it starts at k rather than at 60')
+    cond('methods', 'the acquisition forest size is stated and matches its script',
+         'random forest of $200$ trees' in _aM
+         and 'n_estimators=200' in _srcM['run_poolopt_v1.py'],
+         'it differs from the 300-tree activity model and the text now says so')
+    cond('methods', 'the activity-model forest size is stated and matches its script',
+         'n_estimators=300' in _srcM['run_reliability_v2.py']
+         and ('300$ trees' in _aM or '{\\mathrm{tree}}=300' in _aM), '')
+    cond('methods', 'the offspring pool size follows from the stated multiplier',
+         'size $200$' in _aM and 'pool_mult=5' in _srcM['surrogate_ga.py'],
+         '40 evaluated per generation times a pool multiplier of five')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
