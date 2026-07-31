@@ -446,6 +446,30 @@ if _os.path.exists(_frf):
         cond('figure 2', 'the caption states the square-root encoding',
              'square root of the number of runs' in _t2, '')
 
+# The Figure 3 caption claimed the target-level interval is the widest drawn. It is, by 2%,
+# which no reader can see and which understates the point: the informative comparison is with
+# an interval that treats the 375 runs as independent, against which it is nearly 6 times
+# wider. Pin the reworded claim to the data.
+import numpy as _np
+from scipy import stats as _sps
+_mv3 = L('methods_v2_results.json')['results']
+_allp = _np.array([c['stga_ecfp'] - c['graphga'] for r in _mv3 for c in r['per_seed']], float)
+_cm3 = [_np.mean([c['stga_ecfp'] - c['graphga'] for c in r['per_seed']]) for r in _mv3]
+_tm3 = _np.array([_np.mean([_cm3[i] for i, r in enumerate(_mv3) if r['target'] == t])
+                  for t in ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']], float)
+_hw3 = lambda a: float(_sps.t.ppf(0.975, len(a) - 1) * a.std(ddof=1) / _np.sqrt(len(a)))
+cond('figure 3', 'the target-level interval is several times wider than a per-run one',
+     _hw3(_tm3) / _hw3(_allp) > 4, f'{_hw3(_tm3) / _hw3(_allp):.1f}x')
+_art3 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                      'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
+if _os.path.exists(_art3):
+    _t3 = open(_art3, encoding='utf-8').read()
+    cond('figure 3', 'the caption does not rest on the marginal widest-in-figure claim',
+         'is the widest in the figure' not in _t3,
+         'true by 2%, so it reads as wrong against the drawn intervals')
+    cond('figure 3', 'the caption gives the width ratio against a per-run interval',
+         'MethodWidthRatio' in _t3, '')
+
 # Figure 3 drew normal-approximation intervals while the text quoted Student t ones, so the
 # same estimate carried two different 95% intervals. Pin the figure to the text's convention.
 _mvf = _os.path.join(OUT, 'methods_v2_results.json')
@@ -474,8 +498,11 @@ if _os.path.exists(_mvf) and _os.path.exists(_g3):
              f"macro [{_m['MethodCIlo']}, {_m['MethodCIhi']}]")
     cond('figure 3', 'caption: gain positive and interval clear of zero in all 15 cells',
          len(_cell) == 15 and all(m - h > 0 for m, h in _cell), '')
-    cond('figure 3', 'caption: the target-level interval is the widest in the figure',
-         _tci > max(h for _, h in _cell), f'{_tci:.4f} vs {max(h for _, h in _cell):.4f}')
+    # Retained as a fact, not as a caption claim: the target-level interval does exceed every
+    # cell interval, but only by 2%, so the caption rests on the per-run comparison instead.
+    cond('figure 3', 'the target-level interval exceeds every cell interval',
+         _tci > max(h for _, h in _cell),
+         f'{_tci:.4f} vs {max(h for _, h in _cell):.4f}, a margin too small to carry a caption')
     cond('figure 3', 'caption: 375 runs behind the 15 cells',
          sum(len(r['per_seed']) for r in _mv) == 375, '')
     cond('figure 3', 'axis label names the same metric as the caption',

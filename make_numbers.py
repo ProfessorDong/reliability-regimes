@@ -125,6 +125,18 @@ M = {
 }
 
 
+# Width of the target-level interval against one that treats the runs as independent. The
+# figure caption used to say only that the target-level interval is the widest drawn, which is
+# true by 2% and invisible; the informative contrast is with the naive interval over all runs.
+_alld = np.array([c['stga_ecfp'] - c['graphga'] for r in meth for c in r['per_seed']], float)
+_cellm = [st.mean([c['stga_ecfp'] - c['graphga'] for c in r['per_seed']]) for r in meth]
+_tmn = np.array([st.mean([_cellm[i] for i, r in enumerate(meth) if r['target'] == t])
+                 for t in T], float)
+_hw = lambda a: float(sps.t.ppf(0.975, len(a) - 1) * a.std(ddof=1) / np.sqrt(len(a)))
+M['MethodHalfTarget'] = f"{_hw(_tmn):.3f}"
+M['MethodHalfPooled'] = f"{_hw(_alld):.3f}"
+M['MethodWidthRatio'] = f"{_hw(_tmn) / _hw(_alld):.1f}"
+
 # --- temporal shift (Regime 2) ---
 tmp = L('temporal_analysis.json')
 tp = tmp['pooled']
