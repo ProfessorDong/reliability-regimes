@@ -796,9 +796,12 @@ def _mix(d):
 rows = []
 for t in ORDER:
     v = _ep['cv_cohort'][t]
+    # n must mean one thing down the column. The endpoint file counts distinct canonical
+    # SMILES, which lands on the parent count for SCD-1 and on the record count for the
+    # other three, while the temporal rows below are parent counts. Use parents throughout.
     matched = '--' if not v['matched'] else f"{v['matched_pct']:.0f}"
-    rows.append(f"{NICE[t]} & cross-validation & {v['n_structures']:,} & {matched} & "
-                f"{_mix(v['types_pct'])}".replace(',', '{,}'))
+    rows.append(f"{NICE[t]} & cross-validation & {rel[t]['duplicates']['n_unique']:,} & "
+                f"{matched} & {_mix(v['types_pct'])}".replace(',', '{,}'))
 for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
     v = _ep['temporal_cohort'][t]
     for era, key, nkey in [('temporal, pre-%d' % _ep['cutoff'], 'pre_pct', 'n_pre'),
@@ -809,10 +812,13 @@ tab('tab:s-endpoint',
     'Activity endpoint composition of the pooled response. Every activity is reported on one '
     'negative-logarithmic molar scale named $\\mathrm{pIC}_{50}$ by convention, but that scale '
     'is populated from four ChEMBL standard types and most of it is an affinity rather than a '
-    'potency measurement. Percentages are of retained records. The cross-validation files keep '
-    'only structure and activity, so their composition is recovered by matching structures back '
-    'to ChEMBL and the matched share of structures is given; FADS is a literature panel and is '
-    'not recoverable this way. The temporal rows are split at the cutoff to show whether '
+    'potency measurement. $n$ counts standardized parent structures throughout, as in '
+    'Table 1. The cross-validation files keep only structure and activity, so their '
+    'composition is recovered by matching those structures back to ChEMBL; Matched is the '
+    'share of them that match, and the percentages on those rows are of the ChEMBL records '
+    'behind the matched structures rather than of the dataset as a whole. FADS is a '
+    'literature panel and is not recoverable this way. On the temporal rows the percentages '
+    'are of the records behind each parent, and the split at the cutoff shows whether '
     'endpoint composition itself shifts across it.',
     r'Target & Cohort & $n$ & Matched (\%) & IC$_{50}$ & $K_i$ & $K_d$ & EC$_{50}$',
     rows, 'llrrrrrr')

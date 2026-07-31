@@ -1348,6 +1348,35 @@ if _os.path.exists(_m19):
          'curation flow does not reconcile' in open(_m19, encoding='utf-8').read(),
          'so a future drop category cannot silently break the arithmetic')
 
+# Table S20's n column mixed two units: the endpoint file counts distinct canonical SMILES,
+# which equals the parent count on SCD-1 but the record count on the other three, while the
+# temporal rows are parent counts. One column, two definitions.
+_ep20 = json.load(open(_os.path.join(OUT, 'endpoint_composition.json')))
+_r20 = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+_T20 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+cond('SI tables', 'S20: every endpoint mix sums to 100 percent',
+     all(abs(sum(_ep20['cv_cohort'][t]['types_pct'].values()) - 100) < 0.3
+         for t in _T20 if _ep20['cv_cohort'][t]['types_pct'])
+     and all(abs(sum(_ep20['temporal_cohort'][t][k].values()) - 100) < 0.3
+             for t in ('scd1', 'nk1r', 'drd2', 'drd3')
+             for k in ('overall_pct', 'pre_pct', 'post_pct')), '')
+cond('SI tables', 'S20: the pre and post counts reconcile with the parent total',
+     all(_ep20['temporal_cohort'][t]['n_pre'] + _ep20['temporal_cohort'][t]['n_post']
+         + _ep20['temporal_cohort'][t]['n_undated'] == _ep20['temporal_cohort'][t]['n_parents']
+         for t in ('scd1', 'nk1r', 'drd2', 'drd3')), '')
+cond('SI tables', 'S20: the stored structure count is not the parent count on every target',
+     any(_ep20['cv_cohort'][t]['n_structures'] != _r20[t]['duplicates']['n_unique']
+         for t in _T20),
+     'which is why the table must take n from the parent counts rather than that field')
+_m20 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_m20):
+    _c20 = open(_m20, encoding='utf-8').read()
+    cond('SI tables', 'S20 takes n from the parent counts, as Table 1 does',
+         "cross-validation & {rel[t]['duplicates']['n_unique']:,}" in _c20, '')
+    cond('SI tables', 'S20 states the denominator its percentages use',
+         'behind the matched structures rather than of the dataset' in _c20,
+         'the CV percentages are of matched ChEMBL records, not of the dataset')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
