@@ -631,6 +631,22 @@ if all(_os.path.exists(f) for f in _SRC.values()):
     cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
          'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
 
+# Rendered figures must be newer than the data behind them. The value checks above read the
+# generator source and the frozen outputs, so they all passed while two committed PNGs had been
+# built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
+# mtime comparison is coarse, but it fails in the safe direction.
+_figs = ['fig1_overview.png', 'fig2_frontier.png', 'fig3_forest.png',
+         'figS1_calibration.png', 'figS2_temporal.png', 'figS3_acquisition.png']
+if _os.path.isdir(_D) and _os.path.isdir(OUT):
+    _newest = max((_os.path.getmtime(_os.path.join(OUT, f))
+                   for f in _os.listdir(OUT) if f.endswith('.json')), default=0)
+    for _fg in _figs:
+        _fp = _os.path.join(_D, _fg)
+        if _os.path.exists(_fp):
+            cond('figures', f'{_fg} is not older than the frozen outputs',
+                 _os.path.getmtime(_fp) >= _newest,
+                 'rebuild the figure generators after any analysis change')
+
 # Temporal control at R replicates. The point of raising R is not a narrower control interval
 # but the resolution of the comparison: the smallest one-sided empirical P obtainable is
 # 1/(R+1), so at R=20 nothing below 0.048 could be reported however extreme the observation.
