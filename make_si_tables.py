@@ -222,11 +222,21 @@ for t in T:
 rows.append(r'\midrule Pooled & ' + sg(p['spearman_nov_err']) + ' & ' + sg(p['partial_err_nov_given_dtr'])
             + ' & ' + sg(p['spearman_dtr_err']) + ' & ' + f(p['spearman_sigma_err'], 3)
             + ' & ' + f(p['partial_err_sig_given_nov_dtr'], 3))
+# Which targets actually lose their novelty signal when distance is controlled for. FADS does
+# not: its correlation is negative and grows slightly under control, so a blanket claim is
+# contradicted by a row the reader can see.
+_shrink = [LAB[t] for t in T
+           if abs(rel[t]['partial_err_nov_given_dtr']) < abs(rel[t]['spearman_nov_err'])]
+_grow = [LAB[t] for t in T if LAB[t] not in _shrink]
 tab('tab:s-novelty',
     'Novelty, chemical distance and measured error. $\\nu$ is novelty relative to the ten '
     'starting compounds and $d$ the distance to the nearest training compound. Novelty is a '
-    'weak predictor of error and loses what little signal it has once distance is controlled '
-    'for, whereas disagreement predicts error after controlling for both.',
+    'weak predictor of error, and on %s it loses what little signal it has once distance is '
+    'controlled for, as it does pooled. %s is the exception on both counts: its correlation is '
+    'negative, so more novel compounds carry lower error there, and controlling for distance '
+    'does not shrink it. Disagreement predicts error after controlling for both on every '
+    'target.'
+    % (_andlist(_shrink), _andlist(_grow)),
     r'Target & $\rho(\nu,e)$ & $\rho(e,\nu\mid d)$ & $\rho(d,e)$ & $\rho(\sigma_T,e)$ & $\rho(e,\sigma_T\mid \nu,d)$',
     rows, 'lrrrrr')
 

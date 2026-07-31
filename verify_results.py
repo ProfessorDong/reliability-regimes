@@ -897,6 +897,29 @@ cond('SI tables', 'the S4 micro row sits below the macro row at every coverage',
      all(_r4['pooled']['risk_coverage_micro'][c] < _ma4[c] for c in _C4),
      'pooling is dominated by the two largest and easiest targets')
 
+# Table S5 separates novelty from nearest-training distance. The caption used to claim that
+# novelty loses its signal once distance is controlled for, which four targets and the pooled
+# row do but FADS does not: its correlation is negative and grows slightly under control.
+_r5 = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+_T5 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+_shr = [t for t in _T5
+        if abs(_r5[t]['partial_err_nov_given_dtr']) < abs(_r5[t]['spearman_nov_err'])]
+cond('SI tables', 'S5: FADS is the only target whose novelty signal does not shrink',
+     _shr == ['scd1', 'nk1r', 'drd2', 'drd3'], f'shrinks on {_shr}')
+cond('SI tables', 'S5: FADS is the only negative novelty correlation',
+     [t for t in _T5 if _r5[t]['spearman_nov_err'] < 0] == ['fads'],
+     'more novel compounds carry lower error there, against the pooled direction')
+cond('SI tables', 'S5: the pooled novelty signal shrinks once distance is controlled for',
+     abs(_r5['pooled']['partial_err_nov_given_dtr']) < abs(_r5['pooled']['spearman_nov_err']),
+     f"{_r5['pooled']['spearman_nov_err']:.3f} -> {_r5['pooled']['partial_err_nov_given_dtr']:.3f}")
+cond('SI tables', 'S5: disagreement survives controlling for novelty and distance everywhere',
+     all(_r5[t]['partial_err_sig_given_nov_dtr'] > 0.1 for t in _T5),
+     'the claim the caption makes about every target')
+_mst5 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_mst5):
+    cond('SI tables', 'the S5 caption derives its exception from the data',
+         '_shrink = [LAB[t] for t in T' in open(_mst5, encoding='utf-8').read(), '')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An
