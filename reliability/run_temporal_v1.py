@@ -28,7 +28,7 @@ Writes temporal_analysis.json.
     python -m reliability.run_temporal_v1 --cut 2015
 """
 from __future__ import annotations
-import argparse, csv, json, os, sys
+import argparse, csv, json, multiprocessing as mp, os, sys, time
 import numpy as np
 from scipy import stats
 from sklearn.ensemble import RandomForestRegressor
@@ -60,14 +60,92 @@ def conformal_q(scores, alpha=0.1):
     return float(np.sort(scores)[k - 1]) if k <= n else float(np.max(scores))
 
 
+# --- size-matched control, run across processes --------------------------------------------
+# The replicates are independent and each is seeded from its own index, so a replicate's value
+# does not depend on how many are run or in what order. Workers are forked after the feature
+# matrix is built, which shares it copy-on-write, and each fit is given one core: a forest is
+# bit-identical across n_jobs, so this changes only the wall clock.
+_W = {}
+
+
+def _control_rep(rep):
+    X, y = _W['X'], _W['y']
+    nte, ncal, nptr = _W['nte'], _W['ncal'], _W['nptr']
+    r2 = np.random.default_rng(100 + rep)
+    pe = r2.permutation(len(y))
+    c_te = pe[:nte]; c_cal = pe[nte:nte + ncal]; c_ptr = pe[nte + ncal:nte + ncal + nptr]
+    kw = dict(RF_KW); kw['n_jobs'] = 1
+    rfc = RandomForestRegressor(**kw).fit(X[c_ptr], y[c_ptr])
+
+    def pc(idx):
+        Q = np.stack([t.predict(X[idx]) for t in rfc.estimators_], 0)
+        return Q.mean(0), Q.std(0)
+
+    yc2, sc2 = pc(c_cal); yt2, st2 = pc(c_te)
+    e_c = np.abs(y[c_cal] - yc2); e_t = np.abs(y[c_te] - yt2)
+    qa2 = conformal_q(e_c / (sc2 + EPS), 0.1)
+    return (float(stats.spearmanr(st2, e_t)[0]),
+            float(np.sqrt(np.mean(e_t ** 2))),
+            float(np.mean(e_t <= qa2 * (st2 + EPS))))
+
+
+def emp_p(ctl, obs, worse):
+    """One-sided empirical P against the control distribution.
+
+    The fraction of control replicates at least as extreme as the single temporal value, with
+    the conventional +1 in numerator and denominator so the value can never be zero. The
+    smallest attainable value is 1/(R+1), which is why R matters: at R=20 nothing below 0.048
+    can be reported however extreme the observation is.
+    """
+    v = np.asarray(ctl, float)
+    k = int((v >= obs).sum()) if worse == 'greater' else int((v <= obs).sum())
+    return float((1 + k) / (len(v) + 1))
+
+
+def delta_ci(obs, boot, ctl, rng):
+    """Interval for the direct effect, temporal minus the control mean.
+
+    Whether two separately constructed intervals overlap is not itself an interval for their
+    difference, so the two sources are combined instead. The temporal arm contributes its
+    bootstrap over evaluation compounds, which does not shrink with more control replicates;
+    the control mean contributes the standard error of a mean over R independent replicates,
+    which does. Drawing from both preserves any skew in the temporal bootstrap.
+    """
+    b = np.asarray(boot, float); v = np.asarray(ctl, float)
+    se = v.std(ddof=1) / np.sqrt(len(v))
+    d = (b - b.mean() + obs) - (v.mean() + se * rng.standard_normal(len(b)))
+    return dict(delta=float(obs - v.mean()),
+                ci95=[float(np.percentile(d, 2.5)), float(np.percentile(d, 97.5))],
+                control_mean_se=float(se))
+
+
+def scaffold_ids(smiles):
+    """Bemis-Murcko scaffold per structure, for a bootstrap that resamples series."""
+    from rdkit import Chem, RDLogger
+    from rdkit.Chem.Scaffolds import MurckoScaffold
+    RDLogger.DisableLog('rdApp.*')
+    out = []
+    for i, s in enumerate(smiles):
+        m = Chem.MolFromSmiles(s)
+        try:
+            out.append(MurckoScaffold.MurckoScaffoldSmiles(mol=m) if m is not None else f'_{i}')
+        except Exception:
+            out.append(f'_{i}')
+    return np.array([x if x else f'_{i}' for i, x in enumerate(out)])
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--targets', nargs='+', default=['scd1', 'nk1r', 'drd2', 'drd3'])
     ap.add_argument('--cut', type=int, default=2015)
     ap.add_argument('--out', default=OUT)
-    ap.add_argument('--control-reps', type=int, default=20,
-                    help='random size-matched control replicates; the control interval is '
-                         'taken across these, so more of them narrows it')
+    ap.add_argument('--control-reps', type=int, default=1000,
+                    help='random size-matched control replicates. The control interval narrows '
+                         'as this grows, and the smallest reportable empirical P is 1/(R+1), '
+                         'so R also sets the resolution of the comparison')
+    ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 2) - 2),
+                    help='processes for the control replicates; each fit uses one core, and a '
+                         'forest is bit-identical across n_jobs, so this changes only run time')
     ap.add_argument('--year-field', default='year_min', choices=['year_min', 'year_median'],
                     help='year_min is first disclosure and is the prospective default; '
                          'year_median is retained only as a sensitivity analysis')
@@ -146,23 +224,17 @@ def main():
         # distribution over random splits, so its interval is taken across replicates rather
         # than by bootstrap: a t interval on the mean, and the replicate range, which is what
         # the single temporal value should be judged extreme against.
-        ctl = {'rho': [], 'rmse': [], 'cov': []}
-        allidx = np.arange(len(y))
-        for rep in range(args.control_reps):
-            r2 = np.random.default_rng(100 + rep)
-            pe = r2.permutation(allidx)
-            c_te = pe[:len(te)]; c_cal = pe[len(te):len(te) + len(cal)]
-            c_ptr = pe[len(te) + len(cal):len(te) + len(cal) + len(ptr)]
-            rfc = RandomForestRegressor(**RF_KW).fit(X[c_ptr], y[c_ptr])
-            def pc(idx):
-                Q = np.stack([t.predict(X[idx]) for t in rfc.estimators_], 0)
-                return Q.mean(0), Q.std(0)
-            yc2, sc2 = pc(c_cal); yt2, st2 = pc(c_te)
-            e_c = np.abs(y[c_cal] - yc2); e_t = np.abs(y[c_te] - yt2)
-            qa2 = conformal_q(e_c / (sc2 + EPS), 0.1)
-            ctl['rho'].append(float(stats.spearmanr(st2, e_t)[0]))
-            ctl['rmse'].append(float(np.sqrt(np.mean(e_t ** 2))))
-            ctl['cov'].append(float(np.mean(e_t <= qa2 * (st2 + EPS))))
+        _W.update(X=X, y=y, nte=len(te), ncal=len(cal), nptr=len(ptr))
+        _t0 = time.time()
+        if args.jobs == 1:
+            _res = [_control_rep(r) for r in range(args.control_reps)]
+        else:
+            with mp.get_context('fork').Pool(args.jobs) as _pool:
+                _res = _pool.map(_control_rep, range(args.control_reps), chunksize=1)
+        ctl = {'rho': [r[0] for r in _res], 'rmse': [r[1] for r in _res],
+               'cov': [r[2] for r in _res]}
+        print(f"        {args.control_reps} control replicates in {time.time() - _t0:.0f}s "
+              f"on {args.jobs} processes", flush=True)
         nrep = args.control_reps
         tcrit = float(stats.t.ppf(0.975, nrep - 1))
 
@@ -186,7 +258,42 @@ def main():
             temporal_outside_range=dict(
                 rmse=bool(out[tgt]['rmse_test'] > c_rmse[3][1]),
                 coverage=bool(out[tgt]['conformal_coverage_adaptive'] < c_cov[3][0]),
-                spearman=bool(out[tgt]['spearman_sigma_err'] < c_rho[3][0])))
+                spearman=bool(out[tgt]['spearman_sigma_err'] < c_rho[3][0])),
+            # Exact one-sided empirical P against the control distribution, in the direction
+            # that counts as degradation for each measure: error higher, coverage lower,
+            # ranking lower.
+            empirical_p=dict(
+                rmse=emp_p(ctl['rmse'], out[tgt]['rmse_test'], 'greater'),
+                coverage=emp_p(ctl['cov'], out[tgt]['conformal_coverage_adaptive'], 'less'),
+                spearman=emp_p(ctl['rho'], out[tgt]['spearman_sigma_err'], 'less'),
+                floor=1.0 / (nrep + 1)))
+        # Direct effect against the control mean, with the two sources of uncertainty combined
+        # rather than read off the overlap of two separate intervals.
+        _dr = np.random.default_rng(21)
+        out[tgt]['delta_vs_control'] = dict(
+            rmse=delta_ci(out[tgt]['rmse_test'], _br, ctl['rmse'], _dr),
+            spearman=delta_ci(out[tgt]['spearman_sigma_err'], _bq, ctl['rho'], _dr),
+            coverage=delta_ci(out[tgt]['conformal_coverage_adaptive'], _bc, ctl['cov'], _dr))
+        # Sensitivity: compounds from one chemical series are not independent, so the temporal
+        # interval is recomputed resampling Bemis-Murcko scaffold groups rather than compounds.
+        _sc = scaffold_ids([smi[i] for i in te])
+        _grp = {}
+        for _i, _s in enumerate(_sc):
+            _grp.setdefault(_s, []).append(_i)
+        _keys = list(_grp)
+        _cb = np.random.default_rng(31)
+        _cr, _cc, _cq = [], [], []
+        for _ in range(N_BOOT):
+            _pick = [_grp[_keys[j]] for j in _cb.integers(0, len(_keys), len(_keys))]
+            i = np.fromiter((x for g in _pick for x in g), int)
+            _cr.append(np.sqrt(np.mean(err_t[i] ** 2)))
+            _cc.append(cov_ada[i].mean())
+            _cq.append(stats.spearmanr(st_[i], err_t[i])[0])
+        out[tgt]['scaffold_cluster_bootstrap'] = dict(
+            n_scaffolds=len(_keys),
+            rmse_ci95=pct(_cr), conformal_coverage_adaptive_ci95=pct(_cc),
+            spearman_sigma_err_ci95=[float(np.nanpercentile(_cq, 2.5)),
+                                     float(np.nanpercentile(_cq, 97.5))])
         for k, v in (('err', err_t), ('sig', st_), ('dtr', dtr), ('cov', cov_ada)):
             P[k].append(v)
         o = out[tgt]

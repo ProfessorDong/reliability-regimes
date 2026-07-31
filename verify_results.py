@@ -631,6 +631,57 @@ if all(_os.path.exists(f) for f in _SRC.values()):
     cond('phrasing', 'the Methods no longer claim four targets have one record per structure',
          'one record per structure' not in _all, 'Table S1 shows collapses in four of five')
 
+# Temporal control at R replicates. The point of raising R is not a narrower control interval
+# but the resolution of the comparison: the smallest one-sided empirical P obtainable is
+# 1/(R+1), so at R=20 nothing below 0.048 could be reported however extreme the observation.
+_tj = _os.path.join(OUT, 'temporal_analysis.json')
+if _os.path.exists(_tj):
+    _tt = json.load(open(_tj))
+    _TG = _tt['macro']['targets']
+    _R = _tt[_TG[0]]['control_random_same_size']['n_reps']
+    cond('numeric', 'the size-matched control uses at least 1000 replicates',
+         _R >= 1000, f'{_R} replicates; the empirical-P floor is 1/(R+1)')
+    cond('numeric', 'every target reports the same number of control replicates',
+         len({_tt[t]['control_random_same_size']['n_reps'] for t in _TG}) == 1,
+         'the control must be size-matched and equally resolved on every target')
+    _fl = 1.0 / (_R + 1)
+    cond('numeric', 'the reported empirical-P floor matches the replicate count',
+         abs(_tt[_TG[0]]['control_random_same_size']['empirical_p']['floor'] - _fl) < 1e-12,
+         f'{_fl:.2e}')
+    cond('numeric', 'error rises above the control on every target at the empirical-P floor',
+         all(_tt[t]['control_random_same_size']['empirical_p']['rmse'] <= _fl + 1e-12
+             for t in _TG),
+         'the temporal RMSE exceeds all R control replicates on each target')
+    cond('numeric', 'the direct RMSE effect excludes zero on every target',
+         all(_tt[t]['delta_vs_control']['rmse']['ci95'][0] > 0 for t in _TG),
+         'combining the temporal bootstrap with the control-mean standard error')
+    # The scaffold bootstrap must actually be doing something: resampling series rather than
+    # compounds should not give the same interval back.
+    cond('numeric', 'the scaffold-cluster bootstrap widens the temporal RMSE interval',
+         sum((_tt[t]['scaffold_cluster_bootstrap']['rmse_ci95'][1]
+              - _tt[t]['scaffold_cluster_bootstrap']['rmse_ci95'][0])
+             > (_tt[t]['rmse_test_ci95'][1] - _tt[t]['rmse_test_ci95'][0]) for t in _TG) >= 3,
+         'compounds within a series are not independent, so clustering must cost precision')
+    cond('numeric', 'fewer scaffolds than test compounds on every target',
+         all(_tt[t]['scaffold_cluster_bootstrap']['n_scaffolds'] < _tt[t]['n_test']
+             for t in _TG), 'otherwise the clustering is a no-op')
+    # Direction of the two claims that survive the move, and the two that do not.
+    cond('semantic', 'the ranking effect covers zero on SCD-1 and NK1R',
+         all(_tt[t]['delta_vs_control']['spearman']['ci95'][0] < 0 <
+             _tt[t]['delta_vs_control']['spearman']['ci95'][1] for t in ('scd1', 'nk1r')),
+         'these are the targets the article says keep their ranking')
+    cond('semantic', 'the ranking effect is negative and excludes zero on DRD2 and DRD3',
+         all(_tt[t]['delta_vs_control']['spearman']['ci95'][1] < 0
+             for t in ('drd2', 'drd3')),
+         'these are the targets the article says lose it')
+    if _os.path.exists(_art):
+        _ta = open(_art, encoding='utf-8').read()
+        cond('manuscript', 'the article reports the exact empirical P, not just the range test',
+             'TempPfloor' in _ta or 'TempPRmseWorst' in _ta,
+             'the replicate-range statement alone cannot carry a P')
+        cond('manuscript', 'the article reports the direct effect against the control mean',
+             'TempMacroDRmse' in _ta, 'interval overlap is not an interval for the difference')
+
 # Activity endpoint composition. The pooled response is named pIC50 by convention but is
 # populated from four ChEMBL standard types, so the article has to state the mix rather than
 # define the label as an IC50. The pre/post-cutoff mixes also test whether endpoint turnover,

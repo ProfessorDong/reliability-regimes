@@ -200,6 +200,52 @@ for _t, _c in _CAPT.items():
     M[f'TempN{_c}'] = thou(tmp[_t]['n_test'])
     M[f'TempCov{_c}'] = f"{tmp[_t]['conformal_coverage_adaptive']:.3f}"
     M[f'TempCtlCov{_c}'] = f"{tmp[_t]['control_random_same_size']['conformal_coverage_adaptive']:.3f}"
+# Exact comparison against the size-matched control. Three quantities that the replicate range
+# alone cannot give: the one-sided empirical P, whose smallest attainable value is 1/(R+1) and
+# is therefore set by how many replicates were run; the direct effect against the control mean
+# with the two arms' uncertainties combined rather than compared by interval overlap; and a
+# temporal interval that resamples Bemis-Murcko scaffold groups, since compounds from one
+# series are not independent.
+_ep0 = tmp[list(_CAPT)[0]]['control_random_same_size']['empirical_p']
+_pf = lambda v: (f"{v:.4f}" if v >= 1e-4 else f"{v:.1e}")
+M.update({
+    'TempPfloor': _pf(_ep0['floor']),
+    'TempPRmseWorst': _pf(max(tmp[t]['control_random_same_size']['empirical_p']['rmse']
+                              for t in _CAPT)),
+    'TempPCovWorst': _pf(max(tmp[t]['control_random_same_size']['empirical_p']['coverage']
+                             for t in _CAPT)),
+    'TempPRmseAtFloor': str(sum(
+        tmp[t]['control_random_same_size']['empirical_p']['rmse'] <= _ep0['floor'] + 1e-12
+        for t in _CAPT)),
+})
+for _t, _c in _CAPT.items():
+    _e = tmp[_t]['control_random_same_size']['empirical_p']
+    _dv = tmp[_t]['delta_vs_control']
+    _sb = tmp[_t]['scaffold_cluster_bootstrap']
+    M[f'TempPRmse{_c}'] = _pf(_e['rmse'])
+    M[f'TempPCov{_c}'] = _pf(_e['coverage'])
+    M[f'TempPRho{_c}'] = _pf(_e['spearman'])
+    M[f'TempDRmse{_c}'] = f"{_dv['rmse']['delta']:+.2f}"
+    M[f'TempDRmseCI{_c}'] = _cis(_dv['rmse']['ci95'])
+    M[f'TempDRho{_c}'] = f"{_dv['spearman']['delta']:+.2f}"
+    M[f'TempDRhoCI{_c}'] = _cis(_dv['spearman']['ci95'])
+    M[f'TempDCov{_c}'] = f"{_dv['coverage']['delta']:+.3f}"
+    M[f'TempDCovCI{_c}'] = _cis(_dv['coverage']['ci95'], 3)
+    M[f'TempScafRmseCI{_c}'] = _ci(_sb['rmse_ci95'])
+    M[f'TempScafRhoCI{_c}'] = _cis(_sb['spearman_sigma_err_ci95'])
+    M[f'TempScafCovCI{_c}'] = _ci(_sb['conformal_coverage_adaptive_ci95'], 3)
+    M[f'TempScafN{_c}'] = thou(_sb['n_scaffolds'])
+# Direct effect averaged over targets, with the target as the unit of generalisation, matching
+# how the method gain is tested elsewhere in the paper.
+for _key, _tag in [('rmse', 'Rmse'), ('spearman', 'Rho'), ('coverage', 'Cov')]:
+    _pt = np.array([tmp[t]['delta_vs_control'][_key]['delta'] for t in _CAPT], float)
+    _sem = _pt.std(ddof=1) / np.sqrt(len(_pt))
+    _tc4 = sps.t.ppf(0.975, len(_pt) - 1)
+    _dec = 3 if _key == 'coverage' else 2
+    M[f'TempMacroD{_tag}'] = f"{_pt.mean():+.{_dec}f}"
+    M[f'TempMacroD{_tag}CI'] = _cis([_pt.mean() - _tc4 * _sem, _pt.mean() + _tc4 * _sem], _dec)
+    M[f'TempMacroD{_tag}Neg'] = str(int((_pt < 0).sum()))
+
 # median-year sensitivity, so the manuscript never hard-codes the comparison figure
 _med = os.path.join(CW, 'temporal_analysis_yearmedian.json')
 if os.path.exists(_med):

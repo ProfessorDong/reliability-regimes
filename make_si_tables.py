@@ -247,6 +247,7 @@ def _vc(v, ci, dec=2, signed=False):
     return txt + ' [' + lo + ', ' + hi + ']'
 
 
+_TT = [t for t in ['scd1', 'nk1r', 'drd2', 'drd3'] if t in tmp]
 for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
     if t not in tmp:
         continue
@@ -264,6 +265,35 @@ rows.append(r'\midrule Pooled & Temporal & --- & --- & ' + _n(tp['n']) + ' & ' +
             _vc(tp['rmse'], tp.get('rmse_ci95')) + ' & ' +
             _vc(tp['spearman_sigma_err'], tp.get('spearman_sigma_err_ci95'), signed=True) + ' & ' +
             _vc(tp['conformal_coverage_adaptive'], tp.get('conformal_coverage_adaptive_ci95'), 3))
+_ep = {t: tmp[t]['control_random_same_size']['empirical_p'] for t in _TT}
+_dv = {t: tmp[t]['delta_vs_control'] for t in _TT}
+_R = tmp[_TT[0]]['control_random_same_size']['n_reps']
+_pfmt = lambda v: (('%.4f' % v) if v >= 1e-4 else ('%.1e' % v))
+_tnote = (r'One-sided empirical $P$ against the %d size-matched control replicates, in the '
+          r'direction that counts as degradation for each measure, with smallest attainable '
+          r'value $1/(R+1)=%s$: ' % (_R, _pfmt(1.0 / (_R + 1)))
+          + '; '.join('%s RMSE %s, coverage %s, ranking %s'
+                      % (LAB[t], _pfmt(_ep[t]['rmse']), _pfmt(_ep[t]['coverage']),
+                         _pfmt(_ep[t]['spearman'])) for t in _TT)
+          + r'. Direct effect against the control mean, combining the temporal bootstrap with '
+            r'the standard error of that mean rather than comparing two separate intervals: '
+          + '; '.join('%s RMSE %+.2f %s, ranking %+.2f %s'
+                      % (LAB[t], _dv[t]['rmse']['delta'],
+                         '[%+.2f, %+.2f]' % tuple(_dv[t]['rmse']['ci95']),
+                         _dv[t]['spearman']['delta'],
+                         '[%+.2f, %+.2f]' % tuple(_dv[t]['spearman']['ci95'])) for t in _TT)
+          + r'. Compounds published together are usually analogues, so the temporal interval is '
+            r'also given from a bootstrap resampling Bemis-Murcko scaffold groups rather than '
+            r'compounds, which is the weaker basis and the one any separation should be read '
+            r'against: '
+          + '; '.join('%s RMSE [%.2f, %.2f] over %d scaffolds, ranking [%+.2f, %+.2f]'
+                      % (LAB[t], tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][0],
+                         tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][1],
+                         tmp[t]['scaffold_cluster_bootstrap']['n_scaffolds'],
+                         tmp[t]['scaffold_cluster_bootstrap']['spearman_sigma_err_ci95'][0],
+                         tmp[t]['scaffold_cluster_bootstrap']['spearman_sigma_err_ci95'][1])
+                      for t in _TT)
+          + '.')
 tab('tab:s-temporal',
     'Temporal shift and its size-matched control, one row per arm. Models are trained on '
     'compounds first published before 2015 and evaluated on those first published later. Each '
@@ -279,7 +309,7 @@ tab('tab:s-temporal',
     'differ in scale.',
     r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{cal}}$ & $n_{\mathrm{test}}$ & RMSE & '
     r'$\rho(\sigma_T,e)$ & Coverage at 0.900',
-    rows, 'llrrrrrr', tight=True)
+    rows, 'llrrrrrr', tight=True, note=_tnote)
 
 # ---------------------------------------------------------------- S8 pool acquisition (key)
 rows = []
