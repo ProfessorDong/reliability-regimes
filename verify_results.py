@@ -823,6 +823,33 @@ if _os.path.exists(_mst1):
          "else 'n/a'" in open(_mst1, encoding='utf-8').read(),
          'zero and undefined are different statements')
 
+# Table S2 reports a scaffold-split R^2 of -222.96 for FADS. That reads as a software fault
+# unless the table says why: R^2 divides by the held-out fold's own variance, and the FADS
+# scaffold fold is nearly constant. The RMSE the same R^2 implies is ordinary, which is the
+# check that distinguishes a low-variance denominator from a broken model.
+_sfp = _os.path.join(OUT, 'scaffold_fold_stats.json')
+if _os.path.exists(_sfp):
+    _sf = json.load(open(_sfp))
+    _T2 = ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+    cond('SI tables', 'the scaffold RMSE reproduces exactly from the R2 and the fold spread',
+         all(abs(_sf[t]['implied_rmse'] - _sf[t]['sd_test'] * (1 - _sf[t]['r2']) ** 0.5) < 1e-9
+             for t in _T2), 'RMSE = SD(test) * sqrt(1 - R2)')
+    cond('SI tables', 'the FADS scaffold RMSE is ordinary despite its extreme R2',
+         0.9 < _sf['fads']['implied_rmse'] < 1.6,
+         f"RMSE {_sf['fads']['implied_rmse']:.2f} against R2 {_sf['fads']['r2']:.0f}")
+    cond('SI tables', 'FADS has by far the least variable scaffold fold',
+         max(_T2, key=lambda t: _sf[t]['var_ratio']) == 'fads'
+         and _sf['fads']['var_ratio'] > 100,
+         f"variance ratio {_sf['fads']['var_ratio']:.0f}")
+    _mst2 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+    if _os.path.exists(_mst2):
+        _c2 = open(_mst2, encoding='utf-8').read()
+        cond('SI tables', 'the S2 caption explains the negative scaffold R2',
+             'is normalised by the variance of the ' in _c2,
+             'otherwise -222.96 reads as a bug')
+        cond('SI tables', 'S2 carries a scaffold RMSE column beside the R2',
+             "rmse_s" in _c2, 'the absolute error is what shows the model is not broken')
+
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
 # built before the temporal outputs were replaced: Figure 1c and Figure S2 shipped stale. An

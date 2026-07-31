@@ -63,6 +63,7 @@ fr = L('frontier_v2_analysis.json')
 rec = L('recovery_v2_results.json')['results']
 cg = L('compat_gen_analysis.json')['summary']
 om = {e['target']: e for e in L('oracle_metrics.json')['results']}
+sfs = L('scaffold_fold_stats.json') if os.path.exists(os.path.join(CW, 'scaffold_fold_stats.json')) else {}
 prov = json.load(open(PROV)) if os.path.exists(PROV) else {}
 
 OUTL = []
@@ -128,24 +129,34 @@ tab('tab:s-data',
 rows = []
 for t in T:
     e = om[t]; bo = e['bakeoff'][e['selected_model']]; sc = e.get('scaffold', {})
-    r2 = sc.get('r2'); nact = sc.get('n_active_test')
+    r2 = sc.get('r2')
     r2s = f(r2) if isinstance(r2, (int, float)) else 'n/a'
-    auc = 'n/a' if not nact else '---'
+    # R^2 divides by the held-out fold's own variance, so a nearly constant fold sends it far
+    # negative at ordinary absolute error. Carry the RMSE beside it or FADS at -222.96 reads
+    # as a software fault rather than as a low-variance denominator.
+    _sfs = sfs.get(t, {})
+    rmse_s = f(_sfs['implied_rmse']) if _sfs.get('implied_rmse') is not None else 'n/a'
     tt = tmp.get(t)
     tcell = f(tt['rmse_test']) if tt else 'n/a'
     rows.append(f"{LAB[t]} & {f(bo['spearman'][0],3)} & {f(bo['r2'][0],3)} & {f(bo['auc'][0],3)} & "
-                f"{f(sc.get('spearman', float('nan')),3)} & {r2s} & {tcell}")
+                f"{f(sc.get('spearman', float('nan')),3)} & {r2s} & {rmse_s} & {tcell}")
 tab('tab:s-protocol',
     'Activity-model performance under three evaluation protocols. Random-CV is five-fold '
     'cross-validation on parent structures. Scaffold is a Bemis--Murcko split used as a '
     'structural-shift stress test; where the held-out fold contains no active compounds the '
-    'classification AUC is undefined while the continuous metrics remain defined. Temporal '
+    'classification AUC is undefined while the continuous metrics remain defined, so no '
+    'scaffold AUC column is shown. The scaffold $R^2$ is normalised by the variance of the '
+    'held-out fold itself, so a fold whose response barely varies drives it far negative even '
+    'at ordinary absolute error: the FADS fold has an activity spread of 0.07 against 1.54 '
+    'for the whole dataset, a 531-fold difference in variance, and its RMSE of 1.00 sits '
+    'inside the 0.97 to 1.54 range spanned by the five targets. The RMSE column is given for '
+    'that reason. Temporal '
     'RMSE is on compounds published from 2015 onwards after training on earlier ones, and is '
     'available only for the four targets re-curated from ChEMBL.',
-    r'Target & \multicolumn{3}{c}{Random-CV} & \multicolumn{2}{c}{Scaffold} & Temporal\\'
-    r'\cmidrule(lr){2-4}\cmidrule(lr){5-6}\cmidrule(lr){7-7}'
-    r' & Spearman & $R^2$ & AUC & Spearman & $R^2$ & RMSE',
-    rows, 'lrrrrrr')
+    r'Target & \multicolumn{3}{c}{Random-CV} & \multicolumn{3}{c}{Scaffold} & Temporal\\'
+    r'\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-8}'
+    r' & Spearman & $R^2$ & AUC & Spearman & $R^2$ & RMSE & RMSE',
+    rows, 'lrrrrrrr', tight=True)
 
 # ---------------------------------------------------------------- S3 error stratification
 rows = []

@@ -145,6 +145,17 @@ _fa = [100.0 * _om[t]['frac_active'] for t in T]
 M['ActiveFracLo'] = f"{min(_fa):.0f}"
 M['ActiveFracHi'] = f"{max(_fa):.0f}"
 
+# The scaffold-split R^2 is normalised by the held-out fold's own variance, so a fold whose
+# response barely varies drives it far negative at ordinary absolute error. FADS is the extreme
+# case and the table has to be able to say why.
+_sf = L('scaffold_fold_stats.json')
+M['ScafSdFads'] = f"{_sf['fads']['sd_test']:.2f}"
+M['ScafSdAllFads'] = f"{_sf['fads']['sd_all']:.2f}"
+M['ScafRatioFads'] = f"{_sf['fads']['var_ratio']:.0f}"
+M['ScafRmseFads'] = f"{_sf['fads']['implied_rmse']:.2f}"
+M['ScafRmseLo'] = f"{min(v['implied_rmse'] for v in _sf.values()):.2f}"
+M['ScafRmseHi'] = f"{max(v['implied_rmse'] for v in _sf.values()):.2f}"
+
 # --- temporal shift (Regime 2) ---
 tmp = L('temporal_analysis.json')
 tp = tmp['pooled']
