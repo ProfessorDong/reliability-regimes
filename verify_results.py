@@ -530,17 +530,23 @@ cond('figure S1', 'pooled coverage tracks nominal at all three levels',
          for a, n in [('alpha0.2', 0.80), ('alpha0.1', 0.90), ('alpha0.05', 0.95)]), '')
 
 _ov = lambda a, b: a[0] <= b[1] and b[0] <= a[1]
+# Compare against the band the figure actually draws, the central 95% of the control
+# replicates, not the interval on their mean. The overlap verdict is the same under both, but a
+# check that tests a comparison the reader never sees is not checking the figure.
+def _cb(t, k):
+    c = tmp[t]['control_random_same_size']
+    return [c[k] - 1.96 * c[k + '_sd'], c[k] + 1.96 * c[k + '_sd']]
+
+
 cond('figure S2', 'panels a and b plot both arms with their intervals',
      all(k in tmp[t] for t in _tt for k in ('rmse_test_ci95', 'spearman_sigma_err_ci95'))
      and all(k in tmp[t]['control_random_same_size'] for t in _tt
-             for k in ('rmse_ci95', 'spearman_sigma_err_ci95')), '')
+             for k in ('rmse_sd', 'spearman_sigma_err_sd')), '')
 cond('figure S2', 'caption: the ranking matches its control on SCD-1 and NK1R',
-     all(_ov(tmp[t]['spearman_sigma_err_ci95'],
-             tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'])
+     all(_ov(tmp[t]['spearman_sigma_err_ci95'], _cb(t, 'spearman_sigma_err'))
          for t in ('scd1', 'nk1r')), '')
 cond('figure S2', 'caption: the ranking separates from control on DRD2 and DRD3',
-     all(not _ov(tmp[t]['spearman_sigma_err_ci95'],
-                 tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'])
+     all(not _ov(tmp[t]['spearman_sigma_err_ci95'], _cb(t, 'spearman_sigma_err'))
          for t in ('drd2', 'drd3')), '')
 
 _pl = L('poolopt_analysis.json')
@@ -759,6 +765,26 @@ if _os.path.exists(_gs1):
          'ax.set_ylim(0.6, 1.15)' not in _s1, 'a hand-cut axis is what caused the distortion')
     cond('SI figures', 'figure S1a draws the pooled curve behind the target curves',
          "label='Pooled', zorder=0" in _s1, 'at zorder 5 it hid NK1R completely')
+
+# Figure S2 draws the same control comparison as main Figure 1c, so it must use the same
+# interval. It was using the interval on the control mean, which at 1000 replicates is 0.1 to
+# 0.4% of the axis height and invisible, and which answers a different question from the one
+# the panel poses.
+_gs2 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'gen_si_figures.py')
+if _os.path.exists(_gs2):
+    _s2 = open(_gs2, encoding='utf-8').read()
+    cond('SI figures', 'figure S2 shows the control replicate spread, as main Figure 1c does',
+         'def _cband(' in _s2 and "_cband(t, 'rmse')" in _s2,
+         'the two figures must mean the same thing by a control interval')
+    cond('SI figures', 'figure S2 no longer draws the interval on the control mean',
+         "['rmse_ci95'] for t in tt" not in _s2, 'invisible at 1000 replicates')
+_tj2 = _os.path.join(OUT, 'temporal_analysis.json')
+if _os.path.exists(_tj2):
+    _t2j = json.load(open(_tj2))
+    _rc = lambda t: _t2j[t]['risk_coverage_rmse']
+    _inv = [t for t in ('scd1', 'nk1r', 'drd2', 'drd3') if _rc(t)['0.2'] >= _rc(t)['1.0']]
+    cond('SI figures', 'DRD3 alone has an inverted risk-coverage curve after the shift',
+         _inv == ['drd3'], f'inverted on {_inv}; it is the target whose ranking does not survive')
 
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been

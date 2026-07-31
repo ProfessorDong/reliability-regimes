@@ -118,8 +118,17 @@ tt = [t for t in T if t in tmp]
 fig, axes = plt.subplots(1, 3, figsize=(9.0, 3.0))
 x = np.arange(len(tt)); w = 0.36
 
-# 95% intervals: bootstrap over evaluation compounds for the single temporal split,
-# t interval across replicates for the control
+# The two arms need different intervals. The temporal split happens once, so it carries a
+# bootstrap over its evaluation compounds. The control is a distribution over random splits and
+# the question is whether one observation is extreme against it, so it carries the central 95%
+# of the replicate spread. At 1000 replicates the interval on the control mean is 0.1 to 0.4%
+# of the axis height, invisible, and answers a different question. Main Figure 1c uses the same
+# convention, so the two figures mean the same thing by a control interval.
+def _cband(t, key):
+    c = tmp[t]['control_random_same_size']
+    return [c[key] - 1.96 * c[key + '_sd'], c[key] + 1.96 * c[key + '_sd']]
+
+
 def _err(vals, cis):
     lo = [v - c[0] for v, c in zip(vals, cis)]
     hi = [c[1] - v for v, c in zip(vals, cis)]
@@ -129,7 +138,7 @@ ax = axes[0]
 _cv = [tmp[t]['control_random_same_size']['rmse'] for t in tt]
 _tv = [tmp[t]['rmse_test'] for t in tt]
 ax.bar(x - w / 2, _cv, w, color=BLUE, label='size-matched random split',
-       yerr=_err(_cv, [tmp[t]['control_random_same_size']['rmse_ci95'] for t in tt]),
+       yerr=_err(_cv, [_cband(t, 'rmse') for t in tt]),
        capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
 ax.bar(x + w / 2, _tv, w, color=VERM, label='temporal split',
        yerr=_err(_tv, [tmp[t]['rmse_test_ci95'] for t in tt]),
@@ -144,7 +153,7 @@ ax = axes[1]
 _cr = [tmp[t]['control_random_same_size']['spearman_sigma_err'] for t in tt]
 _tr = [tmp[t]['spearman_sigma_err'] for t in tt]
 ax.bar(x - w / 2, _cr, w, color=BLUE,
-       yerr=_err(_cr, [tmp[t]['control_random_same_size']['spearman_sigma_err_ci95'] for t in tt]),
+       yerr=_err(_cr, [_cband(t, 'spearman_sigma_err') for t in tt]),
        capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
 ax.bar(x + w / 2, _tr, w, color=VERM,
        yerr=_err(_tr, [tmp[t]['spearman_sigma_err_ci95'] for t in tt]),
