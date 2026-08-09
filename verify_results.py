@@ -1784,6 +1784,23 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     cond('manuscript', 'the ChEMBL retrieval date is stated',
          _re.search(r'web\s+services on \d{4}-\d{2}-\d{2}', _s) is not None,
          'the curated files are archived, but the retrieval date still has to be given')
+    # Rina Foygel Barber's surname is Barber. The two downloaded citation records disagree (the
+    # IMA journal exports "Foygel Barber, Rina", Curran exports "Barber, Rina Foygel"), and she
+    # co-authors two references here, so following each source would render her as two different
+    # people in one list. User decision: Barber, consistently.
+    if _os.path.exists(_os.path.join(_os.path.dirname(_tex), 'theranostics_generation.bib')):
+        _bt0 = open(_os.path.join(_os.path.dirname(_tex), 'theranostics_generation.bib'),
+                    encoding='utf-8').read()
+        cond('manuscript', 'Barber is cited under one surname in both of her references',
+             _bt0.count('Barber, Rina Foygel') == 2 and 'Foygel Barber, Rina' not in _bt0,
+             'surname is Barber; the IMA export disagrees with Curran, do not follow it')
+    # PLOS's BibTeX exporter emits pages 1-12, the PDF pagination. The article locator PLOS
+    # itself displays is e61007, which is also the form Nature journals use, so the downloaded
+    # file is deliberately not followed here. User decision.
+    if _os.path.exists(_os.path.join(_os.path.dirname(_tex), 'theranostics_generation.bib')):
+        cond('manuscript', 'the PLOS reference cites its article locator, not PDF pagination',
+             'pages={e61007}' in _bt0.replace(' ', ''),
+             'e61007 is the locator PLOS displays; 1-12 is an exporter artifact')
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
