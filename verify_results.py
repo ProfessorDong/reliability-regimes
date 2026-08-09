@@ -2025,6 +2025,22 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
         cond('manuscript', 'every Supplementary table and figure is cited from the article',
              not _unc, f'uncited: {_unc}')
 
+    # The Methods state the calibration split in prose: a quarter of each training fold, or 50
+    # compounds if that is larger. Two separate files implement it, so the prose can fall out of
+    # step with either. Assert the rule rather than trusting the sentence.
+    _hd = _os.path.dirname(_os.path.abspath(__file__))
+    for _f in ('run_conformal_v1.py', 'run_temporal_v1.py'):
+        _fp = _os.path.join(_hd, 'reliability', _f)
+        if _os.path.exists(_fp):
+            _ft = open(_fp, encoding='utf-8').read()
+            cond('Methods/code', f'{_f} implements the stated calibration split',
+                 _re.search(r'max\(50,\s*len\([^)]*\)\s*//\s*4\)', _ft) is not None,
+                 'Methods say a quarter of the training fold, or 50 if larger')
+    cond('Methods/code', 'the Methods state that calibration rule',
+         _re.search(r'quarter of each training fold, or \$?50\$? compounds if that is larger',
+                    _re.sub(r'\s+', ' ', _s)) is not None,
+         'the prose and the two implementations must agree')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
