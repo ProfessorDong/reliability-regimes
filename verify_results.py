@@ -727,22 +727,32 @@ _BANNED = [
     # EC50 is retained and is not an affinity endpoint, so the dropped records are not "non-affinity"
     ('non-affinity endpoint', 'EC50 is retained; the filter drops ineligible standard types'),
     # (1+k)/(R+1) over 1000 random draws is a Monte Carlo tail probability, not an enumerated test
-    ('exact one-sided\nempirical', 'call it a one-sided Monte Carlo empirical P'),
     ('exact one-sided empirical', 'call it a one-sided Monte Carlo empirical P'),
     # mu+sigma's advantage covers zero, so the upside claim must carry the asymmetry that
     # supports it: penalising costs compounds, seeking them out does not reliably gain any
     ('upside lies.', 'unqualified; state the asymmetry, since the optimistic rule covers zero'),
 ]
+def _flat(t):
+    """Collapse whitespace before scanning.
+
+    The scan used to run on the raw file, so a banned phrase that happened to wrap across a
+    source line was invisible to it: "an exact one-sided\nempirical P" sat in the SI while the
+    guard for "exact one-sided empirical" reported clean. LaTeX line breaks are not part of a
+    sentence, so neither the haystack nor the needle should depend on them.
+    """
+    return _re.sub(r'\s+', ' ', t)
+
+
 for _n, _f in _SRC.items():
     if not _os.path.exists(_f):
         continue
-    _txt = open(_f, encoding='utf-8').read()
+    _txt = _flat(open(_f, encoding='utf-8').read())
     for _bad, _why in _BANNED:
-        cond('phrasing', f'{_n}: no "{_bad}"', _bad not in _txt, _why)
+        cond('phrasing', f'{_n}: no "{_bad}"', _flat(_bad) not in _txt, _why)
 
 # Claims that appear in more than one place must agree everywhere they appear.
 if all(_os.path.exists(f) for f in _SRC.values()):
-    _all = '\n'.join(open(f, encoding='utf-8').read() for f in _SRC.values())
+    _all = _flat('\n'.join(open(f, encoding='utf-8').read() for f in _SRC.values()))
     cond('phrasing', 'SCD-1, not FADS, is named as the in-domain exception wherever it is named',
          'NinDomExcept' in _all and 'where the in-domain novelty comparison does not hold' not in _all,
          'the exception must come from the macro the data sets')
@@ -1407,6 +1417,26 @@ cond('SI tables', 'S20: every endpoint mix sums to 100 percent',
      and all(abs(sum(_ep20['temporal_cohort'][t][k].values()) - 100) < 0.3
              for t in ('scd1', 'nk1r', 'drd2', 'drd3')
              for k in ('overall_pct', 'pre_pct', 'post_pct')), '')
+# Seed novelty is defined against one draw of k active training compounds, so the claim that it
+# adds little beyond nearest-training distance could have been an artifact of that draw.
+# run_support_resample.py repeats it; assert the conclusion holds across every draw and k.
+_sr = json.load(open(_os.path.join(OUT, 'support_resample.json')))
+_srT = [t for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3') if t in _sr]
+cond('Results/novelty', 'the support resampling covers three support sizes and many draws',
+     _sr['n_draws'] >= 100 and set(_sr['k_values']) == {5, 10, 20},
+     f"{_sr['n_draws']} draws at k={_sr['k_values']}")
+_hi = [_sr[t][f'k{k}']['partial_nov_err_given_dtr']['hi'] for t in _srT for k in (5, 10, 20)]
+cond('Results/novelty', 'the partial correlation stays small across every draw and support size',
+     max(_hi) < 0.20, f'largest 97.5th percentile {max(_hi):.3f} over {len(_hi)} cells')
+cond('Results/novelty', 'FADS is the sign exception under resampling, as the text states',
+     _sr['fads']['k10']['partial_nov_err_given_dtr']['median'] < 0
+     and all(_sr[t]['k10']['partial_nov_err_given_dtr']['median'] > 0
+             for t in _srT if t != 'fads'),
+     'more novel FADS compounds carry lower error')
+cond('Results/novelty', 'the nearer-training group wins a majority of draws on every target',
+     all(_sr[t][f'k{k}']['near_beats_far_frac'] > 0.5 for t in _srT for k in (5, 10, 20)),
+     'lowest share %.0f%%' % (100 * min(_sr[t][f'k{k}']['near_beats_far_frac']
+                                        for t in _srT for k in (5, 10, 20))))
 # Aggregating to a median across DIFFERENT endpoint types is a stronger assumption than
 # aggregating within one, so the share of parents where that happens, and what it costs in
 # within-parent spread, are reported rather than left to a citation about mixed IC50 data.
@@ -1744,6 +1774,17 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
                 _rw = len(_m.group(1).split())
                 cond('manuscript', 'rendered abstract is also within 150 words',
                      _rw <= 150, f'{_rw} whitespace-delimited words in the compiled PDF')
+            # Figure legends have their own cap and the same source-versus-rendered gap. The
+            # Figure 1 legend was trimmed to 348 words of source and shipped at 368 rendered,
+            # over npj's 350, because only the abstract was being counted this way.
+            _i = _txt.find('Where and when the activity model can be trusted')
+            _j = _txt.find('Fig. 2', _i)
+            if _i > 0 and _j > _i:
+                _seg = ' '.join(l for l in _txt[_i:_j].split('\n')
+                                if l.strip() and not l.strip().isdigit())
+                _lw = len(_seg.split())
+                cond('manuscript', 'rendered Figure 1 legend is within the 350-word limit',
+                     _lw <= 350, f'{_lw} whitespace-delimited words in the compiled PDF')
         except (OSError, _sp.SubprocessError):
             pass
     cond('manuscript', 'no reference to the superseded raw-record count in the text',
@@ -1757,7 +1798,8 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     # spread has to span all four.
     _ntemp = len([t for t in ('scd1', 'nk1r', 'drd2', 'drd3') if t in tmp])
     cond('manuscript', 'the abstract accounts for every temporal target, not a subset',
-         'surviving on two targets' not in _ab and 'across the four' in _ab,
+         'surviving on two targets' not in _ab
+         and 'from unchanged to nearly lost' in _re.sub(r'\s+', ' ', _ab),
          f'{_ntemp} temporal targets; two survive, one weakens, one is lost')
     # The Introduction promises four contributions, but the abstract covered only three: the
     # fingerprint-surrogate method had no sentence at all. It must stay, and it must keep the
