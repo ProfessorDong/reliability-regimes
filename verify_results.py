@@ -2006,6 +2006,25 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
                        for _m in _re.finditer(r'\b\w*' + _b + r'\w*\b', _pt, _re.I)})
         cond('spelling', f'{_pdf} uses American spelling', not _bad, f'found {_bad}')
 
+    # Counts that a re-run changes must come from macros, not from typed digits. The article
+    # once stated a verification total of 300 that had drifted; the same exposure existed for the
+    # method cell count and the frontier run count, both of which had macros that went unused.
+    _sflat = _re.sub(r'\s+', ' ', _s)
+    for _lit, _macro in (('$15$ target-by-$k$ cells', 'MethodCells'),
+                         ('$1{,}200$', 'FrontRuns')):
+        cond('manuscript', f'the article uses \\{_macro} rather than typing its value',
+             _lit not in _sflat and ('\\' + _macro) in _sflat,
+             'a typed count goes stale silently when the experiment is re-run')
+    # Every Supplementary object must be cited from the article. Two tables, the conformal
+    # results and the acquisition counts, existed and were reachable only from the SI itself.
+    _sirefs = _os.path.join(_wsdir, 'si_refs.tex')
+    if _os.path.exists(_sirefs):
+        _objs = _re.findall(r'\\newcommand\{\\((?:Tab|SFig)[A-Za-z]+)\}',
+                            open(_sirefs, encoding='utf-8').read())
+        _unc = [o for o in _objs if ('\\' + o) not in _sflat]
+        cond('manuscript', 'every Supplementary table and figure is cited from the article',
+             not _unc, f'uncited: {_unc}')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
