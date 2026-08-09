@@ -1784,6 +1784,26 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     cond('manuscript', 'the ChEMBL retrieval date is stated',
          _re.search(r'web\s+services on \d{4}-\d{2}-\d{2}', _s) is not None,
          'the curated files are archived, but the retrieval date still has to be given')
+    # The RDKit version is an empirical fact about the runs, and it appears in three places that
+    # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
+    # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
+    # was never run, so assert all three name the same release.
+    _rdk_tex = _re.search(r'RDKit \$(\d{4}\.\d{2}\.\d+)\$', _s)
+    _bibp = _os.path.join(_os.path.dirname(_tex), 'theranostics_generation.bib')
+    _rdk_bib = None
+    if _os.path.exists(_bibp):
+        _bt = open(_bibp, encoding='utf-8').read()
+        _m2 = _re.search(r'@misc\{rdkit,.*?\n\}', _bt, _re.S)
+        if _m2:
+            _m3 = _re.search(r'(\d{4}\.\d{2}\.\d+)', _m2.group(0))
+            _rdk_bib = _m3.group(1) if _m3 else None
+    _reqp = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'requirements.txt')
+    _m4 = _re.search(r'rdkit==(\S+)', open(_reqp, encoding='utf-8').read()) \
+        if _os.path.exists(_reqp) else None
+    _rdk_req = _m4.group(1) if _m4 else None
+    cond('manuscript', 'the RDKit release agrees across Methods, bibliography and requirements',
+         _rdk_tex is not None and _rdk_bib == _rdk_tex.group(1) == _rdk_req,
+         f'Methods {_rdk_tex.group(1) if _rdk_tex else None}, bib {_rdk_bib}, pinned {_rdk_req}')
     # The pooled response mixes endpoint types; the Methods must quantify how often the median
     # itself crosses them rather than resting on a mixed-IC50 citation.
     cond('manuscript', 'the Methods quantify how often aggregation crosses endpoint types',
