@@ -1457,8 +1457,10 @@ cond('audit/consistency', 'the bottom fifth is under-covered on four of five, FA
      len(_lowunder) == 4 and 'fads' not in _lowunder, f'under-covered on {_lowunder}')
 # The reward's scalarisation: novelty is allowed twice the maximum activity contribution at the
 # top of the sweep, so the falling predicted activity is partly by construction and is disclosed.
-if _os.path.exists(_tex):
-    _st2 = _re.sub(r'\s+', ' ', open(_tex, encoding='utf-8').read())
+_tex_audit = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                           'theranostics', 'JournalPapers_npjDD', 'npjDD_Reliability.tex')
+if _os.path.exists(_tex_audit):
+    _st2 = _re.sub(r'\s+', ' ', open(_tex_audit, encoding='utf-8').read())
     cond('audit/consistency', 'the article discloses that the novelty sweep outweighs activity',
          'novelty can contribute twice what' in _st2,
          'w_nu reaches 2 while w_p is 1 and g_p is bounded by 1')
