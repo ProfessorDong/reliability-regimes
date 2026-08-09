@@ -1900,6 +1900,19 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
         cond('manuscript', 'the PLOS reference cites its article locator, not PDF pagination',
              'pages={e61007}' in _bt0.replace(' ', ''),
              'e61007 is the locator PLOS displays; 1-12 is an exporter artifact')
+    # The article states the verification count as a hand-typed integer, which drifted from 300
+    # to a stale value once guards were added. It refers to the ARCHIVED release, not to HEAD, so
+    # it must track the tag: if the archive is re-cut, this number and the DOI move together.
+    _ARCHIVED_CLEAN_COUNT = 317
+    _mcnt = _re.search(r're-checks all \$(\d+)\$ numeric claims', _re.sub(r'\s+', ' ', _s))
+    cond('manuscript', 'the stated verification count matches the archived release',
+         _mcnt is not None and int(_mcnt.group(1)) == _ARCHIVED_CLEAN_COUNT,
+         f"article says {_mcnt.group(1) if _mcnt else 'nothing'}, "
+         f"archived release reports {_ARCHIVED_CLEAN_COUNT}")
+    cond('manuscript', 'the stated count is scoped to the archive, not to a moving HEAD',
+         'the count in the archived release' in _re.sub(r'\s+', ' ', _s),
+         'HEAD gains checks over time; the archive does not')
+
     # The archived snapshot is what a reader is directed to, so the DOI and the release tag in
     # the availability statements must stay together and must name the tag that was archived.
     _ZEN_DOI, _ZEN_TAG = '10.5281/zenodo.21864876', 'v1.0-npjdd-submission'
