@@ -170,7 +170,7 @@ tab('tab:s-protocol',
     'scaffold AUC column is shown. $R^2$ here is the coefficient of determination, '
     '$1-\\sum(y-\\hat{y})^2/\\sum(y-\\bar{y})^2$, which equals a squared correlation only for an '
     'in-sample fit and is unbounded below out of sample; a negative value means the model '
-    'predicts that fold less well than its own mean does. It is normalised by the variance of the '
+    'predicts that fold less well than its own mean does. It is normalized by the variance of the '
     'held-out fold itself, so a fold whose response barely varies drives it far negative even '
     'at ordinary absolute error: the FADS fold has an activity spread of 0.07 against 1.54 '
     'for the whole dataset, a 531-fold difference in variance, and its RMSE of 1.00 sits '
@@ -379,7 +379,7 @@ _tnote = (r'One-sided empirical $P$ against the %d size-matched control replicat
                          '[%+.2f, %+.2f]' % tuple(_dv[t]['rmse']['ci95']),
                          _dv[t]['spearman']['delta'],
                          '[%+.2f, %+.2f]' % tuple(_dv[t]['spearman']['ci95'])) for t in _TT)
-          + r'. Compounds published together are usually analogues, so the temporal interval is '
+          + r'. Compounds published together are usually analogs, so the temporal interval is '
             r'also given from a bootstrap resampling Bemis-Murcko scaffold groups rather than '
             r'compounds, which is the weaker basis and the one any separation should be read '
             r'against: '
@@ -437,7 +437,7 @@ mean_enr = {m: st.mean([pool[t][m]['enrichment_vs_random'] for t in T])
 rows.append(r'\midrule Enrichment & --- & --- & ' +
             ' & '.join(f(mean_enr[m]) + r'$\times$' for m in ['random', 'greedy', 'ucb', 'lcb', 'conformal']))
 # Paired against the predicted-mean rule, seed by seed, with the target as the unit of
-# generalisation. A mean cannot say whether a rule is separated from greedy; these do.
+# generalization. A mean cannot say whether a rule is separated from greedy; these do.
 from scipy import stats as sps
 _pres = json.load(open(os.path.join(CW, 'poolopt_analysis.json')))['results']
 _pd = {}

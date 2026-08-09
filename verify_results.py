@@ -924,8 +924,10 @@ if _os.path.exists(_sfp):
     _mst2 = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
     if _os.path.exists(_mst2):
         _c2 = open(_mst2, encoding='utf-8').read()
+        # Spelling-agnostic: this broke when the caption was Americanized, which is the fifth
+        # time in this file a guard has tested a wording instead of the claim it stands for.
         cond('SI tables', 'the S2 caption explains the negative scaffold R2',
-             'is normalised by the variance of the ' in _c2
+             _re.search(r'is normali[sz]ed by the variance of the ', _c2) is not None
              and 'less well than its own mean does' in _c2,
              'otherwise -222.96 reads as a bug')
         cond('SI tables', 'S2 carries a scaffold RMSE column beside the R2',
@@ -1982,6 +1984,28 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
                  open(_a, encoding='utf-8').read() == open(_b, encoding='utf-8').read(),
                  'a reader regenerating from the release would not reproduce the figures shown')
 
+    # American spelling throughout the article and the SI (user instruction). Check the RENDERED
+    # text, because a British form can enter through a generated table or a figure label as well
+    # as through the prose. Stems only, and only ones with no American word containing them:
+    # "characteris" would match characteristic, "optimis" matches optimistic, "analyse" matches
+    # the plural analyses, all of which are correct.
+    import subprocess as _sp2
+    _BRIT = ('analogue', 'normalis', 'penalis', 'standardis', 'summaris', 'minimis', 'maximis',
+             'recognis', 'generalis', 'utilis', 'colour', 'behaviour', 'neighbour', 'modelling',
+             'labelled', 'artefact', 'amongst', 'whilst', 'programme', 'licence', 'defence')
+    for _pdf in ('npjDD_Reliability.pdf', 'npjDD_SI.pdf'):
+        _pp = _os.path.join(_wsdir, _pdf)
+        if not _os.path.exists(_pp):
+            continue
+        try:
+            _pt = _sp2.run(['pdftotext', _pp, '-'], capture_output=True, text=True,
+                           timeout=120).stdout.replace('-\n', '')
+        except (OSError, _sp2.SubprocessError):
+            continue
+        _bad = sorted({_m.group(0).lower() for _b in _BRIT
+                       for _m in _re.finditer(r'\b\w*' + _b + r'\w*\b', _pt, _re.I)})
+        cond('spelling', f'{_pdf} uses American spelling', not _bad, f'found {_bad}')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
@@ -2014,6 +2038,13 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
            _re.search(r'\\keywords\{(.*?)\}', _s, _re.S).group(1).split(',')]
     cond('manuscript', 'keywords name uncertainty quantification',
          any('uncertainty' in k for k in _kw), ', '.join(_kw))
+    # The temporal axis is the paper's most distinctive contribution and had no keyword: a
+    # reader searching for time-split validation could not have found it. QSAR is the field's
+    # standard index term and was likewise missing.
+    cond('manuscript', 'keywords name the temporal axis, which nothing else covers',
+         any('temporal' in k for k in _kw), ', '.join(_kw))
+    cond('manuscript', 'keywords name QSAR, the standard index term for this field',
+         any(k.strip().upper() == 'QSAR' for k in _kw), ', '.join(_kw))
     cond('manuscript', 'keywords are not padded with the journal\'s own scope phrase',
          'machine learning in drug discovery' not in _kw, ', '.join(_kw))
     cond('manuscript', 'every keyword names something the manuscript actually does',

@@ -42,7 +42,7 @@ LAB = {'scd1': 'SCD-1', 'fads': 'FADS', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 
 # Okabe-Ito, colorblind safe, no red/green contrast
 BLUE, ORANGE, GREEN, PINK, VERM, SKY, YELL = ('#0072B2', '#E69F00', '#009E73',
                                               '#CC79A7', '#D55E00', '#56B4E9', '#F0E442')
-GREY, DARK = '#9A9A9A', '#333333'
+GRAY, DARK = '#9A9A9A', '#333333'
 
 rel = L('reliability_v2_analysis.json')
 con = L('conformal_analysis.json')
@@ -87,7 +87,7 @@ ax.scatter(tx[keep], ty[keep], s=11, color=SKY, alpha=0.85, lw=0, zorder=2)
 sx, sy = np.array([2.30, 2.75, 2.50, 2.95, 2.62]), np.array([3.95, 4.25, 4.52, 3.75, 4.20])
 
 # The panel's job is to define the two distances, so the arrows are drawn to the actual
-# nearest neighbours rather than placed by hand: a reader who measures them must find the
+# nearest neighbors rather than placed by hand: a reader who measures them must find the
 # definition the caption states. The starting compounds are part of the training set, which
 # is what forces d_train <= nu.
 TRAIN = np.vstack([np.c_[tx[keep], ty[keep]], np.c_[sx, sy]])
@@ -131,7 +131,7 @@ ax.text(0.30, 0.98, r'$d_{\mathrm{train}}$', fontsize=8.5, color=VERM, fontweigh
 ax.text(1.50, 0.98, 'distance to nearest training compound', fontsize=7, color=VERM)
 ax.text(0.30, 0.34, r'$d_{\mathrm{train}}\leq\nu$ always; the gap is novelty relative to the leads alone',
         fontsize=6.6, color=DARK)
-ax.text(0.30, 7.45, 'schematic', fontsize=6.2, color=GREY, style='italic', va='top')
+ax.text(0.30, 7.45, 'schematic', fontsize=6.2, color=GRAY, style='italic', va='top')
 
 # ---------------------------------------------------------------- (b) Regime 1
 ax = fig.add_subplot(gs[0, 1])
@@ -170,7 +170,7 @@ for i, t in enumerate(tt):
     # is a distribution over random splits, and the question is whether one observation is
     # extreme against that distribution, so it carries the central 95% of the replicate spread
     # rather than the interval on its mean. At 1000 replicates the interval on the mean is
-    # under 2% of the axis width and renders as an artefact rather than as data.
+    # under 2% of the axis width and renders as an artifact rather than as data.
     _csd = c.get(K + '_sd')
     _cband = [a - 1.96 * _csd, a + 1.96 * _csd] if _csd else c.get(K + '_ci95')
     for v, ci, col, dy in ((a, _cband, BLUE, 0.17), (b, d.get(K + '_ci95'), VERM, -0.17)):
@@ -217,7 +217,7 @@ names = ['Random', 'Predicted\nmean', 'Optimistic\n$\\mu+\\sigma$',
          'Cautious\n$\\mu-\\sigma$', 'Conformal-\nstyle lower\nscore']
 vals = [np.mean([pool[t][m]['enrichment_vs_random'] for t in T]) for m in meths]
 sds = [np.std([pool[t][m]['enrichment_vs_random'] for t in T], ddof=1) / np.sqrt(5) for m in meths]
-cols = [GREY, BLUE, SKY, ORANGE, VERM]
+cols = [GRAY, BLUE, SKY, ORANGE, VERM]
 bars = ax.bar(range(5), vals, yerr=sds, capsize=2.5, color=cols, width=0.66,
               edgecolor='white', lw=0.6, error_kw=dict(lw=0.9, ecolor=DARK))
 # With five targets the individual values say more than a standard error does, and they show
@@ -252,7 +252,7 @@ assert _ins(q1) < 1.0 < _ins(q2), 'panel a: q1 must sit inside the cloud and q2 
 fig.savefig(OUT, dpi=400, bbox_inches='tight', facecolor='white')
 print('wrote', OUT)
 print(f'  (a) q1 nu={q1_nu:.2f} d_train={q1_dt:.2f} | q2 nu={q2_nu:.2f} d_train={q2_dt:.2f} '
-      f'(arrows drawn to true nearest neighbours)')
+      f'(arrows drawn to true nearest neighbors)')
 print(f"  (b) pooled RC {mi['0.2']:.2f}->{mi['1.0']:.2f}; conformal {pc['adaptive_coverage']:.3f}")
 print(f"  (c) coverage temporal {tp['conformal_coverage_adaptive']:.3f} vs controls "
       f"{[round(tmp[t]['control_random_same_size']['conformal_coverage_adaptive'],3) for t in tt]}")

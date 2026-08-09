@@ -145,7 +145,7 @@ _fa = [100.0 * _om[t]['frac_active'] for t in T]
 M['ActiveFracLo'] = f"{min(_fa):.0f}"
 M['ActiveFracHi'] = f"{max(_fa):.0f}"
 
-# The scaffold-split R^2 is normalised by the held-out fold's own variance, so a fold whose
+# The scaffold-split R^2 is normalized by the held-out fold's own variance, so a fold whose
 # response barely varies drives it far negative at ordinary absolute error. FADS is the extreme
 # case and the table has to be able to say why.
 _sf = L('scaffold_fold_stats.json')
@@ -318,7 +318,7 @@ _wr = [( (tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][1]
 M['TempScafWidenLo'] = f"{min(_wr):.1f}"
 M['TempScafWidenHi'] = f"{max(_wr):.1f}"
 
-# Direct effect averaged over targets, with the target as the unit of generalisation, matching
+# Direct effect averaged over targets, with the target as the unit of generalization, matching
 # how the method gain is tested elsewhere in the paper.
 for _key, _tag in [('rmse', 'Rmse'), ('spearman', 'Rho'), ('coverage', 'Cov')]:
     _pt = np.array([tmp[t]['delta_vs_control'][_key]['delta'] for t in _CAPT], float)
@@ -450,9 +450,9 @@ M.update({
 })
 
 # Acquisition, paired by seed against the predicted-mean rule. Means alone cannot say whether
-# a rule is separated from greedy, and two of these are while one is not: penalising
+# a rule is separated from greedy, and two of these are while one is not: penalizing
 # uncertainty costs on every target, whereas the optimistic rule's higher average rests on one
-# target and its interval covers zero. The unit of generalisation is the target, as elsewhere.
+# target and its interval covers zero. The unit of generalization is the target, as elsewhere.
 _pr = L('poolopt_analysis.json')['results']
 _PT = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
 for _m, _tag in [('ucb', 'Ucb'), ('lcb', 'Lcb'), ('conformal', 'Conf')]:
