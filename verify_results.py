@@ -1417,6 +1417,52 @@ cond('SI tables', 'S20: every endpoint mix sums to 100 percent',
      and all(abs(sum(_ep20['temporal_cohort'][t][k].values()) - 100) < 0.3
              for t in ('scd1', 'nk1r', 'drd2', 'drd3')
              for k in ('overall_pct', 'pre_pct', 'post_pct')), '')
+# --- math/consistency audit invariants -------------------------------------------------
+# Every derived percentage must be reconstructible from the values it is derived from. These
+# are cheap and they catch a stale numerator or denominator that no per-value check would.
+_relq = json.load(open(_os.path.join(OUT, 'reliability_v2_analysis.json')))
+_pq = _relq['pooled']
+_mi, _ma = _pq['risk_coverage_micro'], _pq['risk_coverage_macro']
+close('audit/arithmetic', 'micro risk-coverage percentage matches its own endpoints',
+      100 * (_mi['1.0'] - _mi['0.2']) / _mi['1.0'],
+      float(mac['RCmicroPct']) if 'RCmicroPct' in mac else 42.0, 0.6)
+close('audit/arithmetic', 'macro risk-coverage percentage matches its own endpoints',
+      100 * (_ma['1.0'] - _ma['0.2']) / _ma['1.0'],
+      float(mac['RCmacroPct']) if 'RCmacroPct' in mac else 37.0, 0.6)
+# sigma_T is defined in the article with a 1/N_tree normalisation, which is numpy's ddof=0.
+# A change to ddof would silently redefine the quantity the whole paper is about.
+_src_rel = open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)),
+                              'reliability', 'run_reliability_v2.py'), encoding='utf-8').read()
+cond('audit/math', 'sigma_T is computed with the 1/N_tree normalisation the equation states',
+     'Pr.std(0)' in _src_rel and 'ddof' not in _src_rel.split('Pr.std(0)')[0][-80:],
+     'numpy std defaults to ddof=0, matching 1/N_tree in Eq. (1)')
+# The risk-coverage curve is monotone on four targets, and SCD-1 is the stated exception.
+_COVK = ['0.2', '0.4', '0.6', '0.8', '1.0']
+_nonmono = [t for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+            if not all(_relq[t]['risk_coverage_rmse'][_COVK[i]]
+                       <= _relq[t]['risk_coverage_rmse'][_COVK[i + 1]] + 1e-9
+                       for i in range(4))]
+cond('audit/consistency', 'SCD-1 is the only target with a non-monotone risk-coverage curve',
+     _nonmono == ['scd1'], f'non-monotone on {_nonmono}')
+# Conditional coverage: over-covered in the top sigma fifth everywhere, under-covered in the
+# bottom fifth on four of five, FADS excepted. Both documents state this.
+_conq = json.load(open(_os.path.join(OUT, 'conformal_analysis.json')))
+_lowunder = [t for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+             if _conq[t]['alpha0.1']['adaptive_coverage_low_sigma'] < 0.90]
+_highover = [t for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+             if _conq[t]['alpha0.1']['adaptive_coverage_high_sigma'] > 0.90]
+cond('audit/consistency', 'the top disagreement fifth is over-covered on every target',
+     len(_highover) == 5, f'over-covered on {_highover}')
+cond('audit/consistency', 'the bottom fifth is under-covered on four of five, FADS excepted',
+     len(_lowunder) == 4 and 'fads' not in _lowunder, f'under-covered on {_lowunder}')
+# The reward's scalarisation: novelty is allowed twice the maximum activity contribution at the
+# top of the sweep, so the falling predicted activity is partly by construction and is disclosed.
+if _os.path.exists(_tex):
+    _st2 = _re.sub(r'\s+', ' ', open(_tex, encoding='utf-8').read())
+    cond('audit/consistency', 'the article discloses that the novelty sweep outweighs activity',
+         'novelty can contribute twice what' in _st2,
+         'w_nu reaches 2 while w_p is 1 and g_p is bounded by 1')
+
 # Seed novelty is defined against one draw of k active training compounds, so the claim that it
 # adds little beyond nearest-training distance could have been an artifact of that draw.
 # run_support_resample.py repeats it; assert the conclusion holds across every draw and k.
