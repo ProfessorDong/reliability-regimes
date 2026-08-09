@@ -2009,12 +2009,14 @@ if _os.path.exists(_rm) and not _os.path.exists(NUM):
     # two different totals, because a stale duplicate elsewhere in the file still said the right
     # number and satisfied it.
     _rc = _re.search(r'\((\d+) assertions from a clean clone', _r)
-    cond('README', 'states the assertion count this script actually reports',
-         _rc is not None and int(_rc.group(1)) == CHECKED + 1,
-         f'clean-clone total is {CHECKED + 1}, README says {_rc.group(1) if _rc else "nothing"}')
     cond('README', 'the two assertion counts in the README agree',
          _rc is not None and f'{_rc.group(1)} claims' in _r,
          'the file quotes the total twice; a stale duplicate satisfied the old check')
+    # KEEP LAST. It compares the README against CHECKED + 1, which is the final total only if
+    # nothing is asserted after it. A check added below this line makes it undercount.
+    cond('README', 'states the assertion count this script actually reports',
+         _rc is not None and int(_rc.group(1)) == CHECKED + 1,
+         f'clean-clone total is {CHECKED + 1}, README says {_rc.group(1) if _rc else "nothing"}')
 
 # --------------------------------------------------------------- summary
 print('\n' + '=' * 72)
