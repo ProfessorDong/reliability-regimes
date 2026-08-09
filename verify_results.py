@@ -1417,6 +1417,15 @@ cond('SI tables', 'S20: every endpoint mix sums to 100 percent',
      and all(abs(sum(_ep20['temporal_cohort'][t][k].values()) - 100) < 0.3
              for t in ('scd1', 'nk1r', 'drd2', 'drd3')
              for k in ('overall_pct', 'pre_pct', 'post_pct')), '')
+# The Results claim a bake-off selected the random forest. That claim needs its numbers shown,
+# and it needs the disclosure that selection and reporting share a cross-validation.
+_omq = {e['target']: e for e in json.load(open(_os.path.join(OUT, 'oracle_metrics.json')))['results']}
+cond('audit/model selection', 'the random forest is selected on every target',
+     all(v['selected_model'] == 'rf' for v in _omq.values()),
+     ', '.join(f"{k}:{v['selected_model']}" for k, v in sorted(_omq.items())))
+cond('audit/model selection', 'all three compared ensembles are present for every target',
+     all(set(v['bakeoff']) == {'rf', 'extratrees', 'histgb'} for v in _omq.values()), '')
+
 # --- math/consistency audit invariants -------------------------------------------------
 # Every derived percentage must be reconstructible from the values it is derived from. These
 # are cheap and they catch a stale numerator or denominator that no per-value check would.
