@@ -1872,6 +1872,14 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
          'raw-record total must come from the macro, inside Table 1 only')
     cond('manuscript', 'the removed duplicate reference is no longer cited',
          'tropsha2010best' not in _s, '')
+    # sn-jnl sets \\boldmath in \\Authorfont and \\abstractfont never resets the math version, so
+    # every inline formula in the abstract rendered bold against regular-weight text: pIC50 and
+    # P = 0.005 looked like emphasis nobody wrote. Nothing in the source said bold, so only the
+    # rendered page showed it. \\mathversion{normal} at the top of the abstract fixes it.
+    cond('manuscript', 'the abstract resets the math version the class leaves bold',
+         '\\mathversion{normal}' in _ab,
+         'sn-jnl leaks \\boldmath from the author block into abstract math')
+
     # The abstract described the temporal ranking as "surviving on two targets and vanishing
     # on one", which accounts for three of the four temporal targets and silently drops DRD2,
     # whose ranking neither survives against its control nor vanishes. Any description of the
