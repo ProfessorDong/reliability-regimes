@@ -1900,6 +1900,17 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
         cond('manuscript', 'the PLOS reference cites its article locator, not PDF pagination',
              'pages={e61007}' in _bt0.replace(' ', ''),
              'e61007 is the locator PLOS displays; 1-12 is an exporter artifact')
+    # The archived snapshot is what a reader is directed to, so the DOI and the release tag in
+    # the availability statements must stay together and must name the tag that was archived.
+    _ZEN_DOI, _ZEN_TAG = '10.5281/zenodo.21864876', 'v1.0-npjdd-submission'
+    cond('manuscript', 'both availability statements cite the archived DOI',
+         _s.count(_ZEN_DOI) == 2, f'found {_s.count(_ZEN_DOI)} occurrence(s), expected 2')
+    cond('manuscript', 'the DOI is paired with the release tag it was minted from',
+         _s.count(_ZEN_TAG) == 2 and all(
+             _ZEN_TAG in _s[max(0, m.start() - 260):m.start()]
+             for m in _re.finditer(_re.escape(_ZEN_DOI), _s)),
+         'a DOI without its tag does not say which snapshot was archived')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that

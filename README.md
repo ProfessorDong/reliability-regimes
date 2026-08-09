@@ -1,5 +1,9 @@
 # Where and when a molecular property model can be trusted
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21864876.svg)](https://doi.org/10.5281/zenodo.21864876)
+
+Archived at release `v1.0-npjdd-submission`: [10.5281/zenodo.21864876](https://doi.org/10.5281/zenodo.21864876). Cite that DOI rather than the repository URL, which is mutable.
+
 Code, curated data, and frozen outputs for a study of when a machine-learned activity model
 can be believed, across five targets relevant to therapy and molecular imaging: **SCD-1**,
 **FADS** (endoplasmic-reticulum membrane lipid desaturases) and **NK1R**, **DRD2**, **DRD3**
@@ -9,7 +13,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(317 assertions from a clean clone; 634 when the manuscript's `numbers.tex` is also present).
+(317 assertions from a clean clone; 636 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The
