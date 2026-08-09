@@ -374,8 +374,31 @@ if _os.path.exists(_fig):
         _cap = _c1[_c1.find(r'\textbf{Where and when the activity model'):][:3200]
         cond('figure 1', 'the caption describes the per-target points in panel d',
              'Open circles' in _cap, 'every drawn element must be accounted for')
+        # Panel b draws a conformal-coverage annotation. Trimming the legend to fit the word cap
+        # once removed the sentence explaining it, leaving unexplained text in the figure, so the
+        # caption must keep naming the inset.
+        # Test that the annotation is accounted for, not how the sentence introduces it. Keying
+        # on the introducing word ("Inset") broke as soon as that word was corrected, which is
+        # the same failure this file has now hit three times.
+        cond('figure 1', 'the caption explains the conformal annotation panel b draws',
+             'conformal coverage' in _re.sub(r'\s+', ' ', _cap).lower() and '0.900' in _cap,
+             'the panel prints an empirical coverage that the caption must account for')
+        # The acquisition rule is named "conformal-style lower score" in the text. The bar label
+        # said "Scaled lower score", so a reader could not match bar to prose.
+        cond('figure 1', 'panel d labels the fifth rule the way the text names it',
+             'Conformal-' in _g and 'Scaled lower' not in _g,
+             'the bar label must carry the term the prose uses')
+        cond('figure 1', 'panel a is titled for what it actually shows',
+             'Two distances and the gap' in _g,
+             'it showed two distances and their gap while claiming three distances')
+        # The control bar must be the spread ACROSS replicates, not the interval on their mean,
+        # which at 1000 replicates is narrower than the marker. Test that meaning rather than one
+        # phrasing of it: an earlier version keyed on the word "central" and broke when the
+        # wording was corrected to the normal approximation the generator actually computes.
+        _capf = _re.sub(r'\s+', ' ', _cap)
         cond('figure 1', 'the caption describes the control bar as the replicate spread',
-             'central' in _cap and 'replicates' in _cap,
+             'replicates for the control' in _capf
+             and ('1.96' in _capf or 'central' in _capf),
              'it previously described a t interval on the mean')
         cond('figure 1', 'the caption does not claim the optimistic rule reliably wins',
              'not separated from zero' in _cap,
@@ -1923,6 +1946,21 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
              _ZEN_TAG in _s[max(0, m.start() - 260):m.start()]
              for m in _re.finditer(_re.escape(_ZEN_DOI), _s)),
          'a DOI without its tag does not say which snapshot was archived')
+
+    # The repository ships its own copies of the figure and table generators. Those drifted from
+    # the ones that actually build the manuscript: the repo's gen_fig1.py was three weeks behind
+    # and its make_si_tables.py was missing a table, so a reader cloning the release would have
+    # regenerated a different Figure 1 and a short Supplementary set. Worse, the checks above
+    # read the repository copy, so they were validating a file nobody used. Assert they match.
+    _wsdir = _os.path.dirname(_tex_audit)
+    for _gen in ('gen_fig1.py', 'gen_main_figures.py', 'gen_si_figures.py',
+                 'make_numbers.py', 'make_si_tables.py'):
+        _a = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), _gen)
+        _b = _os.path.join(_wsdir, _gen)
+        if _os.path.exists(_a) and _os.path.exists(_b):
+            cond('repo sync', f'{_gen} in the repository matches the one that builds the paper',
+                 open(_a, encoding='utf-8').read() == open(_b, encoding='utf-8').read(),
+                 'a reader regenerating from the release would not reproduce the figures shown')
 
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A

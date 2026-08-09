@@ -71,7 +71,7 @@ def panel_label(ax, s, dx=-0.16, dy=1.06):
 ax = fig.add_subplot(gs[0, 0])
 ax.set_xlim(0, 10); ax.set_ylim(-0.2, 7.6); ax.axis('off')
 panel_label(ax, 'a', dx=-0.07)
-ax.set_title('Three distances, measured separately', pad=6, loc='left')
+ax.set_title('Two distances and the gap between them', pad=6, loc='left')
 
 # training set cloud
 ax.add_patch(Ellipse((4.0, 4.35), 7.0, 4.0, facecolor=SKY, alpha=0.16,
@@ -214,7 +214,7 @@ panel_label(ax, 'd')
 ax.set_title('Acquiring measured activities', pad=6, loc='left')
 meths = ['random', 'greedy', 'ucb', 'lcb', 'conformal']
 names = ['Random', 'Predicted\nmean', 'Optimistic\n$\\mu+\\sigma$',
-         'Cautious\n$\\mu-\\sigma$', 'Scaled lower\nscore']
+         'Cautious\n$\\mu-\\sigma$', 'Conformal-\nstyle lower\nscore']
 vals = [np.mean([pool[t][m]['enrichment_vs_random'] for t in T]) for m in meths]
 sds = [np.std([pool[t][m]['enrichment_vs_random'] for t in T], ddof=1) / np.sqrt(5) for m in meths]
 cols = [GREY, BLUE, SKY, ORANGE, VERM]

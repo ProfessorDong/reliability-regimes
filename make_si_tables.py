@@ -834,6 +834,33 @@ tab('tab:s-endpoint',
 # actually written, so inserting or reordering a table updates the article automatically.
 import re as _re
 _here = os.path.dirname(os.path.abspath(__file__))
+# ---------------------------------------------------------------- model bake-off
+MODLAB = {'rf': 'Random forest', 'extratrees': 'Extremely randomized trees',
+          'histgb': 'Histogram gradient boosting'}
+bk_rows = []
+for _t in T:
+    e = om[_t]
+    for _m in ('rf', 'extratrees', 'histgb'):
+        b = e['bakeoff'][_m]
+        star = r'$^{*}$' if _m == e['selected_model'] else ''
+        bk_rows.append('%s & %s%s & %.3f (%.3f) & %.3f (%.3f)'
+                       % (LAB[_t] if _m == 'rf' else '', MODLAB[_m], star,
+                          b['spearman'][0], b['spearman'][1], b['r2'][0], b['r2'][1]))
+tab('tab:s-bakeoff',
+    'Model comparison behind the activity model. Three tree ensembles are compared on each '
+    'target by five-fold cross-validation repeated over five seeds; entries are the mean across '
+    'seeds with its standard deviation in parentheses, and $^{*}$ marks the model selected. The '
+    'random forest is selected on every target. Two qualifications belong with this table. The '
+    'comparison shares its cross-validation with the analyses reported elsewhere, which use the '
+    'first of these five seeds, so the selected model carries the mild optimism of having been '
+    'chosen on data it is then scored on. And the choice is constrained independently of '
+    'accuracy: the quantity this paper studies is the dispersion across ensemble members, which '
+    'a forest and extremely randomized trees expose directly and a boosted ensemble, whose '
+    'members are fitted to residuals rather than independently, does not supply in a comparable '
+    'form.',
+    r'Target & Model & Spearman & $R^2$',
+    bk_rows, 'llrr')
+
 # ---------------------------------------------------------------- support resampling
 sr = L('support_resample.json')
 sr_rows = []
