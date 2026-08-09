@@ -1,0 +1,25 @@
+{
+  "title": "reliability-regimes: code, curated data and frozen outputs for \"Where and when a molecular property model can be trusted\"",
+  "upload_type": "software",
+  "license": "MIT",
+  "creators": [
+    {
+      "name": "Dong, Liang",
+      "affiliation": "Department of Electrical and Computer Engineering, Baylor University, Waco, TX, USA"
+    }
+  ],
+  "description": "Code, curated data and frozen analysis outputs for a study of when a machine-learned molecular activity model can be believed, across five targets relevant to therapy and molecular imaging: SCD-1 and FADS (endoplasmic-reticulum membrane lipid desaturases) and NK1R, DRD2 and DRD3 (class A G-protein-coupled receptors). The study measures reliability across four regimes: within the pool the model was fitted from, under novelty-driven optimization, under temporal shift to chemistry published after the model was fitted, and under acquisition against measured activity. Every number reported in the accompanying manuscript and its Supplementary Information is produced by a frozen analysis script run against a frozen output file and re-checked by verify_results.py.",
+  "keywords": [
+    "cheminformatics",
+    "drug discovery",
+    "QSAR",
+    "uncertainty quantification",
+    "conformal prediction",
+    "applicability domain",
+    "distribution shift",
+    "molecular generation",
+    "random forest",
+    "machine learning"
+  ],
+  "access_right": "open"
+}
