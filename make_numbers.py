@@ -506,6 +506,9 @@ M.update({
     'SuppMaxUpper': f"{max(_srhi):.2f}",
     'SuppPosLo': f"{min(_srpos):.3f}", 'SuppPosHi': f"{max(_srpos):.2f}",
     'SuppFadsMed': f"{sr['fads']['k10']['partial_nov_err_given_dtr']['median']:+.2f}",
+    'SuppNearScd': f"{100 * sr['scd1']['k10']['near_beats_far_frac']:.0f}",
+    'SuppNearFads': f"{100 * sr['fads']['k10']['near_beats_far_frac']:.0f}",
+    'SuppNearOther': f"{100 * min(sr[t]['k10']['near_beats_far_frac'] for t in ('nk1r','drd2','drd3')):.0f}",
     'SuppNearAllLo': f"{100 * min(sr[t][f'k{k}']['near_beats_far_frac'] for t in _srT for k in (5, 10, 20)):.0f}",
 })
 

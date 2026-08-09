@@ -2041,6 +2041,23 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
                     _re.sub(r'\s+', ' ', _s)) is not None,
          'the prose and the two implementations must agree')
 
+    # The in-domain exception is named from one support draw. The resampling shows SCD-1 and
+    # FADS are both marginal and that their order flips between draws, so naming SCD-1 flatly
+    # would make the article and the Discussion more confident than the Supplementary evidence.
+    # All three places must carry the instability.
+    _srq = json.load(open(_os.path.join(OUT, 'support_resample.json')))
+    _marg = sorted(t for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3')
+                   if _srq[t]['k10']['near_beats_far_frac'] < 0.95)
+    cond('audit/consistency', 'exactly two targets are marginal on the in-domain comparison',
+         _marg == ['fads', 'scd1'],
+         f'marginal: {_marg}; the article must not name one of them as a stable exception')
+    cond('manuscript', 'the article states that the in-domain exception is draw-dependent',
+         'not a stable label' in _sflat, 'resampling flips which of SCD-1 and FADS is weaker')
+    _dsc = _sflat.split('\\section{Discussion}')[-1].split('\\section{Methods}')[0]
+    cond('manuscript', 'the Discussion carries the same caveat as the Results and SI',
+         'depends on the draw' in _dsc,
+         'the Discussion asserted SCD-1 as the exception without the instability')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
