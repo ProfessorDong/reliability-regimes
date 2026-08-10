@@ -1507,6 +1507,21 @@ if _os.path.exists(_sit):
     cond('SI tables', 'the inline interval shrink is confined to S8',
          _inline in (set(), {'tab:s-temporal'}), f'also used in {_inline - {"tab:s-temporal"}}')
 
+# Supplementary Note 11 opens by counting the negative results it is about to list. It said
+# three and listed four, each with its own table, so the count and the content disagreed. Tie the
+# stated number to the tables the note actually cites.
+_sinote = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                        'theranostics', 'JournalPapers_npjDD', 'npjDD_SI.tex')
+if _os.path.exists(_sinote):
+    _sn = open(_sinote, encoding='utf-8').read()
+    if '\\section{Results that were negative}' in _sn:
+        _neg = _sn.split('\\section{Results that were negative}')[1].split('\\section{')[0]
+        _ncited = len(_re.findall(r'\\ref\{tab:s-[a-z]+\}', _neg))
+        _WORD = {2: 'Two', 3: 'Three', 4: 'Four', 5: 'Five', 6: 'Six'}
+        cond('SI notes', 'Note 11 counts the negative results it actually lists',
+             _re.sub(r'\s+', ' ', _neg).lstrip().startswith(_WORD.get(_ncited, '?') + ' further'),
+             f'it cites {_ncited} supplementary tables, one per result')
+
 # --- math/consistency audit invariants -------------------------------------------------
 # Every derived percentage must be reconstructible from the values it is derived from. These
 # are cheap and they catch a stale numerator or denominator that no per-value check would.
