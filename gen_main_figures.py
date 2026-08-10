@@ -58,7 +58,7 @@ _blocks_by_t = {t: sorted(set(BLOCK[TGT == t])) for t in _uT}
 _idx_by_block = {b: np.flatnonzero(BLOCK == b) for b in set(BLOCK)}
 series = [(np.array([r['d_train'] for r in rows]), 'Distance to training set', BLUE),
           (np.array([r['sigma'] for r in rows]), 'Ensemble disagreement $\\sigma_T$', ORANGE),
-          (np.array([r['potency'] for r in rows]), 'Predicted potency (pIC$_{50}$)', GREEN)]
+          (np.array([r['potency'] for r in rows]), 'Predicted activity (pActivity)', GREEN)]
 bins = np.linspace(nv.min(), nv.max(), 9)
 bc = 0.5 * (bins[:-1] + bins[1:])
 idx = np.clip(np.digitize(nv, bins) - 1, 0, len(bc) - 1)

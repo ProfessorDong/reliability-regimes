@@ -145,7 +145,7 @@ for i, t in enumerate(T):
 mi = rel['pooled']['risk_coverage_micro']
 ax.plot(cov, [mi[f'{c:.1f}'] for c in cov], '--', lw=2.0, color=DARK, label='Pooled', zorder=5)
 ax.set_xlabel('Fraction retained, most confident first')
-ax.set_ylabel('RMSE (pIC$_{50}$)')
+ax.set_ylabel('RMSE (pActivity)')
 ax.set_xlim(0.14, 1.06); ax.grid(alpha=0.22, lw=0.6)
 ax.legend(fontsize=6.3, frameon=False, ncol=2, loc='upper left', handlelength=1.5,
           columnspacing=0.9, borderpad=0.2)

@@ -75,7 +75,7 @@ def restrict_type(rows, cut, min_train=100, min_test=50):
     return best
 
 
-def load(target, endpoint=None, cut=2015):
+def load(target, endpoint=None, cut=2015, exclude_spanning=False):
     """Rows for one target, optionally restricted to a single measurement type.
 
     `endpoint='dominant'` keeps only parents whose retained ChEMBL records are ALL of the
@@ -87,6 +87,15 @@ def load(target, endpoint=None, cut=2015):
     """
     rows = list(csv.DictReader(open(os.path.join(DATA, f'{target}_chembl_v2.csv'))))
     rows = [r for r in rows if r.get(YEAR_FIELD)]
+    if exclude_spanning:
+        # A parent's activity is the median over ALL of its records, while the split is decided
+        # by its FIRST disclosure. A compound first published before the cutoff but re-measured
+        # after it therefore enters the historical pool carrying a label that absorbs later
+        # measurements. Those parents have no well-defined historical label from the archived
+        # data, which keeps no per-record years, so this drops them rather than guessing.
+        rows = [r for r in rows
+                if not (int(r[YEAR_FIELD]) < cut and r.get('year_max')
+                        and int(r['year_max']) >= cut)]
     kept_type = None
     if endpoint == 'single':
         kept_type = restrict_type(rows, cut)
@@ -188,6 +197,10 @@ def main():
     ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 2) - 2),
                     help='processes for the control replicates; each fit uses one core, and a '
                          'forest is bit-identical across n_jobs, so this changes only run time')
+    ap.add_argument('--exclude-spanning', action='store_true',
+                    help='drop pre-cutoff parents whose records extend past the cutoff, whose '
+                         'median label would otherwise absorb post-cutoff measurements. Off by '
+                         'default so the frozen analysis path is unchanged.')
     ap.add_argument('--endpoint', default=None, choices=['single'],
                     help='restrict each target to parents whose records are all of its most '
                          'common standard type. Off by default, so the frozen analysis path is '
@@ -206,12 +219,13 @@ def main():
                        'calibration uses pre-CUT compounds only'}
     P = {k: [] for k in ('err', 'sig', 'dtr', 'cov')}
     out['endpoint_restriction'] = args.endpoint or 'none'
+    out['exclude_spanning'] = bool(args.exclude_spanning)
     for tgt in args.targets:
         if args.endpoint:
-            smi, y, yr, kept = load(tgt, args.endpoint, args.cut)
+            smi, y, yr, kept = load(tgt, args.endpoint, args.cut, args.exclude_spanning)
             out.setdefault('kept_type', {})[tgt] = kept
         else:
-            smi, y, yr = load(tgt)
+            smi, y, yr = load(tgt, None, args.cut, args.exclude_spanning)
         X = featurize(smi)
         tr = np.where(yr < args.cut)[0]
         te = np.where(yr >= args.cut)[0]

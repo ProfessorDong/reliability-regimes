@@ -145,7 +145,7 @@ cond('Results/negatives (Table S11)', 'compatibility correlation not significant
      f"P={cg['pair_pearson_p']:.2f}")
 
 rv = L('recovery_v2_results.json')['results']
-cond('Results/negatives (Table S12)', 'retrained model ranks held-out actives 6.8-8.1 pIC50',
+cond('Results/negatives (Table S12)', 'retrained model ranks held-out actives 6.8-8.1 pActivity',
      all(6.5 <= rv[t]['retrained_pred'] <= 8.2 for t in T))
 cond('Results/negatives (Table S12)', 'retrained model flags held-out cluster as uncertain (sigma 0.57-1.02)',
      all(0.5 <= rv[t]['retrained_sigma'] <= 1.1 for t in T))
@@ -751,7 +751,8 @@ _BANNED = [
     # the introduction asks four questions
     ('we ask three questions', 'four questions are asked'),
     # the label pools four ChEMBL endpoint types and is not pure IC50
-    ('Activities were pooled to $\\mathrm{pIC}_{50}=', 'state the endpoint mix; the pooled response is mostly Ki'),
+    ('named $\\mathrm{pIC}_{50}$', 'the pooled response is mostly Ki and is named pActivity'),
+    ('name the pooled response $\\mathrm{pIC}_{50}$', 'the pooled response is named pActivity'),
     # only one score on one model family was validated against measured error
     ('reliability of whatever model', 'only RF per-tree disagreement was validated; another predictor needs its own score'),
     # the macro-average temporal effect is a t interval across the four target-level effects;
@@ -852,7 +853,7 @@ if _os.path.exists(_art4):
          'DRD3 takes the 100 nM cutoff because its distribution is higher')
     cond('table 1', 'the caption says what the pooled activity scale pools',
          'TabEndpoint' in _t4.split('label{tab:targets}')[0][-1400:],
-         'a reader meets the label pIC50 first in Table 1')
+         'a reader meets the pooled-activity label first in Table 1')
 
 # Figure S1 panel b compares coverage against a nominal level. Drawn as bars from a cut axis
 # at 0.6, length overstated the differences by about half; anchored on the nominal level the
@@ -987,7 +988,7 @@ for _t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3', 'pooled'):
     _worst = max(_worst, max(abs(_math.sqrt(sum(v ** 2 for v in _q[:k]) / k) - _rc[_C4[k - 1]])
                              for k in range(1, 6)))
 cond('SI tables', 'S4 is the cumulative form of S3 on every row',
-     _worst < 0.005, f'worst discrepancy {_worst:.4f} pIC50')
+     _worst < 0.005, f'worst discrepancy {_worst:.4f} pActivity')
 _ma4 = _r4['pooled']['risk_coverage_macro']
 cond('SI tables', 'the S4 macro row is the unweighted mean of the five target curves',
      all(abs(sum(_r4[t]['risk_coverage_rmse'][c] for t in
@@ -1182,6 +1183,27 @@ if _os.path.exists(_req) and _mv is not None:
     cond('repo sync', 'scikit-learn is pinned to the version the Methods name',
          bool(_pin) and (_sk is None or _pin.group(1) == _sk.group(1)),
          f"pinned {_pin.group(1) if _pin else 'nothing'}, Methods say {_sk.group(1) if _sk else 'n/a'}")
+
+# The pooled response is named pActivity, not pIC50. pIC50 denotes -log10(IC50) specifically and
+# would name the minority constituent: the label is filled from four ChEMBL standard types and is
+# mostly Ki. Asserted positively, because a ban on the old name would pass on a document that had
+# simply stopped naming the response at all.
+for _fn in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
+    _pn = _os.path.join(_D, _fn)
+    if not _os.path.exists(_pn):
+        continue
+    _sn = open(_pn, encoding='utf-8').read()
+    cond('manuscript', f'{_fn}: the response notation is defined once as pActivity',
+         _sn.count(r'\newcommand{\pAct}') == 1 and r'\mathrm{pActivity}' in _sn,
+         'a single definition keeps the two documents from drifting apart')
+    cond('manuscript', f'{_fn}: the response is written through that macro, not spelled out',
+         _sn.count(r'\pAct') > 1, 'every use must read from the one definition')
+    # The old name may survive ONLY where the Methods explain why it is not used.
+    _pic = [m.start() for m in _re.finditer(r'\\mathrm\{pIC\}_\{50\}', _sn)]
+    _just = _sn.find('rather than $\\mathrm{pIC}_{50}$')
+    cond('manuscript', f'{_fn}: pIC50 appears only where the Methods explain rejecting it',
+         all(_just != -1 and abs(i - _just) < 700 for i in _pic),
+         f'{len(_pic)} occurrence(s) of the old name, which must all sit in that sentence')
 
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
@@ -1856,7 +1878,7 @@ if _os.path.exists(_artM) and len(_srcM) == 5:
          '40 evaluated per generation times a pool multiplier of five')
 
 # The Results and Methods asserted that small neural predictors collapse toward the training
-# mean, varying by under 0.13 pIC50. Nothing in the repository could check it: the bake-off
+# mean, varying by under 0.13 pActivity. Nothing in the repository could check it: the bake-off
 # fits three tree ensembles and no network. Measuring it refutes it, so the claim is gone and
 # mlp_collapse.json is the record of why.
 _mcp = _os.path.join(OUT, 'mlp_collapse.json')
@@ -1947,7 +1969,7 @@ if _os.path.exists(_tj):
         cond('manuscript', 'the article reports the direct effect against the control mean',
              'TempMacroDRmse' in _ta, 'interval overlap is not an interval for the difference')
 
-# Activity endpoint composition. The pooled response is named pIC50 by convention but is
+# Activity endpoint composition. The pooled response is named pActivity because it is
 # populated from four ChEMBL standard types, so the article has to state the mix rather than
 # define the label as an IC50. The pre/post-cutoff mixes also test whether endpoint turnover,
 # rather than chemistry, could explain the temporal result.
@@ -1977,7 +1999,7 @@ if _os.path.exists(_epf):
     if _os.path.exists(_art):
         _a = open(_art, encoding='utf-8').read()
         cond('manuscript', 'the article states the endpoint mix and cites its table',
-             'TabEndpoint' in _a and 'K_i$' in _a, 'pIC50 is named as a convention')
+             'TabEndpoint' in _a and 'K_i$' in _a, 'the response is named pActivity and its mix is stated')
         cond('manuscript', 'the abstract restricts the nearer-training result to the novel third',
              'within the most novel third' in _a.lower(),
              'the comparison is inside the most novel third, not over all compounds')
@@ -2083,7 +2105,7 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     _s = open(_tex, encoding='utf-8').read()
     _ab = _re.search(r'\\abstract\{(.*?)\}\s*\n\n', _s, _re.S).group(1)
     _t = _re.sub(r'\\(\w+)\{\}', lambda m: mac.get(m.group(1), m.group(1)), _ab)
-    _t = _t.replace(r'\mathrm{pIC}_{50}', 'pIC50').replace('{,}', ',')
+    _t = _t.replace(r'\pAct', 'pActivity').replace(r'\mathrm{pIC}_{50}', 'pIC50').replace('{,}', ',')
     _t = _re.sub(r'\\[a-zA-Z]+', ' ', _t)
     _t = _re.sub(r'[{}$\\]', '', _t)
     _t = _re.sub(r'\s+%', '%', _t)
@@ -2124,7 +2146,7 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     cond('manuscript', 'the removed duplicate reference is no longer cited',
          'tropsha2010best' not in _s, '')
     # sn-jnl sets \\boldmath in \\Authorfont and \\abstractfont never resets the math version, so
-    # every inline formula in the abstract rendered bold against regular-weight text: pIC50 and
+    # every inline formula in the abstract rendered bold against regular-weight text: the label and
     # P = 0.005 looked like emphasis nobody wrote. Nothing in the source said bold, so only the
     # rendered page showed it. \\mathversion{normal} at the top of the abstract fixes it.
     cond('manuscript', 'the abstract resets the math version the class leaves bold',

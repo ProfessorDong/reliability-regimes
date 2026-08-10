@@ -708,7 +708,7 @@ tab('tab:s-recovery',
     'Similarity to withheld scaffold clusters. An entire Bemis--Murcko cluster of actives is '
     'removed from both the seeds and the training set and the model retrained. Every target is '
     'underpredicted against the withheld cluster\'s measured mean, by %s to %s '
-    '$\\mathrm{pIC}_{50}$, and all five carry elevated disagreement. What separates them is the '
+    '$\\mathrm{pActivity}$, and all five carry elevated disagreement. What separates them is the '
     'threshold: the prediction still clears it on four, and falls below on %s alone. %s is '
     'underpredicted by almost as much, %s against %s, but clears a lower threshold, so the '
     'failure on %s is partly a matter of where its threshold sits. Recovery is the mean closest '
@@ -774,19 +774,34 @@ if prov:
         _recs = v['n_raw_records'] - _na - _inv - _up - d.get('non_human', 0)
         _coll = _recs - v['n_unique_parents']
         assert _recs == v['n_after_filters'], 'curation flow does not reconcile for ' + t
-        rows.append(f"{LAB.get(t,t)} & {v['chembl_id']} & {v['n_raw_records']:,} & "
+        # Parents whose records carry no publication year cannot enter a temporal split, so
+        # the parent count and the temporal counts of Supplementary Table~\ref{tab:s-temporal}
+        # differ by exactly this column. It was absent, which left the two tables irreconcilable.
+        import csv as _csv
+        _pf = os.path.join(CW, '..', '..', 'data', 'chembl_v2', f'{t}_chembl_v2.csv')
+        _pf = _pf if os.path.exists(_pf) else os.path.join(
+            os.path.dirname(os.path.abspath(__file__)), 'data', 'chembl_v2',
+            f'{t}_chembl_v2.csv')
+        _dated = None
+        if os.path.exists(_pf):
+            _rr = list(_csv.DictReader(open(_pf)))
+            _dated = sum(1 for r in _rr if r.get('year_min'))
+        _und = (v['n_unique_parents'] - _dated) if _dated is not None else None
+        rows.append(f"{LAB.get(t,t)} & {v['chembl_id'].replace(chr(67)+'HEMBL','')} & {v['n_raw_records']:,} & "
                     f"{_na:,} & {_inv} & {_up} & {_recs:,} & {_coll:,} & "
                     f"{v['n_unique_parents']:,} & "
+                    f"{'--' if _und is None else _und} & "
                     f"{v['year_range'][0]}--{v['year_range'][1]}".replace(',', '{,}'))
     tab('tab:s-curation',
-        'ChEMBL curation flow for the re-curated targets. The query returns only records with '
+        'ChEMBL curation flow for the re-curated targets, whose target identifiers are given without their common CHEMBL prefix. The query returns only records with '
         'an exact relation, nanomolar units and a human target, so those filters remove nothing '
         'here and no species column is shown. Of what returns, records are dropped for a '
         'standard type outside the four eligible ones, for a missing or non-positive value, '
         'and for a structure RDKit '
         'cannot parse; the remainder are then grouped on the standardized parent InChIKey. '
         'Every stage is listed, so raw minus the three drop columns gives Records, and Records '
-        'minus Collapsed gives Parents, on each row. Parent grouping is the largest reduction: '
+        'minus Collapsed gives Parents, on each row. A parent carries a publication year only if at least one of its records does; those that carry none cannot be placed on either side of a temporal cutoff and are shown as Undated. Parents minus Undated is therefore the dated pool that the temporal analysis of Supplementary Table~\\ref{tab:s-temporal} splits, and it reconciles with the proper-training, calibration and test counts of that table on every row. '
+        'Parent grouping is the largest reduction: '
         'it removes %s records on DRD2 against %s for all the filters together. These files '
         'carry publication years and support the temporal analysis; FADS is not included '
         'because ChEMBL holds only two activity records for it.'
@@ -794,8 +809,8 @@ if prov:
            '{:,}'.format(prov['drd2']['n_raw_records'] - prov['drd2']['n_after_filters']).replace(',', '{,}')),
         r'Target & ChEMBL & Raw & \shortstack[r]{Ineli-\\gible} & Invalid & '
         r'\shortstack[r]{Unpar-\\sable} & Records & \shortstack[r]{Col-\\lapsed} & '
-        r'Parents & Years',
-        rows, 'llrrrrrrrr', tight=True)
+        r'Parents & \shortstack[r]{Un-\\dated} & Years',
+        rows, 'llrrrrrrrrr', tight=True)
 
 # Endpoint composition of the pooled response, for both cohorts, and its shift at the
 # temporal cutoff. The cross-validation files retain no endpoint field, so their mix is
@@ -827,7 +842,7 @@ for t in ['scd1', 'nk1r', 'drd2', 'drd3']:
                     f"{_mix(v[key])}".replace(',', '{,}'))
 tab('tab:s-endpoint',
     'Activity endpoint composition of the pooled response. Every activity is reported on one '
-    'negative-logarithmic molar scale named $\\mathrm{pIC}_{50}$ by convention, but that scale '
+    'negative-logarithmic molar scale named $\\mathrm{pActivity}$, but that scale '
     'is populated from four ChEMBL standard types and most of it is an affinity rather than a '
     'potency measurement. $n$ counts standardized parent structures throughout, as in '
     'Table 1. The cross-validation files keep only structure and activity, so their '
@@ -868,7 +883,9 @@ tab('tab:s-bakeoff',
     'Model comparison behind the activity model. Three tree ensembles are compared on each '
     'target by five-fold cross-validation repeated over five seeds; entries are the mean across '
     'seeds with its standard deviation in parentheses, and $^{*}$ marks the model selected. The '
-    'random forest is selected on every target. Two qualifications belong with this table. The '
+    'random forest is selected on every target, which is not the same as being the most accurate '
+    'on every target: histogram gradient boosting matches or exceeds its rank correlation on four '
+    'of the five. Two qualifications belong with this table. The '
     'comparison shares its cross-validation with the analyses reported elsewhere, which use the '
     'first of these five seeds, so the selected model carries the mild optimism of having been '
     'chosen on data it is then scored on. And the choice is constrained independently of '

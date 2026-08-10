@@ -144,7 +144,7 @@ ax.bar(x + w / 2, _tv, w, color=VERM, label='temporal split',
        yerr=_err(_tv, [tmp[t]['rmse_test_ci95'] for t in tt]),
        capsize=2, error_kw=dict(lw=0.9, ecolor=DARK))
 ax.set_xticks(x); ax.set_xticklabels([LAB[t] for t in tt])
-ax.set_ylabel('RMSE (pIC$_{50}$)'); ax.grid(alpha=0.22, axis='y', lw=0.6)
+ax.set_ylabel('RMSE (pActivity)'); ax.grid(alpha=0.22, axis='y', lw=0.6)
 ax.set_ylim(0, max(tmp[t]['rmse_test_ci95'][1] for t in tt) * 1.30)
 ax.legend(fontsize=7, frameon=False, loc='upper left', borderpad=0.2)
 ax.set_title('a  Error', loc='left', pad=6)
@@ -173,7 +173,7 @@ for i, t in enumerate(tt):
 rc = tmp['pooled']['risk_coverage_rmse']
 ax.plot(cov, [rc[f'{c:.1f}'] for c in cov], '--', color=DARK, lw=2.0, label='Pooled')
 ax.set_xlabel('Fraction retained, most confident first')
-ax.set_ylabel('RMSE (pIC$_{50}$)'); ax.set_xlim(0.15, 1.05)
+ax.set_ylabel('RMSE (pActivity)'); ax.set_xlim(0.15, 1.05)
 ax.grid(alpha=0.22, lw=0.6)
 # Lower right: every curve climbs to the right, so the space beneath them there is free,
 # whereas at upper left the legend sat over the DRD3 and NK1R curves.

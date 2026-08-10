@@ -399,6 +399,20 @@ if os.path.exists(_epr):
     # That is the turnover itself, not a way around it, and the article says so.
     M['TempEpNkFlips'] = 'yes' if _ep['kept_type']['nk1r'] != 'IC50' else 'no'
 
+# Model bake-off, stated exactly. The random forest is the SELECTED model on every target, but
+# it is not the most accurate on every target: histogram gradient boosting leads on rank
+# correlation for several. The selection is constrained by the need for comparable memberwise
+# predictions, which a boosted ensemble does not supply, so these counts are generated rather
+# than left to a sentence that reads as an accuracy claim.
+_bo = {e['target']: e for e in L('oracle_metrics.json')['results']}
+_BT = ['scd1', 'fads', 'nk1r', 'drd2', 'drd3']
+_gb = lambda t, m, k: _bo[t]['bakeoff'][m][k][0]
+M['BakeRfOverEt'] = str(sum(1 for t in _BT if _gb(t, 'rf', 'spearman') > _gb(t, 'extratrees', 'spearman')
+                            and _gb(t, 'rf', 'r2') > _gb(t, 'extratrees', 'r2')))
+M['BakeHgbAheadRho'] = str(sum(1 for t in _BT if _gb(t, 'histgb', 'spearman') >= _gb(t, 'rf', 'spearman')))
+M['BakeNtargets'] = str(len(_BT))
+M['BakeAllSelectedRf'] = 'yes' if all(_bo[t]['selected_model'] == 'rf' for t in _BT) else 'no'
+
 # per-target in-domain comparison: which target is the exception, read from the source
 _IN = [t for t in T if rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse']]
 _EX = [t for t in T if t not in _IN]
@@ -526,7 +540,7 @@ for _m, _tag in [('ucb', 'Ucb'), ('lcb', 'Lcb'), ('conformal', 'Conf')]:
         'Pool%sWin' % _tag: f"{np.mean([x > 0 for x in _all]):.2f}",
     })
 
-# Endpoint composition. The pooled response is named pIC50 by convention but is populated
+# Endpoint composition. The pooled response is named pActivity because it is populated
 # from four ChEMBL standard types, so the article states the mix per target. The total
 # variation distance between the pre- and post-cutoff mixes tests whether endpoint
 # composition shifts across the temporal split and could stand in for the chemical shift.
