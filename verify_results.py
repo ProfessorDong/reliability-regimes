@@ -1115,6 +1115,31 @@ if _os.path.exists(_pfg):
     cond('phrasing', 'the Results flag the FADS isoform pooling where FADS results first appear',
          'FADS1 and FADS2' in _head, 'target-level differences on FADS must carry the caveat')
 
+# A macro whose value is a word must never sit inside $...$. Math mode sets it in italic with
+# math spacing, so "SCD-1" renders as an italic SCD with a spaced minus, and "four" is letter-spaced
+# into "f our". Both shipped unnoticed because the value was correct and only its typesetting was
+# wrong, which no numeric check can see.
+_mv = dict(_re.findall(r'\\newcommand\{\\([A-Za-z]+)\}\{(.*)\}', open(
+    _os.path.join(_D, 'numbers.tex'), encoding='utf-8').read())) if _os.path.exists(
+    _os.path.join(_D, 'numbers.tex')) else {}
+def _texty(v):
+    v2 = _re.sub(r'\\mbox\{[^}]*\}', '', v)
+    v2 = _re.sub(r'\\[A-Za-z]+', '', v2)
+    return bool(_re.search(r'[A-Za-z]', v2))
+if _mv:
+    _inmath = []
+    for _fm in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
+        _pm = _os.path.join(_D, _fm)
+        if not _os.path.exists(_pm):
+            continue
+        _sm = open(_pm, encoding='utf-8').read()
+        for _seg in _re.finditer(r'(?<!\\)\$([^$]{1,400}?)(?<!\\)\$', _sm, _re.S):
+            for _mac in _re.findall(r'\\([A-Za-z]+)', _seg.group(1)):
+                if _mac in _mv and _texty(_mv[_mac]):
+                    _inmath.append(f'{_fm}:\\{_mac}={_mv[_mac]!r}')
+    cond('phrasing', 'no word-valued macro is typeset inside math mode',
+         not _inmath, '; '.join(sorted(set(_inmath))))
+
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
 # be the assay changing rather than the chemistry. This is the direct test: each target reduced
