@@ -1140,6 +1140,49 @@ if _mv:
     cond('phrasing', 'no word-valued macro is typeset inside math mode',
          not _inmath, '; '.join(sorted(set(_inmath))))
 
+# The mirror of the check above. A purely numeric macro carrying a negative value must sit
+# inside $...$, or LaTeX prints U+002D hyphen where a U+2212 minus belongs. The same macros were
+# set in math in one document and in text in the other, so one number rendered two ways. The SI
+# tables already solved this in make_si_tables.f(); the prose had not.
+if _mv:
+    def _numeric(v):
+        v2 = _re.sub(r'\\[A-Za-z]+|\{,\}|[\[\]()%$,+\-.0-9 ]', '', v)
+        return v2 == '' and bool(_re.search(r'-\d', v))
+    _hyph = []
+    for _fm in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
+        _pm = _os.path.join(_D, _fm)
+        if not _os.path.exists(_pm):
+            continue
+        _sm = open(_pm, encoding='utf-8').read()
+        _inm = set()
+        for _seg in _re.finditer(r'(?<!\\)\$([^$]{1,600}?)(?<!\\)\$', _sm, _re.S):
+            _inm.update(range(_seg.start(), _seg.end()))
+        for _k, _v in _mv.items():
+            if not _numeric(_v):
+                continue
+            for _u in _re.finditer(r'\\' + _k + r'(?![A-Za-z])', _sm):
+                if _u.start() not in _inm:
+                    _hyph.append(f'{_fm}:\\{_k}={_v}')
+    cond('phrasing', 'every negative number is typeset in math, so it prints a minus not a hyphen',
+         not _hyph, '; '.join(sorted(set(_hyph))))
+
+# scikit-learn's version is named in the Methods and its random forest produces every sigma_T,
+# so it carries the same exposure as RDKit and is pinned for the same reason. RDKit was pinned
+# and guarded; scikit-learn was named but left floating, so a reader rebuilding from the archive
+# could get a different forest and different numbers.
+_req = _os.path.join(_HERE_DIR, 'requirements.txt')
+if _os.path.exists(_req) and _mv is not None:
+    _rq = open(_req, encoding='utf-8').read()
+    _pin = _re.search(r'scikit-learn==([0-9.]+)', _rq)
+    _pth = _os.path.join(_D, 'npjDD_Reliability.tex')
+    _sk = None
+    if _os.path.exists(_pth):
+        _sk = _re.search(r'scikit-learn~\\cite\{[a-z0-9]+\}\s*\$([0-9.]+)\$',
+                         _re.sub(r'\s+', ' ', open(_pth, encoding='utf-8').read()))
+    cond('repo sync', 'scikit-learn is pinned to the version the Methods name',
+         bool(_pin) and (_sk is None or _pin.group(1) == _sk.group(1)),
+         f"pinned {_pin.group(1) if _pin else 'nothing'}, Methods say {_sk.group(1) if _sk else 'n/a'}")
+
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
 # be the assay changing rather than the chemistry. This is the direct test: each target reduced
@@ -1181,6 +1224,15 @@ if _os.path.exists(_epp):
     # records are mostly Ki. The article states this as evidence of turnover, so it is asserted.
     cond('temporal/endpoint', 'NK1R keeps Ki, not the IC50 that dominates its pooled set',
          _te['kept_type']['nk1r'] == 'Ki', str(_te['kept_type']))
+    # The Table S23 caption explains WHY that flip happens: NK1R's pooled set is mostly IC50
+    # while its post-cutoff records are mostly Ki. That reasoning is a factual claim about the
+    # composition, so it is asserted rather than left to the reader to trust.
+    _ec = json.load(open(_os.path.join(OUT, 'endpoint_composition.json')))['temporal_cohort']['nk1r']
+    _dom = lambda d: max(d, key=d.get)
+    cond('temporal/endpoint', 'NK1R is mostly IC50 overall but mostly Ki after the cutoff',
+         _dom(_ec['overall_pct']) == 'IC50' and _dom(_ec['post_pct']) == 'Ki',
+         f"overall {_dom(_ec['overall_pct'])} {max(_ec['overall_pct'].values()):.0f}%, "
+         f"post {_dom(_ec['post_pct'])} {max(_ec['post_pct'].values()):.0f}%")
     cond('temporal/endpoint', 'SCD-1 keeps IC50, so its restriction is close to a no-op',
          _te['kept_type']['scd1'] == 'IC50', str(_te['kept_type']))
     # SCD-1 is the procedure check: one evaluation compound removed, pooled result returned.
@@ -1211,8 +1263,13 @@ if _os.path.exists(_epp):
         # interval that shows it includes zero. Testing for a form of words would break on a
         # rewrite; testing that the two macros travel together tests the claim.
         _sep = open(_pep, encoding='utf-8').read()
+        # Matched by macro name, not by its surrounding braces or math delimiters: an earlier
+        # version tested the literal "\TempEpMacroDRmseCI{}" and broke when the same macro was
+        # wrapped in $...$ to render its minus correctly. The claim is that the two travel
+        # together, not how either is punctuated.
+        _has = lambda n: bool(_re.search(r'\\' + n + r'(?![A-Za-z])', _sep))
         cond('phrasing', 'the restricted mean effect is never quoted without its interval',
-             (r'\TempEpMacroDRmse{}' not in _sep) or (r'\TempEpMacroDRmseCI{}' in _sep),
+             (not _has('TempEpMacroDRmse')) or _has('TempEpMacroDRmseCI'),
              'the interval includes zero, so the mean must not stand alone')
 
 # Table S9's per-target comparison is compressed on the small pools: the fixed 300-query budget

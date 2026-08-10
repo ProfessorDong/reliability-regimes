@@ -1,6 +1,6 @@
 numpy
 scipy
-scikit-learn
+scikit-learn==1.8.0
 pandas
 rdkit==2026.03.1
 torch
