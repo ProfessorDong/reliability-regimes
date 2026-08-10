@@ -2123,7 +2123,7 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     # The article states the verification count as a hand-typed integer, which drifted from 300
     # to a stale value once guards were added. It refers to the ARCHIVED release, not to HEAD, so
     # it must track the tag: if the archive is re-cut, this number and the DOI move together.
-    _ARCHIVED_CLEAN_COUNT = 322
+    _ARCHIVED_CLEAN_COUNT = 338
     _mcnt = _re.search(r're-checks all \$(\d+)\$ numeric claims', _re.sub(r'\s+', ' ', _s))
     cond('manuscript', 'the stated verification count matches the archived release',
          _mcnt is not None and int(_mcnt.group(1)) == _ARCHIVED_CLEAN_COUNT,
@@ -2135,7 +2135,7 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
 
     # The archived snapshot is what a reader is directed to, so the DOI and the release tag in
     # the availability statements must stay together and must name the tag that was archived.
-    _ZEN_DOI, _ZEN_TAG = '10.5281/zenodo.21865934', 'v1.2-npjdd-submission'
+    _ZEN_DOI, _ZEN_TAG = '10.5281/zenodo.21874305', 'v1.3-npjdd-submission'
     cond('manuscript', 'both availability statements cite the archived DOI',
          _s.count(_ZEN_DOI) == 2, f'found {_s.count(_ZEN_DOI)} occurrence(s), expected 2')
     cond('manuscript', 'the DOI is paired with the release tag it was minted from',
