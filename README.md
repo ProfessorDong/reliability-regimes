@@ -13,7 +13,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(340 assertions from a clean clone; 715 when the manuscript's `numbers.tex` is also present).
+(349 assertions from a clean clone; 724 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The
@@ -81,6 +81,8 @@ python -m reliability.run_conformal_v1       # Regime 1: calibrated intervals
 python -m reliability.run_temporal_v1        # Regime 2: temporal shift + size-matched control
 python -m reliability.run_temporal_v1 --year-field year_median \
        --out outputs/frozen/temporal_analysis_yearmedian.json   # dating sensitivity (Table S7)
+python -m reliability.run_temporal_v1 --exclude-spanning \
+       --out outputs/frozen/temporal_no_spanning.json   # leakage sensitivity (Table S23)
 python -m reliability.run_temporal_v1 --endpoint single \
        --out outputs/frozen/temporal_endpoint.json    # single measurement type (Table S23)
 python -m reliability.compare_endpoint_temporal        # pooled vs single-type side by side
@@ -104,9 +106,9 @@ python -m reliability.run_hierstats_v1         # hierarchical / target-level sta
 python verify_results.py
 ```
 
-`verify_results.py` asserts 340 claims, values and semantics alike, and exits non-zero on
+`verify_results.py` asserts 349 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
-it additionally cross-checks every macro against its source and the manuscript prose, and reports 715.
+it additionally cross-checks every macro against its source and the manuscript prose, and reports 724.
 
 ## Repository layout
 

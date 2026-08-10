@@ -1205,6 +1205,40 @@ for _fn in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
          all(_just != -1 and abs(i - _just) < 700 for i in _pic),
          f'{len(_pic)} occurrence(s) of the old name, which must all sit in that sentence')
 
+# ---- Temporal leakage sensitivity: cutoff-spanning parents removed (Table S23) ----
+# A parent's label is the median over all its records while the split follows first disclosure,
+# so a pre-cutoff parent re-measured later carries future information into training. The reported
+# analysis therefore UNDERSTATES the shift. This arm removes those parents; every degradation must
+# survive and none may weaken, or the reported result would be an artifact of the leak.
+_nsp_p = _os.path.join(OUT, 'temporal_no_spanning.json')
+if _os.path.exists(_nsp_p):
+    _ns = json.load(open(_nsp_p))
+    cond('temporal/leakage', 'the no-spanning run declares its exclusion',
+         _ns.get('exclude_spanning') is True, str(_ns.get('exclude_spanning')))
+    cond('temporal/leakage', 'it shares the cutoff and dating of the reported analysis',
+         _ns['cut_year'] == _t8['cut_year'] and _ns['year_field'] == _t8['year_field'], '')
+    cond('temporal/leakage', 'the historical pool is strictly smaller on every target',
+         all(_ns[t]['n_train'] + _ns[t]['n_cal'] < _t8[t]['n_train'] + _t8[t]['n_cal']
+             for t in _T8), 'the exclusion must actually remove compounds')
+    cond('temporal/leakage', 'error still rises above its control on all four targets',
+         all(_ns[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _T8),
+         ', '.join(f"{t}={_ns[t]['delta_vs_control']['rmse']['delta']:+.2f}" for t in _T8))
+    cond('temporal/leakage', 'error is above every control replicate on all four targets',
+         all(_ns[t]['control_random_same_size']['temporal_outside_range']['rmse'] for t in _T8), '')
+    # The claim the article makes: removing the leak makes each degradation LARGER, so the
+    # reported figures understate the shift. Compared in the degrading direction.
+    _m = lambda d, k: sum(d[t]['delta_vs_control'][k]['delta'] for t in _T8) / len(_T8)
+    for _k, _sg in (('rmse', +1), ('spearman', -1), ('coverage', -1)):
+        cond('temporal/leakage', f'the mean {_k} effect is not weaker once the leak is removed',
+             _sg * _m(_ns, _k) >= _sg * _m(_t8, _k),
+             f'no-spanning {_m(_ns, _k):+.3f} vs reported {_m(_t8, _k):+.3f}')
+    # Semantic: the SAME two targets must lose the ranking, or a per-target claim would change.
+    _lost = lambda d: [t for t in _T8 if d[t]['spearman_sigma_err_ci95'][1]
+                       < d[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]]
+    cond('temporal/leakage', 'the same two targets lose the ranking, DRD2 and DRD3',
+         _lost(_ns) == _lost(_t8) == ['drd2', 'drd3'],
+         f'no-spanning {_lost(_ns)}, reported {_lost(_t8)}')
+
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
 # be the assay changing rather than the chemistry. This is the direct test: each target reduced

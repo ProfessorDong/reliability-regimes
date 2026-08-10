@@ -342,6 +342,29 @@ if os.path.exists(_med):
         'TempMedCtlRhoScd': f"{_m['scd1']['control_random_same_size']['spearman_sigma_err']:.2f}",
     })
 
+# Leakage sensitivity. A parent's activity is the median over all of its records while the split
+# is decided by first disclosure, so a compound published before the cutoff and re-measured after
+# it carries a label that absorbs later measurements. The archived files keep no per-record years,
+# so this arm drops those parents outright rather than guessing a historical label.
+_nsp = os.path.join(CW, 'temporal_no_spanning.json')
+if os.path.exists(_nsp):
+    _ns = json.load(open(_nsp))
+    assert _ns['exclude_spanning'] is True, 'the no-spanning run carries no exclusion'
+    _drop = {t: tmp[t]['n_train'] + tmp[t]['n_cal'] - (_ns[t]['n_train'] + _ns[t]['n_cal'])
+             for t in _CAPT}
+    M['SpanDropped'] = thou(sum(_drop.values()))
+    M['SpanDropPctHi'] = f"{max(100.0 * _drop[t] / (tmp[t]['n_train'] + tmp[t]['n_cal']) for t in _CAPT):.1f}"
+    for _key, _tag, _dec in (('rmse', 'Rmse', 2), ('spearman', 'Rho', 2), ('coverage', 'Cov', 3)):
+        _v = np.array([_ns[t]['delta_vs_control'][_key]['delta'] for t in _CAPT], float)
+        M[f'SpanMacroD{_tag}'] = f"{_v.mean():+.{_dec}f}"
+    M['SpanNworseRmse'] = str(sum(_ns[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _CAPT))
+    M['SpanOutsideRmse'] = str(sum(
+        _ns[t]['control_random_same_size']['temporal_outside_range']['rmse'] for t in _CAPT))
+    _lost = lambda d: [t for t in _CAPT if d[t]['spearman_sigma_err_ci95'][1]
+                       < d[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]]
+    M['SpanSameLost'] = 'yes' if _lost(_ns) == _lost(tmp) else 'no'
+    M['SpanRmsePct'] = f"{_ns['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}"
+
 # Endpoint-restricted sensitivity: each target reduced to the parents whose records are all of
 # one ChEMBL standard type, so the response is a single measurement rather than four pooled onto
 # one scale. This is what separates a change in the chemistry from a change in the assay, which
