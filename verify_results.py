@@ -2076,6 +2076,17 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
              ('two regimes' in _intro) == ('two regimes of the main article' in _sif),
              'the SI organizes its notes by the regimes the Introduction names')
 
+    # Figure 2's caption stated the extreme bin occupancies and the block count as digits. The
+    # values were right, but all three are derived from the 1,200 runs, so a re-run would leave
+    # the caption describing a binning that no longer exists. The existing figure-2 checks verify
+    # the values; this one keeps them coming from the data rather than from memory.
+    for _lit, _macro in (('$8$ in the lowest bin', 'FrontBinLo'),
+                         ('$244$ in the highest', 'FrontBinHi'),
+                         ('$75$ matched blocks', 'FrontBlocks')):
+        cond('figure 2', f'the caption reads \\{_macro} rather than typing it',
+             _lit not in _sflat and ('\\' + _macro) in _sflat,
+             'a derived count typed by hand goes stale when the runs change')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that

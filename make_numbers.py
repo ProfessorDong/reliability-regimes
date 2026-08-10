@@ -512,6 +512,20 @@ M.update({
     'SuppNearAllLo': f"{100 * min(sr[t][f'k{k}']['near_beats_far_frac'] for t in _srT for k in (5, 10, 20)):.0f}",
 })
 
+# Figure 2's caption states the extreme bin occupancies and the number of matched blocks. Both
+# are derived from the 1,200 runs and were typed as digits, so a re-run would leave the caption
+# describing a binning that no longer exists. Build the run table exactly as gen_main_figures.py
+# does, taking the target from the dict key, then apply its binning rule.
+_frr = L('frontier_v2_results.json')['results']
+_runs = [dict(r, target=t) for t, rs in _frr.items() for r in rs]
+_nv = np.array([r['novelty'] for r in _runs], float)
+_bins = np.linspace(_nv.min(), _nv.max(), 9)
+_bidx = np.clip(np.digitize(_nv, _bins) - 1, 0, 7)
+_bn = [int((_bidx == b).sum()) for b in range(8)]
+M['FrontBinLo'] = str(min(_bn))
+M['FrontBinHi'] = str(max(_bn))
+M['FrontBlocks'] = str(len({(r['target'], r['seed']) for r in _runs}))
+
 # How often the median crosses endpoint types, and what that costs in within-parent spread.
 # Aggregating across types is a stronger assumption than aggregating within one, so the share
 # of parents where it happens, and the dispersion it carries, both belong in the disclosure.
