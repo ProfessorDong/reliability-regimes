@@ -1101,6 +1101,20 @@ for _f8 in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
              'lower than any of the' not in open(_p8, encoding='utf-8').read(),
              'DRD3 is below the pooled value')
 
+# The label's composition qualifies every target-level comparison, so it is disclosed where the
+# Results first name the response, not only in the Methods and the table captions. A reviewer
+# asked for it earlier in the text; this keeps it from drifting back out.
+_pfg = _os.path.join(_D, 'npjDD_Reliability.tex')
+if _os.path.exists(_pfg):
+    _sfg = ' '.join(open(_pfg, encoding='utf-8').read().split())
+    _res = _sfg[_sfg.index(r'\section{Results}'):]
+    _head = _res[:2000]
+    cond('phrasing', 'the Results foreground the pooled label before any target comparison',
+         'four ChEMBL standard types' in _head and 'affinity rather than a potency' in _head,
+         'composition must be flagged where the response is first named')
+    cond('phrasing', 'the Results flag the FADS isoform pooling where FADS results first appear',
+         'FADS1 and FADS2' in _head, 'target-level differences on FADS must carry the caveat')
+
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
 # be the assay changing rather than the chemistry. This is the direct test: each target reduced
