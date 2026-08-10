@@ -13,7 +13,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(318 assertions from a clean clone; 660 when the manuscript's `numbers.tex` is also present).
+(318 assertions from a clean clone; 663 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The

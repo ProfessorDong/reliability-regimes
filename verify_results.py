@@ -2058,6 +2058,24 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
          'depends on the draw' in _dsc,
          'the Discussion asserted SCD-1 as the exception without the instability')
 
+    # The Introduction states counts in words, so no macro protects them and a re-curation would
+    # leave them silently wrong. This is the same exposure that produced the stale "300 claims",
+    # in prose rather than in digits.
+    _intro = _sflat.split('\\section{Introduction}')[-1].split('\\section{Results}')[0]
+    cond('manuscript', '"more than twenty thousand" holds for the structure count',
+         'more than twenty thousand' not in _intro or _pq['n'] > 20000,
+         f"Introduction says more than twenty thousand; n={_pq['n']:,}")
+    cond('manuscript', 'the Introduction poses exactly the four questions it promises',
+         'four questions' not in _intro or _intro.count('?') == 4,
+         f"{_intro.count('?')} question marks against the stated four")
+    # Both documents frame the study as two regimes; Figure 1 labels its panels the same way.
+    _sitex = _os.path.join(_wsdir, 'npjDD_SI.tex')
+    if _os.path.exists(_sitex):
+        _sif = _re.sub(r'\s+', ' ', open(_sitex, encoding='utf-8').read())
+        cond('manuscript', 'article and SI use the same two-regime framing',
+             ('two regimes' in _intro) == ('two regimes of the main article' in _sif),
+             'the SI organizes its notes by the regimes the Introduction names')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
