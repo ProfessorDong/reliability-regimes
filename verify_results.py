@@ -2181,6 +2181,22 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
          and 'stability both in serum and of the radiolabel' in _sflat,
          'a radiolabel can detach; that is not metabolic stability')
 
+    # The SI preamble made two claims it could not keep. It sent readers to the mutable
+    # repository while the article cited the archived release, and it said the verifier re-checks
+    # "every number" in both documents, which is an exhaustiveness claim: values are generated
+    # from the frozen outputs, and a stated number of claims is re-checked, but not every macro
+    # carries its own assertion.
+    _sipre = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                           'theranostics', 'JournalPapers_npjDD', 'npjDD_SI.tex')
+    if _os.path.exists(_sipre):
+        _sip = _re.sub(r'\s+', ' ', open(_sipre, encoding='utf-8').read())
+        cond('manuscript', 'the SI cites the archived release, as the article does',
+             _ZEN_DOI in _sip and _ZEN_TAG in _sip,
+             'the SI pointed only at the mutable repository URL')
+        cond('manuscript', 'the SI does not claim every number is re-checked',
+             're-checks every number' not in _sip,
+             'generation prevents drift; the verifier re-checks a stated set of claims')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
