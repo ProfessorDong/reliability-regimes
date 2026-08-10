@@ -1171,6 +1171,15 @@ if _os.path.exists(_epp):
     _lo = _st.mean(_d4) - 3.182 * _st.stdev(_d4) / len(_d4) ** 0.5
     cond('temporal/endpoint', 'the four-target interval on the mean error effect includes zero',
          _lo < 0, f'lower limit {_lo:+.3f}; the article must not claim separation from zero')
+    # The article says the interval on EACH of the three mean effects includes zero. Asserted for
+    # all three, because quoting the weakness of one while three are weak is a partial disclosure.
+    _incl = {}
+    for _k, _dg in (('rmse', +1), ('spearman', -1), ('coverage', -1)):
+        _v = [_te[t]['delta_vs_control'][_k]['delta'] for t in _T8]
+        _mn, _sd = _st.mean(_v), _st.stdev(_v)
+        _incl[_k] = (_mn - 3.182 * _sd / 2) < 0 < (_mn + 3.182 * _sd / 2)
+    cond('temporal/endpoint', 'each of the three restricted mean effects has an interval spanning zero',
+         all(_incl.values()), str(_incl))
     _pep = _os.path.join(_D, 'npjDD_Reliability.tex')
     if _os.path.exists(_pep):
         # Structural rather than literal: the mean error effect may not be quoted without the
@@ -2276,6 +2285,11 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
         cond('manuscript', 'the SI does not claim every number is re-checked',
              're-checks every number' not in _sip,
              'generation prevents drift; the verifier re-checks a stated set of claims')
+    # The same overclaim survived in the article's Code availability statement after the SI was
+    # corrected, because the guard was written for one document. Scope it to both.
+    cond('manuscript', 'the article does not claim every number is re-checked',
+         're-checks every number' not in _re.sub(r'\s+', ' ', _s),
+         'the Code availability statement said "every number reported here"')
 
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
