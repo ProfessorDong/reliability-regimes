@@ -191,7 +191,7 @@ print('S2  temporal rho per target:', {t: round(tmp[t]['spearman_sigma_err'], 3)
 # ordering of the strategies can be read per target rather than only on average.
 STRAT = [('random', 'Random', '#9A9A9A'), ('greedy', 'Predicted mean', BLUE),
          ('ucb', 'Optimistic $\\mu+\\sigma$', SKY), ('lcb', 'Cautious $\\mu-\\sigma$', ORANGE),
-         ('conformal', 'Scaled lower\nscore', VERM)]
+         ('conformal', 'Conformal-style\nlower score', VERM)]
 pt = [t for t in T if t in pool]
 fig, axes = plt.subplots(1, len(pt), figsize=(9.6, 3.1))
 for j, t in enumerate(pt):

@@ -385,9 +385,20 @@ if _os.path.exists(_fig):
              'the panel prints an empirical coverage that the caption must account for')
         # The acquisition rule is named "conformal-style lower score" in the text. The bar label
         # said "Scaled lower score", so a reader could not match bar to prose.
-        cond('figure 1', 'panel d labels the fifth rule the way the text names it',
-             'Conformal-' in _g and 'Scaled lower' not in _g,
-             'the bar label must carry the term the prose uses')
+        # Every figure that plots the acquisition rules must name the fifth one the way the text
+        # does. Checking gen_fig1.py alone let Supplementary Figure S3 keep "Scaled lower score"
+        # for a whole audit after Figure 1 was corrected, so the two figures disagreed.
+        _figsrc = {}
+        for _gf in ('gen_fig1.py', 'gen_si_figures.py'):
+            _gp = _os.path.join(_os.path.dirname(_art1), _gf)
+            if _os.path.exists(_gp):
+                _figsrc[_gf] = open(_gp, encoding='utf-8').read()
+        for _gf, _gt in _figsrc.items():
+            if 'Cautious' not in _gt:
+                continue
+            cond('figures', f'{_gf} labels the fifth acquisition rule as the text names it',
+                 'Conformal-' in _gt and 'Scaled lower' not in _gt,
+                 'the bar label must carry the term the prose uses')
         cond('figure 1', 'panel a is titled for what it actually shows',
              'Two distances and the gap' in _g,
              'it showed two distances and their gap while claiming three distances')
