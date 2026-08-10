@@ -342,6 +342,63 @@ if os.path.exists(_med):
         'TempMedCtlRhoScd': f"{_m['scd1']['control_random_same_size']['spearman_sigma_err']:.2f}",
     })
 
+# Endpoint-restricted sensitivity: each target reduced to the parents whose records are all of
+# one ChEMBL standard type, so the response is a single measurement rather than four pooled onto
+# one scale. This is what separates a change in the chemistry from a change in the assay, which
+# the total-variation comparison can only address indirectly.
+_epr = os.path.join(CW, 'temporal_endpoint.json')
+if os.path.exists(_epr):
+    _ep = json.load(open(_epr))
+    assert _ep['endpoint_restriction'] == 'single', 'temporal_endpoint.json carries no restriction'
+    assert _ep['cut_year'] == tmp['cut_year'] and _ep['year_field'] == tmp['year_field'], \
+        'the restricted run uses a different cutoff or dating from the pooled one'
+    _TY = {'IC50': r'\mbox{IC$_{50}$}', 'Ki': r'\mbox{$K_i$}',
+           'Kd': r'\mbox{$K_d$}', 'EC50': r'\mbox{EC$_{50}$}'}
+    for _t, _c in _CAPT.items():
+        M[f'TempEpType{_c}'] = _TY[_ep['kept_type'][_t]]
+        M[f'TempEpRmse{_c}'] = f"{_ep[_t]['rmse_test']:.2f}"
+        M[f'TempEpCtlRmse{_c}'] = f"{_ep[_t]['control_random_same_size']['rmse']:.2f}"
+        M[f'TempEpDRmse{_c}'] = f"{_ep[_t]['delta_vs_control']['rmse']['delta']:+.2f}"
+        M[f'TempEpDRmseCI{_c}'] = _cis(_ep[_t]['delta_vs_control']['rmse']['ci95'])
+        M[f'TempEpN{_c}'] = thou(_ep[_t]['n_test'])
+        # Share of the pooled evaluation set that survives the restriction, so the reader can
+        # see which targets the single-type test actually had power on.
+        M[f'TempEpKeptPct{_c}'] = f"{100 * _ep[_t]['n_test'] / tmp[_t]['n_test']:.0f}"
+    # The three headline effects, averaged over targets exactly as the pooled ones are, so the
+    # two figures quoted side by side in the article are constructed the same way.
+    for _key, _tag in [('rmse', 'Rmse'), ('spearman', 'Rho'), ('coverage', 'Cov')]:
+        _pt = np.array([_ep[t]['delta_vs_control'][_key]['delta'] for t in _CAPT], float)
+        _sem = _pt.std(ddof=1) / np.sqrt(len(_pt))
+        _tc4 = sps.t.ppf(0.975, len(_pt) - 1)
+        _dec = 3 if _key == 'coverage' else 2
+        M[f'TempEpMacroD{_tag}'] = f"{_pt.mean():+.{_dec}f}"
+        M[f'TempEpMacroD{_tag}CI'] = _cis(
+            [_pt.mean() - _tc4 * _sem, _pt.mean() + _tc4 * _sem], _dec)
+    # Counts of targets on which each degradation reproduces, in the degrading direction, and
+    # the number whose error exceeds every one of the control replicates.
+    M['TempEpNworse'] = str(sum(_ep[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _CAPT))
+    M['TempEpNrhoWorse'] = str(sum(_ep[t]['delta_vs_control']['spearman']['delta'] < 0
+                                   for t in _CAPT))
+    M['TempEpNcovWorse'] = str(sum(_ep[t]['delta_vs_control']['coverage']['delta'] < 0
+                                   for t in _CAPT))
+    M['TempEpNoutside'] = str(sum(
+        _ep[t]['control_random_same_size']['temporal_outside_range']['rmse'] for t in _CAPT))
+    M['TempEpRmsePct'] = f"{_ep['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}"
+    # The weakest of the four one-sided Monte Carlo P values for the error rise, so a single
+    # quoted figure covers every target rather than the most favorable one.
+    M['TempEpPmax'] = f"{max(_ep[t]['control_random_same_size']['empirical_p']['rmse'] for t in _CAPT):.3f}"
+    assert _ep['scd1']['n_test'] <= tmp['scd1']['n_test'], 'restriction added SCD-1 compounds'
+    # SCD-1 is the no-op check: all but one of its dated parents are IC50 already, so the
+    # restricted arm must land on the pooled result rather than merely near it.
+    _drop = tmp['scd1']['n_test'] - _ep['scd1']['n_test']
+    M['TempEpScdDropped'] = str(_drop)
+    # Spelled form, because the article uses it mid-sentence where a bare digit reads badly.
+    M['TempEpScdDroppedWord'] = {0: 'no', 1: 'one', 2: 'two', 3: 'three'}[_drop]
+    # NK1R cannot be restricted to the type that dominates its pooled set: its post-cutoff
+    # records are mostly Ki, so an IC50-only split has too few future compounds to evaluate.
+    # That is the turnover itself, not a way around it, and the article says so.
+    M['TempEpNkFlips'] = 'yes' if _ep['kept_type']['nk1r'] != 'IC50' else 'no'
+
 # per-target in-domain comparison: which target is the exception, read from the source
 _IN = [t for t in T if rel[t]['novel_in_domain_rmse'] < rel[t]['novel_out_domain_rmse']]
 _EX = [t for t in T if t not in _IN]

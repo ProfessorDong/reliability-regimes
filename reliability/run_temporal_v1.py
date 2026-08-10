@@ -46,13 +46,55 @@ N_BOOT = 2000                # percentile bootstrap resamples for the temporal i
 EPS = 1e-3
 
 
-def load(target):
+def _types(row):
+    """The distinct ChEMBL standard types behind one standardized parent."""
+    raw = row.get('types', '') or ''
+    for sep in ('|', ',', ';'):
+        raw = raw.replace(sep, ';')
+    return {t.strip() for t in raw.split(';') if t.strip()}
+
+
+def restrict_type(rows, cut, min_train=100, min_test=50):
+    """Pick the single standard type that can carry a temporal test on this target.
+
+    Not simply the commonest type. NK1R is mostly IC50 overall, but its post-cutoff records are
+    mostly Ki, so an IC50-only split leaves 47 future compounds and cannot be evaluated. That
+    turnover is the very thing this analysis exists to probe, so the rule selects on the binding
+    constraint instead: among types whose pure-type parents give a usable split, take the one
+    with the most post-cutoff compounds. Returns None when no type qualifies.
+    """
+    best, best_n = None, -1
+    types = {t for r in rows for t in _types(r) if len(_types(r)) == 1}
+    for ty in sorted(types):
+        sub = [r for r in rows if _types(r) == {ty}]
+        yrs = [int(r[YEAR_FIELD]) for r in sub]
+        ntr = sum(1 for v in yrs if v < cut)
+        nte = sum(1 for v in yrs if v >= cut)
+        if ntr >= min_train and nte >= min_test and nte > best_n:
+            best, best_n = ty, nte
+    return best
+
+
+def load(target, endpoint=None, cut=2015):
+    """Rows for one target, optionally restricted to a single measurement type.
+
+    `endpoint='dominant'` keeps only parents whose retained ChEMBL records are ALL of the
+    target's most common standard type. That drops both the mixed-type parents, whose median
+    aggregates across biologically different quantities, and the minority-type ones, so the
+    label becomes one kind of measurement rather than a pooled scale. It is the direct test of
+    whether the temporal degradation is a chemical effect or a change of measurement regime
+    across the cutoff, which the endpoint-turnover analysis can only address indirectly.
+    """
     rows = list(csv.DictReader(open(os.path.join(DATA, f'{target}_chembl_v2.csv'))))
     rows = [r for r in rows if r.get(YEAR_FIELD)]
+    kept_type = None
+    if endpoint == 'single':
+        kept_type = restrict_type(rows, cut)
+        rows = [r for r in rows if _types(r) == {kept_type}] if kept_type else []
     smi = [r['SMILES'] for r in rows]
     y = np.array([float(r['pAct']) for r in rows])
     yr = np.array([int(r[YEAR_FIELD]) for r in rows])
-    return smi, y, yr
+    return (smi, y, yr, kept_type) if endpoint else (smi, y, yr)
 
 
 def conformal_q(scores, alpha=0.1):
@@ -146,6 +188,11 @@ def main():
     ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 2) - 2),
                     help='processes for the control replicates; each fit uses one core, and a '
                          'forest is bit-identical across n_jobs, so this changes only run time')
+    ap.add_argument('--endpoint', default=None, choices=['single'],
+                    help='restrict each target to parents whose records are all of its most '
+                         'common standard type. Off by default, so the frozen analysis path is '
+                         'unchanged; on, it tests whether the temporal effect survives when the '
+                         'label is one measurement type rather than a pooled scale')
     ap.add_argument('--year-field', default='year_min', choices=['year_min', 'year_median'],
                     help='year_min is first disclosure and is the prospective default; '
                          'year_median is retained only as a sensitivity analysis')
@@ -158,8 +205,13 @@ def main():
                        'published at CUT or later; grouping on standardized parent InChIKey; '
                        'calibration uses pre-CUT compounds only'}
     P = {k: [] for k in ('err', 'sig', 'dtr', 'cov')}
+    out['endpoint_restriction'] = args.endpoint or 'none'
     for tgt in args.targets:
-        smi, y, yr = load(tgt)
+        if args.endpoint:
+            smi, y, yr, kept = load(tgt, args.endpoint, args.cut)
+            out.setdefault('kept_type', {})[tgt] = kept
+        else:
+            smi, y, yr = load(tgt)
         X = featurize(smi)
         tr = np.where(yr < args.cut)[0]
         te = np.where(yr >= args.cut)[0]
@@ -348,8 +400,11 @@ def main():
               f"90% adaptive coverage {p['conformal_coverage_adaptive']:.3f}")
         print(f"  risk-coverage: {rc['0.2']:.2f} (20%) -> {rc['1.0']:.2f} (all), "
               f"reduction {100*(rc['1.0']-rc['0.2'])/rc['1.0']:.0f}%")
-    _t = [k for k in out if k not in ('cut_year', 'protocol', 'pooled', 'year_field',
-                                      'macro', 'delta_vs_control')]
+    # Select the per-target entries by their shape rather than by excluding the names of the
+    # non-target keys. An exclusion list silently admits any key added later: 'kept_type' and
+    # 'endpoint_restriction' were both swept in this way, and a string cannot be subscripted
+    # with 'n_test'. Only a per-target result carries n_test, so that is the test.
+    _t = [k for k, v in out.items() if isinstance(v, dict) and 'n_test' in v]
     if _t:
         _n = np.array([out[k]['n_test'] for k in _t], float)
         _mean = lambda f: float(np.mean([f(out[k]) for k in _t]))

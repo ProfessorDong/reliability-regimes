@@ -901,8 +901,84 @@ tab('tab:s-support',
     r'Target & $k$ & $\rho(\nu,|e|)$ & Partial $\mid d_{\mathrm{train}}$ & Nearer (\%)',
     sr_rows, 'lrrrr', tight=True)
 
-_labels = _re.findall(r'\\label\{tab:s-(.*?)\}', '\n'.join(OUTL))
 
+# ------------------------------------------- TEMPORAL UNDER A SINGLE MEASUREMENT TYPE
+# The pooled response mixes four endpoint types, so part of the temporal degradation could in
+# principle be the assay changing rather than the chemistry. This table repeats the whole
+# comparison on the subset of each target whose records are all of one standard type.
+_endpf = os.path.join(CW, 'temporal_endpoint.json')
+if os.path.exists(_endpf):
+    _endp = json.load(open(_endpf))
+    assert _endp['endpoint_restriction'] == 'single', 'the restricted run carries no restriction'
+    assert _endp['cut_year'] == tmp['cut_year'] and _endp['year_field'] == tmp['year_field'], \
+        'the restricted run uses a different cutoff or dating from the pooled one'
+    _TYL = {'IC50': r'\mbox{IC$_{50}$}', 'Ki': r'\mbox{$K_i$}',
+            'Kd': r'\mbox{$K_d$}', 'EC50': r'\mbox{EC$_{50}$}'}
+    # Thousands separator written inline: the shared _n helper is defined further down the file,
+    # and calling it from here would raise before it is bound.
+    _th = lambda v: f"{v:,}".replace(',', '{,}')
+
+    def _pct(n, N):
+        """Share of the pooled set, never rounding a proper subset up to a whole one.
+
+        SCD-1 keeps 388 of 389 evaluation compounds, which rounds to 100% and would contradict
+        the caption's statement that the restriction removes one compound. Any value that would
+        print as 100 without being 100 gets a decimal instead.
+        """
+        p = 100.0 * n / N
+        return f"{p:.1f}" if (round(p) == 100 and n < N) else f"{p:.0f}"
+
+    rows, _tg = [], ['scd1', 'nk1r', 'drd2', 'drd3']
+    for t in _tg:
+        a_, b_ = tmp[t]['delta_vs_control'], _endp[t]['delta_vs_control']
+        rows.append(
+            f"{LAB[t]} & {_TYL[_endp['kept_type'][t]]} & {_th(_endp[t]['n_test'])} "
+            f"({_pct(_endp[t]['n_test'], tmp[t]['n_test'])}\\%) & "
+            f"{sg(b_['rmse']['delta'], 2)} & {sg(b_['spearman']['delta'], 2)} & "
+            f"{sg(b_['coverage']['delta'], 3)} & "
+            f"{sg(a_['rmse']['delta'], 2)} & {sg(a_['spearman']['delta'], 2)} & "
+            f"{sg(a_['coverage']['delta'], 3)}")
+    _mac = lambda d, k: sum(d[t]['delta_vs_control'][k]['delta'] for t in _tg) / len(_tg)
+    # Spanned rather than placed in the first column: the label is longer than any target name
+    # and would set the width of a column whose entries are all short.
+    rows.append(
+        r'\midrule \multicolumn{3}{l}{Mean over targets} & '
+        f"{sg(_mac(_endp, 'rmse'), 2)} & {sg(_mac(_endp, 'spearman'), 2)} & "
+        f"{sg(_mac(_endp, 'coverage'), 3)} & "
+        f"{sg(_mac(tmp, 'rmse'), 2)} & {sg(_mac(tmp, 'spearman'), 2)} & "
+        f"{sg(_mac(tmp, 'coverage'), 3)}")
+    _nw = sum(_endp[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _tg)
+    _pmax = max(_endp[t]['control_random_same_size']['empirical_p']['rmse'] for t in _tg)
+    _scddrop = tmp['scd1']['n_test'] - _endp['scd1']['n_test']
+    tab('tab:s-endprestrict',
+        'The temporal comparison repeated with a single measurement type per target. Each '
+        'target is reduced to the standardized parents whose records all carry one ChEMBL '
+        'standard type, and the temporal split, the calibration set and the '
+        + _th(tmp[_tg[0]]['control_random_same_size']['n_reps']) + ' size-matched random controls '
+        'are recomputed on that subset alone, so each arm is compared against a control drawn '
+        'from the same restricted data and the smaller sample is not itself the comparison. '
+        'Entries are differences from the size-matched control mean, in the same form as '
+        'Supplementary Table~\\ref{tab:s-temporal}; $\\rho$ is the rank correlation between '
+        '$\\sigma_T$ and error, and $n_{\\mathrm{test}}$ gives the surviving evaluation '
+        'compounds and their share of the pooled evaluation set. Error rises on all '
+        f'{ {2: "two", 3: "three", 4: "four", 5: "five"}[_nw] } targets, above every one of the '
+        'control replicates in each case (one-sided '
+        f'Monte Carlo $P={_pmax:.3f}$), and each mean effect is larger under a single type than '
+        'under the pooled response, so pooling endpoints does not manufacture the degradation. '
+        'The type kept is the one with the most post-cutoff compounds among those leaving a '
+        'usable split, rather than the one that is commonest overall. The two differ on NK1R, '
+        'whose pooled set is mostly ' + _TYL['IC50'] + ' while its post-cutoff records are '
+        'mostly ' + _TYL['Ki'] + ': an ' + _TYL['IC50'] + ' cohort leaves too few future '
+        'compounds to evaluate, so the surviving cohort is a consequence of the turnover rather '
+        'than a way around it. SCD-1 is the opposite case and checks the procedure, since all '
+        'but one of its dated parents are ' + _TYL['IC50'] + ' already: the restriction removes '
+        f'{_scddrop} evaluation compound and returns the pooled result.',
+        r'Target & Type kept & $n_{\mathrm{test}}$ & \multicolumn{3}{c}{Single type}'
+        r' & \multicolumn{3}{c}{Pooled response}\\'
+        r'\cmidrule(lr){4-6}\cmidrule(lr){7-9}'
+        r' & & (\% of pooled) & $\Delta$RMSE & $\Delta\rho$ & $\Delta$Coverage'
+        r' & $\Delta$RMSE & $\Delta\rho$ & $\Delta$Coverage',
+        rows, 'llrrrrrrr', tight=True)
 
 def _figure_order(path, prefix):
     """Labels of the float environments in `path`, in the order LaTeX will number them.
@@ -923,6 +999,12 @@ def _figure_order(path, prefix):
 
 _sfigs = _figure_order(os.path.join(_here, 'npjDD_SI.tex'), 'sfig:')
 _afigs = _figure_order(os.path.join(_here, 'npjDD_Reliability.tex'), 'fig:')
+# Collected here rather than beside the last tab() call above, so that a table added anywhere in
+# this file still gets a \Tab macro. Snapshotting it earlier silently emitted one macro fewer
+# than there were tables, and the article's reference to the missing one rendered as a blank.
+_labels = _re.findall(r'\\label\{tab:s-(.*?)\}', '\n'.join(OUTL))
+assert len(_labels) == sum(1 for _l in OUTL if _l.startswith(r'\begin{table}')), \
+    'a table was emitted without a tab:s- label, so it would have no cross-reference macro'
 _refs = os.path.join(_here, 'si_refs.tex')
 with open(_refs, 'w') as _rf:
     _rf.write('% Generated by make_si_tables.py - DO NOT EDIT BY HAND.\n')

@@ -1101,6 +1101,72 @@ for _f8 in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
              'lower than any of the' not in open(_p8, encoding='utf-8').read(),
              'DRD3 is below the pooled value')
 
+# ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
+# The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
+# be the assay changing rather than the chemistry. This is the direct test: each target reduced
+# to the parents whose records are all of one standard type, with its own size-matched controls.
+_epp = _os.path.join(OUT, 'temporal_endpoint.json')
+if _os.path.exists(_epp):
+    _te = json.load(open(_epp))
+    cond('temporal/endpoint', 'the restricted run declares its restriction',
+         _te.get('endpoint_restriction') == 'single', str(_te.get('endpoint_restriction')))
+    cond('temporal/endpoint', 'restricted and pooled runs share cutoff and dating',
+         _te['cut_year'] == _t8['cut_year'] and _te['year_field'] == _t8['year_field'],
+         f"{_te['cut_year']}/{_te['year_field']} vs {_t8['cut_year']}/{_t8['year_field']}")
+    cond('temporal/endpoint', 'the control replicate count matches the pooled analysis',
+         all(_te[t]['control_random_same_size']['n_reps']
+             == _t8[t]['control_random_same_size']['n_reps'] for t in _T8), '')
+    # The headline: error degrades on every target, above every one of the control replicates.
+    cond('temporal/endpoint', 'error rises above its own size-matched control on all four targets',
+         all(_te[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _T8),
+         ', '.join(f"{t}={_te[t]['delta_vs_control']['rmse']['delta']:+.2f}" for t in _T8))
+    cond('temporal/endpoint', 'the error rise is at the Monte Carlo floor on all four targets',
+         all(_te[t]['control_random_same_size']['empirical_p']['rmse']
+             <= _te[t]['control_random_same_size']['empirical_p']['floor'] for t in _T8), '')
+    cond('temporal/endpoint', 'coverage falls below its control on all four targets',
+         all(_te[t]['delta_vs_control']['coverage']['delta'] < 0 for t in _T8), '')
+    # Semantic, not merely numeric: the ranking exception must be the SAME target as in the
+    # pooled analysis. A run that degraded a different target would still pass a count check.
+    _exr = [t for t in _T8 if _te[t]['delta_vs_control']['spearman']['delta'] > 0]
+    _exp = [t for t in _T8 if _t8[t]['delta_vs_control']['spearman']['delta'] > 0]
+    cond('temporal/endpoint', 'the ranking exception is SCD-1, the same target as pooled',
+         _exr == ['scd1'] and _exp == ['scd1'], f'restricted {_exr}, pooled {_exp}')
+    # Every mean effect must sit further from the control than the pooled one, which is what the
+    # article claims. Compared in the degrading direction, since two of the three are negative.
+    _mac = lambda d, k: sum(d[t]['delta_vs_control'][k]['delta'] for t in _T8) / len(_T8)
+    for _k, _sgn in (('rmse', +1), ('spearman', -1), ('coverage', -1)):
+        cond('temporal/endpoint', f'the mean {_k} effect is further from the control than pooled',
+             _sgn * _mac(_te, _k) > _sgn * _mac(_t8, _k),
+             f'restricted {_mac(_te, _k):+.3f} vs pooled {_mac(_t8, _k):+.3f}')
+    # NK1R keeps Ki rather than the IC50 that dominates its pooled set, because its post-cutoff
+    # records are mostly Ki. The article states this as evidence of turnover, so it is asserted.
+    cond('temporal/endpoint', 'NK1R keeps Ki, not the IC50 that dominates its pooled set',
+         _te['kept_type']['nk1r'] == 'Ki', str(_te['kept_type']))
+    cond('temporal/endpoint', 'SCD-1 keeps IC50, so its restriction is close to a no-op',
+         _te['kept_type']['scd1'] == 'IC50', str(_te['kept_type']))
+    # SCD-1 is the procedure check: one evaluation compound removed, pooled result returned.
+    cond('temporal/endpoint', 'the SCD-1 restriction drops exactly one evaluation compound',
+         _t8['scd1']['n_test'] - _te['scd1']['n_test'] == 1,
+         f"{_t8['scd1']['n_test']} -> {_te['scd1']['n_test']}")
+    close('temporal/endpoint', 'SCD-1 restricted error reproduces the pooled one',
+          _te['scd1']['rmse_test'], _t8['scd1']['rmse_test'], 0.01)
+    # With four targets the interval on the mean error effect includes zero. The article says so
+    # and leans on the per-target comparison instead; this asserts the article is not overclaiming.
+    import statistics as _st
+    _d4 = [_te[t]['delta_vs_control']['rmse']['delta'] for t in _T8]
+    _lo = _st.mean(_d4) - 3.182 * _st.stdev(_d4) / len(_d4) ** 0.5
+    cond('temporal/endpoint', 'the four-target interval on the mean error effect includes zero',
+         _lo < 0, f'lower limit {_lo:+.3f}; the article must not claim separation from zero')
+    _pep = _os.path.join(_D, 'npjDD_Reliability.tex')
+    if _os.path.exists(_pep):
+        # Structural rather than literal: the mean error effect may not be quoted without the
+        # interval that shows it includes zero. Testing for a form of words would break on a
+        # rewrite; testing that the two macros travel together tests the claim.
+        _sep = open(_pep, encoding='utf-8').read()
+        cond('phrasing', 'the restricted mean effect is never quoted without its interval',
+             (r'\TempEpMacroDRmse{}' not in _sep) or (r'\TempEpMacroDRmseCI{}' in _sep),
+             'the interval includes zero, so the mean must not stand alone')
+
 # Table S9's per-target comparison is compressed on the small pools: the fixed 300-query budget
 # is about half of SCD-1 but 3% of DRD2, so on SCD-1 and FADS the best rule already takes most of
 # the top-percentile compounds that exist and the rules cannot separate much there.
