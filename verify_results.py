@@ -2165,6 +2165,14 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
              _lit not in _sflat and ('\\' + _macro) in _sflat,
              'a derived count typed by hand goes stale when the runs change')
 
+    # Co-author correction (O.K.O., radiology): "metabolic stability" is the wrong term for a
+    # radiotracer. What limits one is stability in serum and whether the radiolabel stays on the
+    # molecule. The Limitations must not revert to the ADME term.
+    cond('manuscript', 'the radiotracer limitation names serum and radiolabel stability',
+         'metabolic stability' not in _sflat
+         and 'stability both in serum and of the radiolabel' in _sflat,
+         'a radiolabel can detach; that is not metabolic stability')
+
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
     # citation record downloaded for release 2026_03_5 nearly attached a DOI for software that
