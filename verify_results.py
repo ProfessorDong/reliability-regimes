@@ -1960,6 +1960,13 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
          '\\mathversion{normal}' in _ab,
          'sn-jnl leaks \\boldmath from the author block into abstract math')
 
+    # The in-domain comparison is a median split of the top novelty tercile, so the two groups
+    # are halves, not extremes. The abstract said "closest", a superlative that describes a
+    # subgroup the analysis never forms; the Results correctly say nearer against further.
+    cond('manuscript', 'the abstract describes the in-domain split as a comparison, not an extreme',
+         'closest to the training' not in _abf and 'nearer the training' in _abf,
+         'in_dom is d_train <= median within the novel third, not the closest compounds')
+
     # The abstract described the temporal ranking as "surviving on two targets and vanishing
     # on one", which accounts for three of the four temporal targets and silently drops DRD2,
     # whose ranking neither survives against its control nor vanishes. Any description of the
