@@ -836,7 +836,14 @@ tab('tab:s-endpoint',
     'behind the matched structures rather than of the dataset as a whole. FADS is a '
     'literature panel and is not recoverable this way. On the temporal rows the percentages '
     'are of the records behind each parent, and the split at the cutoff shows whether '
-    'endpoint composition itself shifts across it.',
+    'endpoint composition itself shifts across it.'
+    # A reader reaching this table is being shown that the mix moves; the consequence of that
+    # movement is settled in another table, so the pointer belongs here. Conditional, because
+    # the referenced table is itself emitted only when its frozen output is present, and a
+    # dangling \ref would print as a bare question mark in a clean rebuild.
+    + (' Supplementary Table~\\ref{tab:s-endprestrict} tests what that movement implies, by '
+       'repeating the temporal comparison with a single type per target.'
+       if os.path.exists(os.path.join(CW, 'temporal_endpoint.json')) else ''),
     r'Target & Cohort & $n$ & Matched (\%) & IC$_{50}$ & $K_i$ & $K_d$ & EC$_{50}$',
     rows, 'llrrrrrr')
 
