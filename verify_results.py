@@ -1963,8 +1963,9 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     # The in-domain comparison is a median split of the top novelty tercile, so the two groups
     # are halves, not extremes. The abstract said "closest", a superlative that describes a
     # subgroup the analysis never forms; the Results correctly say nearer against further.
+    _abflat = _re.sub(r'\s+', ' ', _ab)
     cond('manuscript', 'the abstract describes the in-domain split as a comparison, not an extreme',
-         'closest to the training' not in _abf and 'nearer the training' in _abf,
+         'closest to the training' not in _abflat and 'nearer the training' in _abflat,
          'in_dom is d_train <= median within the novel third, not the closest compounds')
 
     # The abstract described the temporal ranking as "surviving on two targets and vanishing
