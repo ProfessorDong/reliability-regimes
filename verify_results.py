@@ -1451,6 +1451,26 @@ cond('audit/model selection', 'the random forest is selected on every target',
 cond('audit/model selection', 'all three compared ensembles are present for every target',
      all(set(v['bakeoff']) == {'rf', 'extratrees', 'histgb'} for v in _omq.values()), '')
 
+# Supplementary captions must not carry typed measurements. Table S2's explanation of the
+# extreme FADS R^2 stated the fold spread, the whole-set spread, the variance ratio, the implied
+# RMSE and the range across targets as literals; all five were right, but all five come from
+# scaffold_fold_stats.json and would have gone stale on a re-run.
+_msty = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'make_si_tables.py')
+if _os.path.exists(_msty):
+    _mst = open(_msty, encoding='utf-8').read()
+    _s2 = _mst[_mst.index("tab('tab:s-protocol'"):]
+    _s2 = _s2[:_s2.index('rows,')] if 'rows,' in _s2 else _s2[:3000]
+    cond('SI tables', 'S2 computes its scaffold statistics rather than typing them',
+         'activity spread of %s against %s' in _s2 and "sfs['fads']['sd_test']" in _s2,
+         'the caption quoted five measured values as literals')
+    # And the values it computes must still be the ones the frozen stats give.
+    _sfsq = json.load(open(_os.path.join(OUT, 'scaffold_fold_stats.json')))
+    _rr = [v['implied_rmse'] for v in _sfsq.values() if isinstance(v, dict)]
+    close('SI tables', 'S2: FADS held-out spread', _sfsq['fads']['sd_test'], 0.07, 0.005)
+    close('SI tables', 'S2: FADS variance ratio', _sfsq['fads']['var_ratio'], 531, 1.0)
+    close('SI tables', 'S2: implied RMSE range covers the five targets',
+          max(_rr) - min(_rr), 1.5362 - 0.9728, 0.01)
+
 # --- math/consistency audit invariants -------------------------------------------------
 # Every derived percentage must be reconstructible from the values it is derived from. These
 # are cheap and they catch a stale numerator or denominator that no per-value check would.

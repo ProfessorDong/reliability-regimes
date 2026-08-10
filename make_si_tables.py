@@ -172,12 +172,17 @@ tab('tab:s-protocol',
     'in-sample fit and is unbounded below out of sample; a negative value means the model '
     'predicts that fold less well than its own mean does. It is normalized by the variance of the '
     'held-out fold itself, so a fold whose response barely varies drives it far negative even '
-    'at ordinary absolute error: the FADS fold has an activity spread of 0.07 against 1.54 '
-    'for the whole dataset, a 531-fold difference in variance, and its RMSE of 1.00 sits '
-    'inside the 0.97 to 1.54 range spanned by the five targets. The RMSE column is given for '
+    'at ordinary absolute error: the FADS fold has an activity spread of %s against %s '
+    'for the whole dataset, a %s-fold difference in variance, and its RMSE of %s sits '
+    'inside the %s to %s range spanned by the five targets. The RMSE column is given for '
     'that reason. Temporal '
     'RMSE is on compounds published from 2015 onwards after training on earlier ones, and is '
-    'available only for the four targets re-curated from ChEMBL.',
+    'available only for the four targets re-curated from ChEMBL.'
+    % (('%.2f' % sfs['fads']['sd_test'], '%.2f' % sfs['fads']['sd_all'],
+        '%.0f' % sfs['fads']['var_ratio'], '%.2f' % sfs['fads']['implied_rmse'],
+        '%.2f' % min(v['implied_rmse'] for v in sfs.values() if isinstance(v, dict)),
+        '%.2f' % max(v['implied_rmse'] for v in sfs.values() if isinstance(v, dict)))
+       if sfs else ('n/a',) * 6),
     r'Target & \multicolumn{3}{c}{Random-CV} & \multicolumn{3}{c}{Scaffold} & Temporal\\'
     r'\cmidrule(lr){2-4}\cmidrule(lr){5-7}\cmidrule(lr){8-8}'
     r' & Spearman & $R^2$ & AUC & Spearman & $R^2$ & RMSE & RMSE',
