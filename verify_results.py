@@ -374,6 +374,13 @@ if _os.path.exists(_fig):
         _cap = _c1[_c1.find(r'\textbf{Where and when the activity model'):][:3200]
         cond('figure 1', 'the caption describes the per-target points in panel d',
              'Open circles' in _cap, 'every drawn element must be accounted for')
+        # Panel d's annotation read "penalizing uncertainty finds fewer", which left the reader
+        # to supply both the object, from the y axis, and the comparator, from nowhere. A
+        # dangling comparative in a figure is read as a claim about everything on the panel.
+        cond('figure 1', 'panel d\'s annotation names what it is fewer than',
+             'finds fewer than' in _g,
+             'the bare "finds fewer" gave neither the object nor the baseline')
+
         # Panel b draws a conformal-coverage annotation. Trimming the legend to fit the word cap
         # once removed the sentence explaining it, leaving unexplained text in the figure, so the
         # caption must keep naming the inset.

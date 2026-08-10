@@ -241,7 +241,7 @@ ax.axhline(1.0, color=DARK, ls=':', lw=1.0)
 ax.set_xticks(range(5)); ax.set_xticklabels(names, fontsize=6.6, linespacing=1.15)
 ax.set_ylabel('Top-percentile compounds found\n(relative to random)')
 ax.set_ylim(0, max(_top) + 1.70); ax.grid(alpha=0.22, axis='y', lw=0.6)
-ax.text(0.5, 0.995, 'penalizing uncertainty finds fewer', transform=ax.transAxes,
+ax.text(0.5, 0.995, 'penalizing uncertainty finds fewer than the mean', transform=ax.transAxes,
         ha='center', va='top', fontsize=6.8, color=VERM, fontweight='bold')
 
 # the schematic must obey the relation it is drawn to explain
