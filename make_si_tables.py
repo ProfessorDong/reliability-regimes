@@ -338,7 +338,13 @@ def _n(v):
 
 
 def _vc(v, ci, dec=2, signed=False):
-    """A value with its 95% interval, for one cell."""
+    """A value with its 95% interval, for one cell.
+
+    The interval is set one size down. It is supporting detail beside the estimate, and at full
+    size the brackets crowd the column and compete with the value they qualify. Only the bracket
+    shrinks; the estimate stays at body size, so this is not the whole-table font reduction that
+    is ruled out elsewhere.
+    """
     txt = (('$%+.' + str(dec) + 'f$') % v) if signed else (('%.' + str(dec) + 'f') % v)
     if not ci:
         return txt
@@ -346,7 +352,7 @@ def _vc(v, ci, dec=2, signed=False):
         lo, hi = ('%+.*f' % (dec, ci[0])), ('%+.*f' % (dec, ci[1]))
     else:
         lo, hi = ('%.*f' % (dec, ci[0])), ('%.*f' % (dec, ci[1]))
-    return txt + ' [' + lo + ', ' + hi + ']'
+    return txt + ' {\\small [' + lo + ', ' + hi + ']}'
 
 
 _TT = [t for t in ['scd1', 'nk1r', 'drd2', 'drd3'] if t in tmp]

@@ -1471,6 +1471,31 @@ if _os.path.exists(_msty):
     close('SI tables', 'S2: implied RMSE range covers the five targets',
           max(_rr) - min(_rr), 1.5362 - 0.9728, 0.01)
 
+# Table font policy, which has two halves and they are easy to confuse. No table may shrink its
+# whole body: a wide table is widened by its column count, so padding is the fix, not the font.
+# But S8's bracketed intervals ARE set one size down on purpose, because they are supporting
+# detail beside the estimate they qualify and crowd the column at full size. So: no size command
+# applied to a whole tabular, and the inline shrink confined to S8's intervals.
+_sit = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), '..', 'WritePaper',
+                     'theranostics', 'JournalPapers_npjDD', 'si_tables.tex')
+if _os.path.exists(_sit):
+    _sitx = open(_sit, encoding='utf-8').read()
+    _whole = []
+    for _blk in _re.split(r'(?=\\begin\{table\})', _sitx):
+        _lab = _re.search(r'\\label\{(tab:s-[a-z]+)\}', _blk)
+        if not _lab:
+            continue
+        _pre = _blk.split('\\begin{tabular}')[0]
+        if _re.search(r'\\(small|footnotesize|scriptsize|tiny)\b', _pre):
+            _whole.append(_lab.group(1))
+    cond('SI tables', 'no table shrinks its whole body font',
+         not _whole, f'whole-table size command on {_whole}; widen with column padding instead')
+    _inline = {_re.search(r'\\label\{(tab:s-[a-z]+)\}', b).group(1)
+               for b in _re.split(r'(?=\\begin\{table\})', _sitx)
+               if _re.search(r'\\label\{tab:s-[a-z]+\}', b) and '{\\small [' in b}
+    cond('SI tables', 'the inline interval shrink is confined to S8',
+         _inline in (set(), {'tab:s-temporal'}), f'also used in {_inline - {"tab:s-temporal"}}')
+
 # --- math/consistency audit invariants -------------------------------------------------
 # Every derived percentage must be reconstructible from the values it is derived from. These
 # are cheap and they catch a stale numerator or denominator that no per-value check would.
