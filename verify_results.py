@@ -1205,6 +1205,20 @@ for _fn in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
          all(_just != -1 and abs(i - _just) < 700 for i in _pic),
          f'{len(_pic)} occurrence(s) of the old name, which must all sit in that sentence')
 
+# Hardware and determinism. The CPU analyses are reproducible bit for bit; the four that run
+# encoder inference on a GPU are not, even on one machine, because the kernels do not fix their
+# reduction order. The Methods must say so and must say why it does not affect any comparison.
+_hw = _os.path.join(_D, 'npjDD_Reliability.tex')
+if _os.path.exists(_hw):
+    _hs = ' '.join(open(_hw, encoding='utf-8').read().split())
+    cond('manuscript', 'the Methods state the CPU analyses are deterministic',
+         'deterministic given the fixed seeds and the pinned library versions' in _hs, '')
+    cond('manuscript', 'the Methods disclose that GPU inference is not bit-reproducible',
+         'rather than bit-exactly' in _hs, 'repeat calls differ at float32 tolerance')
+    cond('manuscript', 'the Methods explain why that cannot affect a comparison',
+         'paired by seed' in _hs and 'cancels in' in _hs,
+         'both arms run in one process, so a hardware offset is common to them')
+
 # ---- Temporal leakage sensitivity: cutoff-spanning parents removed (Table S23) ----
 # A parent's label is the median over all its records while the split follows first disclosure,
 # so a pre-cutoff parent re-measured later carries future information into training. The reported
