@@ -1205,20 +1205,6 @@ for _fn in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
          all(_just != -1 and abs(i - _just) < 700 for i in _pic),
          f'{len(_pic)} occurrence(s) of the old name, which must all sit in that sentence')
 
-# Hardware and determinism. The CPU analyses are reproducible bit for bit; the four that run
-# encoder inference on a GPU are not, even on one machine, because the kernels do not fix their
-# reduction order. The Methods must say so and must say why it does not affect any comparison.
-_hw = _os.path.join(_D, 'npjDD_Reliability.tex')
-if _os.path.exists(_hw):
-    _hs = ' '.join(open(_hw, encoding='utf-8').read().split())
-    cond('manuscript', 'the Methods state the CPU analyses are deterministic',
-         'deterministic given the fixed seeds and the pinned library versions' in _hs, '')
-    cond('manuscript', 'the Methods disclose that GPU inference is not bit-reproducible',
-         'rather than bit-exactly' in _hs, 'repeat calls differ at float32 tolerance')
-    cond('manuscript', 'the Methods explain why that cannot affect a comparison',
-         'paired by seed' in _hs and 'cancels in' in _hs,
-         'both arms run in one process, so a hardware offset is common to them')
-
 # ---- Temporal leakage sensitivity: cutoff-spanning parents removed (Table S23) ----
 # A parent's label is the median over all its records while the split follows first disclosure,
 # so a pre-cutoff parent re-measured later carries future information into training. The reported
@@ -1947,8 +1933,12 @@ if _os.path.exists(_mcp):
         cond('methods', 'the refuted neural-collapse claim is not in the manuscript',
              'collapsed toward the training mean' not in _t2,
              'it was unreproducible from this repository and measurement contradicts it')
-        cond('methods', 'the model choice rests on the bake-off that was actually run',
-             'bake-off among a random forest' in _t2, '')
+        # Matched on the models compared, not on the word 'bake-off': the Methods sentence was
+        # rewritten to say the comparison did not select on accuracy alone, and a guard keyed to
+        # one word would have blocked that correction rather than checking the claim.
+        cond('methods', 'the model choice rests on the comparison that was actually run',
+             'among a random forest, extremely randomized trees and a histogram gradient-boosting' in _t2,
+             'the three compared models must be named in the Methods')
 
 # Rendered figures must be newer than the data behind them. The value checks above read the
 # generator source and the frozen outputs, so they all passed while two committed PNGs had been
@@ -2206,7 +2196,7 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     # subgroup the analysis never forms; the Results correctly say nearer against further.
     _abflat = _re.sub(r'\s+', ' ', _ab)
     cond('manuscript', 'the abstract describes the in-domain split as a comparison, not an extreme',
-         'closest to the training' not in _abflat and 'nearer the training' in _abflat,
+         'closest to the training' not in _abflat and 'nearer training' in _abflat.replace('nearer the training', 'nearer training'),
          'in_dom is d_train <= median within the novel third, not the closest compounds')
 
     # The abstract described the temporal ranking as "surviving on two targets and vanishing

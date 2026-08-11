@@ -553,15 +553,15 @@ tab('tab:s-turnover',
        _andlist([LAB[t] for t in T if _turn_diff[t] <= 0]),
        _andlist([LAB[t] for t in T if _turn_ci[t][0] > 0 or _turn_ci[t][1] < 0]),
        _andlist([LAB[t] for t in T if _turn_ci[t][0] <= 0 <= _turn_ci[t][1]])),
-    r'Target & $n_7$ & Bin 7 & $n_8$ & Bin 8 & Difference & 95\% interval',
-    _turn_rows, 'lrrrrrr')
+    r'Target & $n_7$ & Bin 7 & $n_8$ & Bin 8 & Diff. & 95\% interval',
+    _turn_rows, 'lrrrrrr', tight=True)
 
 tab('tab:s-frontier',
     'Novelty-driven shift during optimization. Correlations across runs between the achieved '
     'novelty of the generated set and its distance to the training compounds, disagreement, '
-    'and predicted potency, for two search procedures at two uncertainty penalties, with the '
+    'and predicted activity, for two search procedures at two uncertainty penalties, with the '
     'distance-to-disagreement correlation in the last column. Novelty rises with distance and '
-    'with disagreement, and falls with predicted potency, in all four rows including the two '
+    'with disagreement, and falls with predicted activity, in all four rows including the two '
     'with the uncertainty penalty at zero, so none of it is induced by that penalty. Part of '
     'the novelty-to-distance association is definitional: the starting compounds are drawn '
     'from the training set, so $d\\leq\\nu$ for every molecule and the two cannot be '
@@ -1025,7 +1025,7 @@ if os.path.exists(_endpf):
     _pmax = max(_endp[t]['control_random_same_size']['empirical_p']['rmse'] for t in _tg)
     _scddrop = tmp['scd1']['n_test'] - _endp['scd1']['n_test']
     tab('tab:s-endprestrict',
-        'The temporal comparison repeated with a single measurement type per target. Each '
+        'The temporal comparison repeated with a single ChEMBL standard type per target. Each '
         'target is reduced to the standardized parents whose records all carry one ChEMBL '
         'standard type, and the temporal split, the calibration set and the '
         + _th(tmp[_tg[0]]['control_random_same_size']['n_reps']) + ' size-matched random controls '
