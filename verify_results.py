@@ -2442,6 +2442,16 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     cond('manuscript', 'the article does not claim every number is re-checked',
          're-checks every number' not in _re.sub(r'\s+', ' ', _s),
          'the Code availability statement said "every number reported here"')
+    # HEAD runs ahead of the archived release between releases, so the availability statements
+    # must describe what the ARCHIVE checks, not what the manuscript contains. Stated positively:
+    # both documents scope the script to the analyses the release itself holds.
+    for _av, _lb in ((_s, 'article'), (_sip if _os.path.exists(_sipre) else '', 'SI')):
+        if not _av:
+            continue
+        _f1 = _re.sub(r'\s+', ' ', _av)
+        cond('manuscript', f'{_lb}: the verification script is scoped to the archived release',
+             'the numeric claims of the analyses it contains' in _f1,
+             'HEAD gains analyses after a release; the archive does not')
 
     # The RDKit version is an empirical fact about the runs, and it appears in three places that
     # can drift apart: the Methods prose, the bibliography entry, and the pinned requirement. A
