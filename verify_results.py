@@ -1254,6 +1254,16 @@ cond('temporal/labels', 'DRD2 and DRD3 are the targets that lose the ranking',
      [t for t in _T8 if _t8[t]['spearman_sigma_err_ci95'][1]
       < _t8[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]] == ['drd2', 'drd3'], '')
 
+# The whole temporal branch must rest on one protocol. A sensitivity computed on the old labels
+# would be testing a different construction from the primary result it qualifies.
+for _sf, _lbl in (('temporal_endpoint.json', 'single standard type'),
+                  ('temporal_analysis_yearmedian.json', 'median-year dating')):
+    _sp = _os.path.join(OUT, _sf)
+    if _os.path.exists(_sp):
+        cond('temporal/labels', f'the {_lbl} sensitivity uses the primary cutoff-aware labels',
+             json.load(open(_sp)).get('pre_cutoff_labels') is True,
+             'a sensitivity on the superseded labels would qualify a different analysis')
+
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle
 # be the assay changing rather than the chemistry. This is the direct test: each target reduced
