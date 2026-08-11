@@ -1,8 +1,8 @@
 # Where and when a molecular property model can be trusted
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21874305.svg)](https://doi.org/10.5281/zenodo.21874305)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21894053.svg)](https://doi.org/10.5281/zenodo.21894053)
 
-Archived at release `v1.3-npjdd-submission`: [10.5281/zenodo.21874305](https://doi.org/10.5281/zenodo.21874305). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
+Archived at release `v1.4-npjdd-submission`: [10.5281/zenodo.21894053](https://doi.org/10.5281/zenodo.21894053). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
 
 Code, curated data, and frozen outputs for a study of when a machine-learned activity model
 can be believed, across five targets relevant to therapy and molecular imaging: **SCD-1**,
