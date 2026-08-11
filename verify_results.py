@@ -1209,6 +1209,30 @@ for _fn in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
          all(_just != -1 and abs(i - _just) < 700 for i in _pic),
          f'{len(_pic)} occurrence(s) of the old name, which must all sit in that sentence')
 
+# Two claims that were false in a submitted draft, both asserted against the data now.
+_sr = json.load(open(_os.path.join(OUT, 'support_resample.json')))
+_cells = [_sr[t][f'k{k}']['partial_nov_err_given_dtr']['median']
+          for t in ('scd1', 'fads', 'nk1r', 'drd2', 'drd3') for k in (5, 10, 20)]
+cond('semantic', 'positive partial correlations exist, so the prose may not deny them',
+     sum(1 for v in _cells if v > 0) > 0,
+     f'{sum(1 for v in _cells if v > 0)} of {len(_cells)} cells positive, max {max(_cells):+.3f}')
+# DRD3's temporal correlation is very weak but its interval excludes zero, so words like
+# "vanishes", "lost entirely" or "no signal" overstate what was measured.
+_d3 = _t8['drd3']['spearman_sigma_err_ci95']
+cond('semantic', 'the weakest temporal ranking still has an interval above zero',
+     _d3[0] > 0, f"DRD3 rho {_t8['drd3']['spearman_sigma_err']:+.3f} CI [{_d3[0]:+.3f}, {_d3[1]:+.3f}]")
+for _fw in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
+    _pw = _os.path.join(_D, _fw)
+    if _os.path.exists(_pw):
+        _sw = ' '.join(open(_pw, encoding='utf-8').read().split())
+        cond('phrasing', f'{_fw}: the temporal ranking is never called vanished or lost outright',
+             not any(x in _sw for x in ('vanishes on one target', 'is lost entirely',
+                                        'fails outright', 'no signal remains')),
+             'DRD3 measures +0.05 with an interval above zero')
+        cond('phrasing', f'{_fw}: no claim that every cell lacks a positive partial correlation',
+             'positive partial correlation of any size' not in _sw,
+             '12 of the 15 cells are positive')
+
 # ---- Temporal label construction (Methods, Results, Table S23) ----
 # The primary temporal protocol rebuilds every historical label from that parent's pre-cutoff
 # records. Two alternatives are kept as diagnostics: all-record aggregation, which lets later

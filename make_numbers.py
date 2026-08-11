@@ -632,6 +632,9 @@ M.update({
     'SuppKlo': str(min(sr['k_values'])), 'SuppKhi': str(max(sr['k_values'])),
     'SuppCells': str(len(_srmed)),
     'SuppMaxUpper': f"{max(_srhi):.2f}",
+    # The largest positive partial across cells. Needed because the prose once claimed no cell
+    # was positive at all, which was false for 12 of the 15.
+    'SuppDrdthreeMax': f"{max(sr['drd3'][f'k{k}']['partial_nov_err_given_dtr']['median'] for k in (5, 10, 20)):+.2f}",
     'SuppPosLo': f"{min(_srpos):.3f}", 'SuppPosHi': f"{max(_srpos):.2f}",
     'SuppFadsMed': f"{sr['fads']['k10']['partial_nov_err_given_dtr']['median']:+.2f}",
     'SuppNearScd': f"{100 * sr['scd1']['k10']['near_beats_far_frac']:.0f}",

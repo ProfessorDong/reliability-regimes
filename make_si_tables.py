@@ -430,8 +430,10 @@ tab('tab:s-temporal',
            for t in _TT),
        sum(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _TT),
        len(_TT),
-       next(LAB[t] for t in _TT
-            if tmp['pooled']['spearman_sigma_err'] >= tmp[t]['spearman_sigma_err'])),
+       # Every target the pooled value sits above, not merely the first: it is above two, and
+       # naming one made the caption contradict its own table.
+       ' and '.join(LAB[t] for t in _TT
+                    if tmp['pooled']['spearman_sigma_err'] >= tmp[t]['spearman_sigma_err'])),
     r'Target & Split & $n_{\mathrm{train}}$ & $n_{\mathrm{cal}}$ & $n_{\mathrm{test}}$ & RMSE & '
     r'$\rho(\sigma_T,e)$ & Coverage at 0.900',
     rows, 'llrrrrrr', tight=True, note=_tnote)
@@ -1021,7 +1023,10 @@ if os.path.exists(_endpf):
     _pmax = max(_endp[t]['control_random_same_size']['empirical_p']['rmse'] for t in _tg)
     _scddrop = tmp['scd1']['n_test'] - _endp['scd1']['n_test']
     tab('tab:s-endprestrict',
-        'The temporal comparison repeated with a single ChEMBL standard type per target. Each '
+        'The temporal comparison repeated with a single ChEMBL standard type per target. This is a '
+        'retrospective endpoint-homogeneity check rather than a prospective cohort: a parent is '
+        'judged by the types across all of its records, so a historical compound can be excluded for '
+        'a standard type first recorded after the cutoff, which no one could know then. Each '
         'target is reduced to the standardized parents whose records all carry one ChEMBL '
         'standard type, and the temporal split, the calibration set and the '
         + _th(tmp[_tg[0]]['control_random_same_size']['n_reps']) + ' size-matched random controls '
