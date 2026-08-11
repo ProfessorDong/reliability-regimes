@@ -13,7 +13,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(349 assertions from a clean clone; 726 when the manuscript's `numbers.tex` is also present).
+(350 assertions from a clean clone; 727 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The
@@ -39,7 +39,7 @@ records, so no evaluation compound carries a pre-cutoff record. Training on comp
 published before 2015 and testing on the 6,935 first published later, error rises from 0.71 to
 1.07 pIC50, an increase of 50% over a size-matched random control drawn from the same pool, and
 on every target the temporal value exceeds the largest of 20 control replicates. Conformal
-coverage falls to 0.837 (95% interval [0.829, 0.846]), below both the control and the nominal
+coverage falls to 0.842 (95% interval [0.829, 0.846]), below both the control and the nominal
 0.900.
 
 The error ranking degrades unevenly rather than uniformly, which a pooled figure hides: pooled
@@ -81,6 +81,10 @@ python -m reliability.run_conformal_v1       # Regime 1: calibrated intervals
 python -m reliability.run_temporal_v1        # Regime 2: temporal shift + size-matched control
 python -m reliability.run_temporal_v1 --year-field year_median \
        --out outputs/frozen/temporal_analysis_yearmedian.json   # dating sensitivity (Table S7)
+python -m data.pre_cutoff_labels                  # cutoff-aware historical labels + manifest
+python -m reliability.run_temporal_v1 --pre-cutoff-labels   # Regime 2 PRIMARY (cutoff-aware)
+python -m reliability.run_temporal_v1 \
+       --out outputs/frozen/temporal_analysis_allrecord.json  # all-record diagnostic
 python -m reliability.run_temporal_v1 --exclude-spanning \
        --out outputs/frozen/temporal_no_spanning.json   # leakage sensitivity (Table S23)
 python -m reliability.run_temporal_v1 --endpoint single \
@@ -106,9 +110,9 @@ python -m reliability.run_hierstats_v1         # hierarchical / target-level sta
 python verify_results.py
 ```
 
-`verify_results.py` asserts 349 claims, values and semantics alike, and exits non-zero on
+`verify_results.py` asserts 350 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
-it additionally cross-checks every macro against its source and the manuscript prose, and reports 726.
+it additionally cross-checks every macro against its source and the manuscript prose, and reports 727.
 
 ## Repository layout
 

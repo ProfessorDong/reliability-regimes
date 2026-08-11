@@ -1,0 +1,41 @@
+{
+ "cut": 2015,
+ "targets": {
+  "scd1": {
+   "validated": 765,
+   "spanning": 15,
+   "label_moved": 13,
+   "records_undated": 0,
+   "parents_mixed_dates": 0
+  },
+  "nk1r": {
+   "validated": 2549,
+   "spanning": 17,
+   "label_moved": 8,
+   "undated": 5,
+   "records_undated": 10,
+   "parents_mixed_dates": 0
+  },
+  "drd2": {
+   "validated": 9239,
+   "spanning": 224,
+   "label_moved": 156,
+   "undated": 35,
+   "records_undated": 118,
+   "parents_mixed_dates": 24
+  },
+  "drd3": {
+   "validated": 6097,
+   "spanning": 126,
+   "label_moved": 76,
+   "undated": 70,
+   "records_undated": 179,
+   "parents_mixed_dates": 20
+  }
+ },
+ "manifest": {
+  "path": "data/chembl_v2/temporal_records/MANIFEST.tsv",
+  "n_records": 28544,
+  "sha256": "13c97abcc2364d5841046055bcfb73717dd0f163efbce189633c3037264f78f3"
+ }
+}

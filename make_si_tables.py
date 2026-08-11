@@ -926,55 +926,51 @@ tab('tab:s-support',
     sr_rows, 'lrrrr', tight=True)
 
 
-# ------------------------------------------- TEMPORAL WITHOUT CUTOFF-SPANNING PARENTS
-# A parent's label is the median over all its records while the split follows first disclosure,
-# so a pre-cutoff parent re-measured later carries future information into training. The archive
-# keeps no per-record years, so those parents are removed rather than relabelled.
+# ---------------------------- TEMPORAL LABEL CONSTRUCTION: the primary protocol and two others
+# The article uses cutoff-aware aggregation: every historical label is rebuilt from that parent's
+# pre-cutoff records. Two alternatives are shown beside it. All-record aggregation lets later
+# measurements reach historical labels. Excluding cutoff-spanning parents removes that exposure
+# but conditions the historical sample on whether a compound was re-measured later, which no one
+# could know at the cutoff, and which removes the most heavily measured compounds from training.
 _nspf = os.path.join(CW, 'temporal_no_spanning.json')
-if os.path.exists(_nspf):
-    _nsp = json.load(open(_nspf))
-    assert _nsp['exclude_spanning'] is True, 'the no-spanning run carries no exclusion'
-    rows, _tg2 = [], ['scd1', 'nk1r', 'drd2', 'drd3']
+_alrf = os.path.join(CW, 'temporal_analysis_allrecord.json')
+if os.path.exists(_nspf) and os.path.exists(_alrf):
+    _nsp = json.load(open(_nspf)); _alr = json.load(open(_alrf))
+    assert tmp.get('pre_cutoff_labels') is True, 'the primary run is not the cutoff-aware one'
+    _tg2 = ['scd1', 'nk1r', 'drd2', 'drd3']
     _th2 = lambda v: f"{v:,}".replace(',', '{,}')
+    _ARMS = [('Cutoff-aware (used)', tmp), ('All-record', _alr), ('Spanning removed', _nsp)]
+    rows = []
     for t in _tg2:
-        A, B = tmp[t]['delta_vs_control'], _nsp[t]['delta_vs_control']
-        _rm = (tmp[t]['n_train'] + tmp[t]['n_cal']) - (_nsp[t]['n_train'] + _nsp[t]['n_cal'])
-        rows.append(
-            f"{LAB[t]} & {_th2(_nsp[t]['n_train'])} & {_rm} & "
-            f"{sg(B['rmse']['delta'], 2)} & {sg(B['spearman']['delta'], 2)} & "
-            f"{sg(B['coverage']['delta'], 3)} & "
-            f"{sg(A['rmse']['delta'], 2)} & {sg(A['spearman']['delta'], 2)} & "
-            f"{sg(A['coverage']['delta'], 3)}")
-    _m2 = lambda d, k: sum(d[t]['delta_vs_control'][k]['delta'] for t in _tg2) / len(_tg2)
-    rows.append(r'\midrule \multicolumn{3}{l}{Mean over targets} & '
-                + f"{sg(_m2(_nsp, 'rmse'), 2)} & {sg(_m2(_nsp, 'spearman'), 2)} & "
-                  f"{sg(_m2(_nsp, 'coverage'), 3)} & "
-                  f"{sg(_m2(tmp, 'rmse'), 2)} & {sg(_m2(tmp, 'spearman'), 2)} & "
-                  f"{sg(_m2(tmp, 'coverage'), 3)}")
-    _lostf = lambda d: [LAB[t] for t in _tg2 if d[t]['spearman_sigma_err_ci95'][1]
-                        < d[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]]
+        for _i, (_nm, _d) in enumerate(_ARMS):
+            _g = _d[t]['delta_vs_control']
+            rows.append(f"{LAB[t] if _i == 0 else ''} & {_nm} & "
+                        f"{_th2(_d[t]['n_train'] + _d[t]['n_cal'])} & "
+                        f"{sg(_g['rmse']['delta'], 2)} & {sg(_g['spearman']['delta'], 2)} & "
+                        f"{sg(_g['coverage']['delta'], 3)}")
+    _m3 = lambda d, k: sum(d[t]['delta_vs_control'][k]['delta'] for t in _tg2) / len(_tg2)
+    for _i, (_nm, _d) in enumerate(_ARMS):
+        rows.append((r'\midrule ' if _i == 0 else '')
+                    + f"{'Mean over targets' if _i == 0 else ''} & {_nm} & & "
+                      f"{sg(_m3(_d, 'rmse'), 2)} & {sg(_m3(_d, 'spearman'), 2)} & "
+                      f"{sg(_m3(_d, 'coverage'), 3)}")
     tab('tab:s-nospan',
-        'The temporal comparison with cutoff-spanning parents removed. A parent carries one '
-        'median activity over all of its records, while the split follows first disclosure, so a '
-        'compound published before the cutoff and re-measured after it would enter the historical '
-        'pool with a label that absorbs those later measurements. The archived curation keeps one '
-        'value per parent and no per-record years, so a cutoff-aware label cannot be '
-        'reconstructed from it and every such parent is instead removed from the historical pool, '
-        'which eliminates the exposure rather than estimating it. Removed gives how many go from '
-        'each target. Entries are differences from a size-matched control recomputed on the '
-        'reduced pool, in the form of Supplementary Table~\\ref{tab:s-temporal}. Every '
-        'degradation survives and each mean effect is further from its control than in the '
-        'reported analysis, error rising above every control replicate on all '
-        f'{sum(_nsp[t]["control_random_same_size"]["temporal_outside_range"]["rmse"] for t in _tg2)} '
-        'targets, and the ranking is lost on ' + _andlist(_lostf(_nsp)) + ', the same targets as '
-        'in the reported analysis. The reported figures therefore understate the shift rather '
-        'than being produced by it.',
-        r'Target & $n_{\mathrm{train}}$ & Removed & \multicolumn{3}{c}{Spanning removed}'
-        r' & \multicolumn{3}{c}{As reported}\\'
-        r'\cmidrule(lr){4-6}\cmidrule(lr){7-9}'
-        r' & & & $\Delta$RMSE & $\Delta\rho$ & $\Delta$Coverage'
-        r' & $\Delta$RMSE & $\Delta\rho$ & $\Delta$Coverage',
-        rows, 'lrrrrrrrr', tight=True)
+        'How the historical activity label is constructed, and what depends on it. Entries are '
+        'differences from a size-matched control recomputed under the same construction, in the '
+        'form of Supplementary Table~\\ref{tab:s-temporal}, and $n_{\\mathrm{hist}}$ is the '
+        'historical pool each construction leaves. Cutoff-aware aggregation is the protocol of the '
+        'article: every compound disclosed before the cutoff is kept and its label is the median of '
+        'its records published before the cutoff, so the pool is exactly the set a reader would '
+        'have held at the cutoff and carries only values computable then. All-record aggregation '
+        'instead lets measurements published later reach those labels, and changes the effects '
+        'hardly at all. Excluding cutoff-spanning parents removes the same exposure by deleting the '
+        'affected compounds, and is not equivalent: it disproportionately removes heavily measured '
+        'historical compounds, shrinks the pool, and inflates the apparent degradation, most '
+        'visibly in coverage. Whether a compound is measured again after the cutoff is not knowable '
+        'at the cutoff, so that exclusion answers a different question and is reported as a '
+        'diagnostic rather than used.',
+        r'Target & Historical label & $n_{\mathrm{hist}}$ & $\Delta$RMSE & $\Delta\rho$ & $\Delta$Coverage',
+        rows, 'llrrrr', tight=True)
 
 # ------------------------------------------- TEMPORAL UNDER A SINGLE MEASUREMENT TYPE
 # The pooled response mixes four endpoint types, so part of the temporal degradation could in

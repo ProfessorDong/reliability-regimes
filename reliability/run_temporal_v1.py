@@ -75,7 +75,7 @@ def restrict_type(rows, cut, min_train=100, min_test=50):
     return best
 
 
-def load(target, endpoint=None, cut=2015, exclude_spanning=False):
+def load(target, endpoint=None, cut=2015, exclude_spanning=False, pre_cutoff_labels=False):
     """Rows for one target, optionally restricted to a single measurement type.
 
     `endpoint='dominant'` keeps only parents whose retained ChEMBL records are ALL of the
@@ -103,6 +103,22 @@ def load(target, endpoint=None, cut=2015, exclude_spanning=False):
     smi = [r['SMILES'] for r in rows]
     y = np.array([float(r['pAct']) for r in rows])
     yr = np.array([int(r[YEAR_FIELD]) for r in rows])
+    if pre_cutoff_labels:
+        # Replace each historical compound's activity with the median of its records published
+        # before the cutoff. A compound first disclosed before the cutoff but re-measured after it
+        # would otherwise carry a label that no one could have computed at the cutoff. Evaluation
+        # compounds are untouched: their first disclosure is at or after the cutoff, so every
+        # record they carry is already post-cutoff.
+        lab = {r['inchikey']: r for r in csv.DictReader(
+            open(os.path.join(DATA, f'{target}_pre_cutoff_labels.csv')))}
+        keys = [r['inchikey'] for r in rows]
+        miss = [k for k, v in zip(keys, yr) if v < cut and lab.get(k, {}).get('validated') != '1']
+        if miss:
+            raise SystemExit(f'{target}: {len(miss)} historical parents lack a validated '
+                             f'pre-cutoff label; refusing to relabel from unverified data')
+        for i, (k, v) in enumerate(zip(keys, yr)):
+            if v < cut:
+                y[i] = float(lab[k]['pAct_pre'])
     return (smi, y, yr, kept_type) if endpoint else (smi, y, yr)
 
 
@@ -197,6 +213,10 @@ def main():
     ap.add_argument('--jobs', type=int, default=max(1, (os.cpu_count() or 2) - 2),
                     help='processes for the control replicates; each fit uses one core, and a '
                          'forest is bit-identical across n_jobs, so this changes only run time')
+    ap.add_argument('--pre-cutoff-labels', action='store_true',
+                    help='rebuild each historical parent activity from its pre-cutoff records '
+                         'only, keeping every compound. Off by default so the frozen analysis '
+                         'path is unchanged.')
     ap.add_argument('--exclude-spanning', action='store_true',
                     help='drop pre-cutoff parents whose records extend past the cutoff, whose '
                          'median label would otherwise absorb post-cutoff measurements. Off by '
@@ -220,12 +240,13 @@ def main():
     P = {k: [] for k in ('err', 'sig', 'dtr', 'cov')}
     out['endpoint_restriction'] = args.endpoint or 'none'
     out['exclude_spanning'] = bool(args.exclude_spanning)
+    out['pre_cutoff_labels'] = bool(args.pre_cutoff_labels)
     for tgt in args.targets:
         if args.endpoint:
-            smi, y, yr, kept = load(tgt, args.endpoint, args.cut, args.exclude_spanning)
+            smi, y, yr, kept = load(tgt, args.endpoint, args.cut, args.exclude_spanning, args.pre_cutoff_labels)
             out.setdefault('kept_type', {})[tgt] = kept
         else:
-            smi, y, yr = load(tgt, None, args.cut, args.exclude_spanning)
+            smi, y, yr = load(tgt, None, args.cut, args.exclude_spanning, args.pre_cutoff_labels)
         X = featurize(smi)
         tr = np.where(yr < args.cut)[0]
         te = np.where(yr >= args.cut)[0]

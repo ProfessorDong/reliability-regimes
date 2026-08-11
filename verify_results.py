@@ -311,9 +311,13 @@ cond('semantic', 'every reported interval brackets its own point estimate',
          for t in _tt for d in (tmp[t], tmp[t]['control_random_same_size'])
          for k in d if k.endswith('_ci95')
          and k.replace('_ci95', '') in d and isinstance(d[k], list)), '')
-cond('semantic', 'the pooled temporal correlation is below every per-target value',
-     all(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _tt
-         if t != 'drd3'), '')
+# Pooling mixes targets whose errors differ in scale, so the pooled correlation is not a
+# summary of the per-target ones. The claim is that it sits inside their range, not below all of
+# them; which targets fall on each side is read from the data, not fixed here.
+_pv = tmp['pooled']['spearman_sigma_err']
+cond('semantic', 'the pooled temporal correlation lies inside the per-target range, not below all',
+     min(tmp[t]['spearman_sigma_err'] for t in _tt) < _pv < max(tmp[t]['spearman_sigma_err'] for t in _tt),
+     f"pooled {_pv:.3f}; per-target " + ', '.join(f"{t}={tmp[t]['spearman_sigma_err']:.3f}" for t in _tt))
 close('semantic', 'temporal RMSE increase over control is ~49 percent, not 100',
       tmp['delta_vs_control']['rmse_pct_increase_vs_control'], 49.0, 2.0)
 
@@ -1082,9 +1086,9 @@ _t8 = json.load(open(_os.path.join(OUT, 'temporal_analysis.json')))
 _T8 = ('scd1', 'nk1r', 'drd2', 'drd3')
 _pl = _t8['pooled']['spearman_sigma_err']
 _below = [t for t in _T8 if _pl < _t8[t]['spearman_sigma_err']]
-cond('SI tables', 'S8: the pooled correlation is below three of four per-target values, not all',
-     len(_below) == 3 and 'drd3' not in _below,
-     f'pooled {_pl:.3f}; above DRD3 at {_t8["drd3"]["spearman_sigma_err"]:.3f}')
+cond('SI tables', 'the pooled correlation is not below every per-target value',
+     0 < len(_below) < len(_T8),
+     f'pooled {_pl:.3f} is below {len(_below)} of {len(_T8)}: {_below}')
 cond('SI tables', 'S8: coverage falls below nominal on all four targets',
      all(_t8[t]['conformal_coverage_adaptive'] < 0.900 for t in _T8),
      'the caption said three of four')
@@ -1205,39 +1209,50 @@ for _fn in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
          all(_just != -1 and abs(i - _just) < 700 for i in _pic),
          f'{len(_pic)} occurrence(s) of the old name, which must all sit in that sentence')
 
-# ---- Temporal leakage sensitivity: cutoff-spanning parents removed (Table S23) ----
-# A parent's label is the median over all its records while the split follows first disclosure,
-# so a pre-cutoff parent re-measured later carries future information into training. The reported
-# analysis therefore UNDERSTATES the shift. This arm removes those parents; every degradation must
-# survive and none may weaken, or the reported result would be an artifact of the leak.
+# ---- Temporal label construction (Methods, Results, Table S23) ----
+# The primary temporal protocol rebuilds every historical label from that parent's pre-cutoff
+# records. Two alternatives are kept as diagnostics: all-record aggregation, which lets later
+# measurements reach historical labels, and dropping the re-measured parents, which removes that
+# exposure but conditions the historical sample on an event after the cutoff.
+cond('temporal/labels', 'the primary temporal run uses cutoff-aware labels',
+     _t8.get('pre_cutoff_labels') is True, str(_t8.get('pre_cutoff_labels')))
+_alr_p = _os.path.join(OUT, 'temporal_analysis_allrecord.json')
 _nsp_p = _os.path.join(OUT, 'temporal_no_spanning.json')
+_pcv_p = _os.path.join(OUT, 'pre_cutoff_validation.json')
+if _os.path.exists(_pcv_p):
+    _pc = json.load(open(_pcv_p)); _tg = _pc['targets']
+    cond('temporal/labels', 'every dated parent passed the five-field re-query validation',
+         sum(v.get('failed_validation', 0) + v.get('absent_on_requery', 0) for v in _tg.values()) == 0,
+         f"{sum(v['validated'] for v in _tg.values())} validated")
+    cond('temporal/labels', 'the record-level manifest is archived with its hash',
+         len(_pc.get('manifest', {}).get('sha256', '')) == 64 and _pc['manifest']['n_records'] > 0,
+         f"{_pc.get('manifest', {}).get('n_records')} records")
+    cond('temporal/labels', 'only cutoff-spanning parents could change label',
+         sum(v['label_moved'] for v in _tg.values()) <= sum(v['spanning'] for v in _tg.values()),
+         'a non-spanning parent has all records before the cutoff, so its median cannot move')
+if _os.path.exists(_alr_p):
+    _alr = json.load(open(_alr_p))
+    # C must preserve the sample exactly; that is what separates it from the exclusion arm.
+    cond('temporal/labels', 'cutoff-aware labelling keeps the historical pool of the all-record run',
+         all(_t8[t]['n_train'] == _alr[t]['n_train'] and _t8[t]['n_cal'] == _alr[t]['n_cal']
+             for t in _T8), 'relabelling must not drop a compound')
+    cond('temporal/labels', 'and keeps the evaluation set unchanged',
+         all(_t8[t]['n_test'] == _alr[t]['n_test'] for t in _T8), '')
 if _os.path.exists(_nsp_p):
-    _ns = json.load(open(_nsp_p))
-    cond('temporal/leakage', 'the no-spanning run declares its exclusion',
-         _ns.get('exclude_spanning') is True, str(_ns.get('exclude_spanning')))
-    cond('temporal/leakage', 'it shares the cutoff and dating of the reported analysis',
-         _ns['cut_year'] == _t8['cut_year'] and _ns['year_field'] == _t8['year_field'], '')
-    cond('temporal/leakage', 'the historical pool is strictly smaller on every target',
-         all(_ns[t]['n_train'] + _ns[t]['n_cal'] < _t8[t]['n_train'] + _t8[t]['n_cal']
-             for t in _T8), 'the exclusion must actually remove compounds')
-    cond('temporal/leakage', 'error still rises above its control on all four targets',
-         all(_ns[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _T8),
-         ', '.join(f"{t}={_ns[t]['delta_vs_control']['rmse']['delta']:+.2f}" for t in _T8))
-    cond('temporal/leakage', 'error is above every control replicate on all four targets',
-         all(_ns[t]['control_random_same_size']['temporal_outside_range']['rmse'] for t in _T8), '')
-    # The claim the article makes: removing the leak makes each degradation LARGER, so the
-    # reported figures understate the shift. Compared in the degrading direction.
+    _nsp = json.load(open(_nsp_p))
+    cond('temporal/labels', 'the exclusion arm really does shrink the historical pool',
+         all(_nsp[t]['n_train'] + _nsp[t]['n_cal'] < _t8[t]['n_train'] + _t8[t]['n_cal']
+             for t in _T8), 'it is a different historical population, not a cleaner one')
     _m = lambda d, k: sum(d[t]['delta_vs_control'][k]['delta'] for t in _T8) / len(_T8)
-    for _k, _sg in (('rmse', +1), ('spearman', -1), ('coverage', -1)):
-        cond('temporal/leakage', f'the mean {_k} effect is not weaker once the leak is removed',
-             _sg * _m(_ns, _k) >= _sg * _m(_t8, _k),
-             f'no-spanning {_m(_ns, _k):+.3f} vs reported {_m(_t8, _k):+.3f}')
-    # Semantic: the SAME two targets must lose the ranking, or a per-target claim would change.
-    _lost = lambda d: [t for t in _T8 if d[t]['spearman_sigma_err_ci95'][1]
-                       < d[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]]
-    cond('temporal/leakage', 'the same two targets lose the ranking, DRD2 and DRD3',
-         _lost(_ns) == _lost(_t8) == ['drd2', 'drd3'],
-         f'no-spanning {_lost(_ns)}, reported {_lost(_t8)}')
+    cond('temporal/labels', 'the exclusion arm overstates the coverage loss against the primary',
+         _m(_nsp, 'coverage') < _m(_t8, 'coverage'),
+         f"exclusion {_m(_nsp,'coverage'):+.3f} vs primary {_m(_t8,'coverage'):+.3f}")
+# The conclusions must be the ones the article states, under the primary protocol.
+cond('temporal/labels', 'error rises above its control on all four targets',
+     all(_t8[t]['delta_vs_control']['rmse']['delta'] > 0 for t in _T8), '')
+cond('temporal/labels', 'DRD2 and DRD3 are the targets that lose the ranking',
+     [t for t in _T8 if _t8[t]['spearman_sigma_err_ci95'][1]
+      < _t8[t]['control_random_same_size']['spearman_sigma_err_ci95'][0]] == ['drd2', 'drd3'], '')
 
 # ---- Temporal shift under a single measurement type (Results, Methods, Table S23) ----
 # The pooled response mixes IC50, Ki, Kd and EC50, so the temporal degradation could in principle

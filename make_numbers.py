@@ -270,9 +270,16 @@ for _t, _c in _CAPT.items():
 _pb = sum(tmp['pooled']['spearman_sigma_err'] < tmp[t]['spearman_sigma_err'] for t in _CAPT)
 M['TempPooledBelow'] = str(_pb)
 M['TempPooledBelowWord'] = {1: 'one', 2: 'two', 3: 'three', 4: 'four'}[_pb]
-M['TempPooledAboveTgt'] = next(
-    {'scd1': 'SCD-1', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 'DRD3'}[t] for t in _CAPT
-    if tmp['pooled']['spearman_sigma_err'] >= tmp[t]['spearman_sigma_err'])
+# Every target the pooled value sits above, not just the first: under cutoff-aware labelling
+# there are two, and a macro that returned one would have left the prose saying "the fourth".
+_NM4 = {'scd1': 'SCD-1', 'nk1r': 'NK1R', 'drd2': 'DRD2', 'drd3': 'DRD3'}
+_above = [_NM4[t] for t in _CAPT
+          if tmp['pooled']['spearman_sigma_err'] >= tmp[t]['spearman_sigma_err']]
+M['TempPooledAboveTgt'] = (' and '.join(_above) if len(_above) < 3
+                           else ', '.join(_above[:-1]) + ' and ' + _above[-1])
+M['TempPooledAboveN'] = str(len(_above))
+M['TempPooledAboveWord'] = {1: 'the fourth', 2: 'the other two',
+                            3: 'the other three'}.get(len(_above), 'the rest')
 
 # Exact comparison against the size-matched control. Three quantities that the replicate range
 # alone cannot give: the one-sided empirical P, whose smallest attainable value is 1/(R+1) and
@@ -341,6 +348,33 @@ if os.path.exists(_med):
         'TempMedRhoScd': f"{_m['scd1']['spearman_sigma_err']:.2f}",
         'TempMedCtlRhoScd': f"{_m['scd1']['control_random_same_size']['spearman_sigma_err']:.2f}",
     })
+
+# Cutoff-aware label reconstruction, the primary temporal protocol. Every historical activity is
+# rebuilt from that parent's pre-cutoff records; the re-query behind it is validated per parent
+# against five archived fields before any label is used.
+_pcv = os.path.join(CW, 'pre_cutoff_validation.json')
+if os.path.exists(_pcv):
+    _pc = json.load(open(_pcv))
+    _tg = _pc['targets']
+    M['PreValidated'] = thou(sum(v['validated'] for v in _tg.values()))
+    M['PreFailed'] = str(sum(v.get('failed_validation', 0) + v.get('absent_on_requery', 0)
+                             for v in _tg.values()))
+    M['PreSpanning'] = str(sum(v['spanning'] for v in _tg.values()))
+    M['PreMoved'] = str(sum(v['label_moved'] for v in _tg.values()))
+    M['PreRecords'] = thou(_pc['manifest']['n_records'])
+    M['PreSha'] = _pc['manifest']['sha256'][:12]
+    M['PreUndatedRec'] = str(sum(v.get('records_undated', 0) for v in _tg.values()))
+    M['PreMixedParents'] = str(sum(v.get('parents_mixed_dates', 0) for v in _tg.values()))
+
+# The all-record aggregation, retained as a diagnostic of how much the label look-ahead was
+# worth. Generated, because the Results quote it beside the primary figures.
+_alr = os.path.join(CW, 'temporal_analysis_allrecord.json')
+if os.path.exists(_alr):
+    _ar = json.load(open(_alr))
+    for _key, _tag, _dec in (('rmse', 'Rmse', 2), ('spearman', 'Rho', 2), ('coverage', 'Cov', 3)):
+        _v = np.array([_ar[t]['delta_vs_control'][_key]['delta'] for t in _CAPT], float)
+        M[f'AllRecMacroD{_tag}'] = f"{_v.mean():+.{_dec}f}"
+    M['AllRecRmsePct'] = f"{_ar['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}"
 
 # Leakage sensitivity. A parent's activity is the median over all of its records while the split
 # is decided by first disclosure, so a compound published before the cutoff and re-measured after
