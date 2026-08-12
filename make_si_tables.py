@@ -929,6 +929,50 @@ tab('tab:s-support',
     sr_rows, 'lrrrr', tight=True)
 
 
+# ------------------------------- ERROR MODEL: combining the two reliability signals
+# The closest recent benchmark reports that a data-based and a model-based reliability metric are
+# complementary, and that regressing the base model's error on both transports best under shift.
+# This table is that comparison, run in both arms so the contrast is like for like.
+if 'spearman_errmodel_err' in tmp['scd1']:
+    _tg3 = ['scd1', 'nk1r', 'drd2', 'drd3']
+    rows = []
+    for t in _tg3:
+        a = tmp[t]; c = a['control_random_same_size']
+        rows.append(f"{LAB[t]} & {a['n_cal']:,} & {sg(a['spearman_sigma_err'], 2)} & "
+                    f"{sg(a['spearman_errmodel_err'], 2)} & {sg(c['spearman_sigma_err'], 2)} & "
+                    f"{sg(c['spearman_errmodel_err'], 2)} & "
+                    f"{sg(a['spearman_sigma_err'] - c['spearman_sigma_err'], 2)} & "
+                    f"{sg(a['spearman_errmodel_err'] - c['spearman_errmodel_err'], 2)}"
+                    .replace(',', '{,}'))
+    _mn = lambda k, sub=None: sum((tmp[t][k] if sub is None else tmp[t][sub][k])
+                                  for t in _tg3) / len(_tg3)
+    rows.append(r'\midrule \multicolumn{2}{l}{Mean over targets} & '
+                + f"{sg(_mn('spearman_sigma_err'), 2)} & {sg(_mn('spearman_errmodel_err'), 2)} & "
+                  f"{sg(_mn('spearman_sigma_err', 'control_random_same_size'), 2)} & "
+                  f"{sg(_mn('spearman_errmodel_err', 'control_random_same_size'), 2)} & "
+                  f"{sg(_mn('spearman_sigma_err') - _mn('spearman_sigma_err', 'control_random_same_size'), 2)} & "
+                  f"{sg(_mn('spearman_errmodel_err') - _mn('spearman_errmodel_err', 'control_random_same_size'), 2)}")
+    tab('tab:s-errmodel',
+        'Ranking future error with an error model that combines both reliability signals, against '
+        'the disagreement score alone. The error model is a random forest predicting the activity '
+        'model\'s absolute error from $\\sigma_T$ and $d_{\\mathrm{train}}$ together, fitted only on '
+        'the calibration compounds, which are drawn from before the cutoff and are already spent on '
+        'the conformal quantile, so nothing from the evaluation period reaches it. The same '
+        'construction is run inside every size-matched control replicate, so the two arms are '
+        'comparable. Entries are Spearman correlations between the score and realised absolute '
+        'error, and the last two columns give each score\'s change from its own control. Combining '
+        'the signals is the weaker ranker within a random split on every target, so it buys nothing '
+        'where there is no shift; under the temporal split it degrades less than the disagreement '
+        'score on the two targets where that score is lost, yet still falls below its own control, '
+        'so neither signal transports. $n_{\\mathrm{cal}}$ is given because the error model is '
+        'fitted on those compounds alone, and the target where both scores improve rather than '
+        'degrade is the one with fewest of them.',
+        r'Target & $n_{\mathrm{cal}}$ & \multicolumn{2}{c}{Temporal} & \multicolumn{2}{c}{Control}'
+        r' & \multicolumn{2}{c}{Change}\\'
+        r'\cmidrule(lr){3-4}\cmidrule(lr){5-6}\cmidrule(lr){7-8}'
+        r' & & $\sigma_T$ & Error model & $\sigma_T$ & Error model & $\sigma_T$ & Error model',
+        rows, 'lrrrrrrr', tight=True)
+
 # ---------------------------- TEMPORAL LABEL CONSTRUCTION: the primary protocol and two others
 # The article uses cutoff-aware aggregation: every historical label is rebuilt from that parent's
 # pre-cutoff records. Two alternatives are shown beside it. All-record aggregation lets later

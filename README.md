@@ -13,7 +13,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(356 assertions from a clean clone; 737 when the manuscript's `numbers.tex` is also present).
+(360 assertions from a clean clone; 742 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The
@@ -82,7 +82,7 @@ python -m reliability.run_temporal_v1        # Regime 2: temporal shift + size-m
 python -m reliability.run_temporal_v1 --year-field year_median \
        --out outputs/frozen/temporal_analysis_yearmedian.json   # dating sensitivity (Table S7)
 python -m data.pre_cutoff_labels                  # cutoff-aware historical labels + manifest
-python -m reliability.run_temporal_v1 --pre-cutoff-labels   # Regime 2 PRIMARY (cutoff-aware)
+python -m reliability.run_temporal_v1 --pre-cutoff-labels   # Regime 2 PRIMARY (cutoff-aware)  [also fits the error model over sigma_T and d_train]
 python -m reliability.run_temporal_v1 \
        --out outputs/frozen/temporal_analysis_allrecord.json  # all-record diagnostic
 python -m reliability.run_temporal_v1 --exclude-spanning \
@@ -110,9 +110,9 @@ python -m reliability.run_hierstats_v1         # hierarchical / target-level sta
 python verify_results.py
 ```
 
-`verify_results.py` asserts 356 claims, values and semantics alike, and exits non-zero on
+`verify_results.py` asserts 360 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
-it additionally cross-checks every macro against its source and the manuscript prose, and reports 737.
+it additionally cross-checks every macro against its source and the manuscript prose, and reports 742.
 
 ## Repository layout
 

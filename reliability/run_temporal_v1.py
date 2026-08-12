@@ -161,9 +161,31 @@ def _control_rep(rep):
     yc2, sc2 = pc(c_cal); yt2, st2 = pc(c_te)
     e_c = np.abs(y[c_cal] - yc2); e_t = np.abs(y[c_te] - yt2)
     qa2 = conformal_q(e_c / (sc2 + EPS), 0.1)
+    d_c2 = 1.0 - max_tanimoto_to_set(X[c_cal], X[c_ptr])
+    d_t2 = 1.0 - max_tanimoto_to_set(X[c_te], X[c_ptr])
+    em2 = error_model_rank(sc2, d_c2, e_c, st2, d_t2, e_t, seed=rep)
     return (float(stats.spearmanr(st2, e_t)[0]),
             float(np.sqrt(np.mean(e_t ** 2))),
-            float(np.mean(e_t <= qa2 * (st2 + EPS))))
+            float(np.mean(e_t <= qa2 * (st2 + EPS))),
+            em2)
+
+
+def error_model_rank(sig_c, dtr_c, err_c, sig_t, dtr_t, err_t, seed=0):
+    """Rank future error with a model of the model's own error, and report how well it ranks.
+
+    The closest recent benchmark finds that a data-based reliability metric and a model-based one
+    carry complementary information, and that combining them by regressing the base model's error
+    on both transports better under data shift than either alone. That is the comparison this
+    makes. The error model sees only calibration compounds, which are drawn from the past and are
+    already spent on the conformal quantile, so nothing from the evaluation period reaches it.
+
+    Returns the Spearman correlation between predicted and realised absolute error.
+    """
+    Zc = np.column_stack([sig_c, dtr_c])
+    Zt = np.column_stack([sig_t, dtr_t])
+    em = RandomForestRegressor(n_estimators=300, min_samples_leaf=5, n_jobs=1,
+                               random_state=seed).fit(Zc, err_c)
+    return float(stats.spearmanr(em.predict(Zt), err_t)[0])
 
 
 def emp_p(ctl, obs, worse):
@@ -277,6 +299,9 @@ def main():
         cov_std = err_t <= q_std
         cov_ada = err_t <= q_ada * (st_ + EPS)
         dtr = 1.0 - max_tanimoto_to_set(X[te], X[ptr])
+        # An error model combining the two reliability signals, fitted on past compounds only.
+        dtr_c = 1.0 - max_tanimoto_to_set(X[cal], X[ptr])
+        rho_em = error_model_rank(sc, dtr_c, err_c, st_, dtr, err_t)
         rho_sig = stats.spearmanr(st_, err_t)
         # The temporal split is a single realisation, so its uncertainty is the uncertainty of
         # the evaluation set. One percentile bootstrap over the test compounds gives the error,
@@ -306,6 +331,7 @@ def main():
             rmse_test_ci95=rmse_ci,
             spearman_sigma_err=float(rho_sig[0]), p_sigma_err=float(rho_sig[1]),
             spearman_sigma_err_ci95=rho_ci,
+            spearman_errmodel_err=rho_em,
             spearman_dtr_err=float(rho_dtr[0]),
             partial_err_sigma_given_dtr=part[0],
             conformal_coverage_standard=float(cov_std.mean()),
@@ -329,7 +355,7 @@ def main():
             with mp.get_context('fork').Pool(args.jobs) as _pool:
                 _res = _pool.map(_control_rep, range(args.control_reps), chunksize=1)
         ctl = {'rho': [r[0] for r in _res], 'rmse': [r[1] for r in _res],
-               'cov': [r[2] for r in _res]}
+               'cov': [r[2] for r in _res], 'em': [r[3] for r in _res]}
         print(f"        {args.control_reps} control replicates in {time.time() - _t0:.0f}s "
               f"on {args.jobs} processes", flush=True)
         nrep = args.control_reps
@@ -342,8 +368,11 @@ def main():
                 [float(v.min()), float(v.max())]
 
         c_rho, c_rmse, c_cov = ctl_stats(ctl['rho']), ctl_stats(ctl['rmse']), ctl_stats(ctl['cov'])
+        c_em = ctl_stats(ctl['em'])
         out[tgt]['control_random_same_size'] = dict(
             spearman_sigma_err=c_rho[0], rmse=c_rmse[0], conformal_coverage_adaptive=c_cov[0],
+            spearman_errmodel_err=c_em[0], spearman_errmodel_err_sd=c_em[1],
+            spearman_errmodel_err_ci95=c_em[2], spearman_errmodel_err_range=c_em[3],
             n_reps=nrep,
             spearman_sigma_err_sd=c_rho[1], rmse_sd=c_rmse[1],
             conformal_coverage_adaptive_sd=c_cov[1],

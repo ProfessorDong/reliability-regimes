@@ -34,6 +34,7 @@
       0.17059346017390026,
       0.3514694926010596
     ],
+    "spearman_errmodel_err": 0.14280841354785104,
     "spearman_dtr_err": 0.358441525678622,
     "partial_err_sigma_given_dtr": 0.13397802855636373,
     "conformal_coverage_standard": 0.7551546391752577,
@@ -55,6 +56,16 @@
       "spearman_sigma_err": 0.19648573685227522,
       "rmse": 0.8374542785683118,
       "conformal_coverage_adaptive": 0.9062268041237113,
+      "spearman_errmodel_err": 0.10802618462783559,
+      "spearman_errmodel_err_sd": 0.06934995512912535,
+      "spearman_errmodel_err_ci95": [
+        0.10372269496303554,
+        0.11232967429263563
+      ],
+      "spearman_errmodel_err_range": [
+        -0.139680014373053,
+        0.30350641529207945
+      ],
       "n_reps": 1000,
       "spearman_sigma_err_sd": 0.050058665461432714,
       "rmse_sd": 0.03195602998708857,
@@ -160,6 +171,7 @@
       -0.012178735349576279,
       0.43755428494551685
     ],
+    "spearman_errmodel_err": 0.21148908552792742,
     "spearman_dtr_err": 0.7336966393223544,
     "partial_err_sigma_given_dtr": -0.007881809106283121,
     "conformal_coverage_standard": 0.4411764705882353,
@@ -181,6 +193,16 @@
       "spearman_sigma_err": 0.34675874692313163,
       "rmse": 0.6706344613798819,
       "conformal_coverage_adaptive": 0.903985294117647,
+      "spearman_errmodel_err": 0.31075795488290703,
+      "spearman_errmodel_err_sd": 0.11506057375513254,
+      "spearman_errmodel_err_ci95": [
+        0.303617907148785,
+        0.31789800261702905
+      ],
+      "spearman_errmodel_err_range": [
+        -0.11463582234646666,
+        0.6310384976241513
+      ],
       "n_reps": 1000,
       "spearman_sigma_err_sd": 0.11059590862708817,
       "rmse_sd": 0.08117008443463533,
@@ -286,6 +308,7 @@
       0.03491978938034343,
       0.10696206324997588
     ],
+    "spearman_errmodel_err": 0.03654440244175009,
     "spearman_dtr_err": 0.030472529715011968,
     "partial_err_sigma_given_dtr": 0.0633217875634855,
     "conformal_coverage_standard": 0.7695299837925446,
@@ -307,6 +330,16 @@
       "spearman_sigma_err": 0.3314754431443731,
       "rmse": 0.644066407070226,
       "conformal_coverage_adaptive": 0.9005818476499189,
+      "spearman_errmodel_err": 0.2776053100164277,
+      "spearman_errmodel_err_sd": 0.019284832950386844,
+      "spearman_errmodel_err_ci95": [
+        0.2764085957700398,
+        0.2788020242628156
+      ],
+      "spearman_errmodel_err_range": [
+        0.21783061063680434,
+        0.3337571950144079
+      ],
       "n_reps": 1000,
       "spearman_sigma_err_sd": 0.0165667399194582,
       "rmse_sd": 0.012061784613401082,
@@ -412,6 +445,7 @@
       0.04618218325608012,
       0.13463131304486853
     ],
+    "spearman_errmodel_err": 0.26721593643714725,
     "spearman_dtr_err": 0.3088197442270003,
     "partial_err_sigma_given_dtr": -0.041621776616560816,
     "conformal_coverage_standard": 0.5710172744721689,
@@ -433,6 +467,16 @@
       "spearman_sigma_err": 0.3699491265392663,
       "rmse": 0.7027412452888836,
       "conformal_coverage_adaptive": 0.9002466410748561,
+      "spearman_errmodel_err": 0.31916799038056537,
+      "spearman_errmodel_err_sd": 0.02250638681758518,
+      "spearman_errmodel_err_ci95": [
+        0.31777136362167085,
+        0.3205646171394599
+      ],
+      "spearman_errmodel_err_range": [
+        0.23377412868699038,
+        0.39269026437927623
+      ],
       "n_reps": 1000,
       "spearman_sigma_err_sd": 0.019180966335012734,
       "rmse_sd": 0.014416794307596164,

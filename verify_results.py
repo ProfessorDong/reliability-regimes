@@ -1240,6 +1240,37 @@ _bud = {c for cell in L('methods_v2_results.json')['results'] for sd in cell['pe
 cond('methods', 'every reported run consumed exactly the stated query budget',
      _bud == {300}, f'observed evaluation counts: {sorted(_bud)}')
 
+# ---- Error model over both reliability signals (Results, Table S23) ----
+# The paper claims the transport loss is a property of the signals, not of the estimator built
+# from them. Each half of that is checked: the combination buys nothing without shift, and does
+# not recover its own control with it.
+if 'spearman_errmodel_err' in _t8['scd1']:
+    _em = lambda t: _t8[t]['spearman_errmodel_err']
+    _emc = lambda t: _t8[t]['control_random_same_size']['spearman_errmodel_err']
+    _sg = lambda t: _t8[t]['spearman_sigma_err']
+    _sgc = lambda t: _t8[t]['control_random_same_size']['spearman_sigma_err']
+    cond('temporal/errmodel', 'without shift the combination is the weaker ranker on every target',
+         all(_emc(t) < _sgc(t) for t in _T8),
+         ', '.join(f'{t}: {_emc(t):+.3f} vs {_sgc(t):+.3f}' for t in _T8))
+    cond('temporal/errmodel', 'under shift it still falls below its own control on most targets',
+         sum(_em(t) < _emc(t) for t in _T8) >= 3,
+         ', '.join(f'{t}: {_em(t):+.3f} vs {_emc(t):+.3f}' for t in _T8))
+    cond('temporal/errmodel', 'it degrades less than the disagreement score where that score is lost',
+         all((_em(t) - _emc(t)) > (_sg(t) - _sgc(t)) for t in ('drd2', 'drd3')),
+         'DRD2 and DRD3 are the targets whose ranking fails to transport')
+    # A clean clone carries no manuscript, and this check must not crash it.
+    _emp = _os.path.join(_D, 'npjDD_Reliability.tex')
+    if _os.path.exists(_emp):
+        _emtex = _re.sub(r'\s+', ' ', open(_emp, encoding='utf-8').read())
+        cond('temporal/errmodel', 'the text states the error model sees only pre-cutoff compounds',
+             'using only past compounds' in _emtex,
+             'fitting it on evaluation compounds would leak the period being tested')
+    # And the code must actually do it: the fit is on the calibration arrays, never the test ones.
+    _src = open(_os.path.join(_HERE_DIR, 'reliability', 'run_temporal_v1.py'), encoding='utf-8').read()
+    cond('temporal/errmodel', 'the code fits the error model on calibration arrays only',
+         'em = RandomForestRegressor' in _src and '.fit(Zc, err_c)' in _src,
+         'Zc and err_c are the calibration features and errors')
+
 # ---- Temporal label construction (Methods, Results, Table S23) ----
 # The primary temporal protocol rebuilds every historical label from that parent's pre-cutoff
 # records. Two alternatives are kept as diagnostics: all-record aggregation, which lets later

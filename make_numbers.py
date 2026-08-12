@@ -399,6 +399,28 @@ if os.path.exists(_nsp):
     M['SpanSameLost'] = 'yes' if _lost(_ns) == _lost(tmp) else 'no'
     M['SpanRmsePct'] = f"{_ns['delta_vs_control']['rmse_pct_increase_vs_control']:.0f}"
 
+# Error model combining the two reliability signals, the construction the closest recent
+# benchmark favours. Reported against sigma alone, in both arms, so the comparison is like-for-like.
+_EMT = _CAPT
+_emc = lambda k, sub=None: np.mean([(tmp[t][k] if sub is None else tmp[t][sub][k]) for t in _EMT])
+if 'spearman_errmodel_err' in tmp[list(_EMT)[0]]:
+    M['EmMacroTemp'] = f"{_emc('spearman_errmodel_err'):+.2f}"
+    M['EmMacroCtl'] = f"{_emc('spearman_errmodel_err', 'control_random_same_size'):+.2f}"
+    M['SigMacroTemp'] = f"{_emc('spearman_sigma_err'):+.2f}"
+    M['SigMacroCtl'] = f"{_emc('spearman_sigma_err', 'control_random_same_size'):+.2f}"
+    # In distribution the combination is the weaker ranker; under shift it still falls short of
+    # its own control. Both counts are generated so neither can be overstated.
+    M['EmWeakerInDist'] = str(sum(
+        tmp[t]['control_random_same_size']['spearman_errmodel_err']
+        < tmp[t]['control_random_same_size']['spearman_sigma_err'] for t in _EMT))
+    M['EmBelowOwnCtl'] = str(sum(
+        tmp[t]['spearman_errmodel_err'] < tmp[t]['control_random_same_size']['spearman_errmodel_err']
+        for t in _EMT))
+    M['EmDrdthree'] = f"{tmp['drd3']['spearman_errmodel_err']:+.2f}"
+    M['EmDrdthreeCtl'] = f"{tmp['drd3']['control_random_same_size']['spearman_errmodel_err']:+.2f}"
+    M['EmNcalLo'] = thou(min(tmp[t]['n_cal'] for t in _EMT))
+    M['EmNcalHi'] = thou(max(tmp[t]['n_cal'] for t in _EMT))
+
 # Endpoint-restricted sensitivity: each target reduced to the parents whose records are all of
 # one ChEMBL standard type, so the response is a single measurement rather than four pooled onto
 # one scale. This is what separates a change in the chemistry from a change in the assay, which
