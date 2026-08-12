@@ -691,8 +691,8 @@ tab('tab:s-compat',
     '($r=%s$). The pairs share targets, each of the five appearing four times as source and '
     'four times as destination, so an ordinary $P$ would have no independent-error '
     'justification; permuting the five target labels and recomputing, which is exact over all '
-    '%d relabelings, gives $P=%s$. $C_{\\mathrm{nn}}$ is carried over from the companion '
-    'prediction study rather than fitted here, and $n_{\\mathrm{target}}$ counts standardized '
+    '%d relabelings, gives $P=%s$. $C_{\\mathrm{nn}}$ is a structural compatibility score computed '
+    'from structure alone rather than fitted to these runs, and $n_{\\mathrm{target}}$ counts standardized '
     'parents, as in Table 1.'
     % (len(_cgr), '%.2f' % _obs16, len(_null16), '%.2f' % _pperm16),
     r'Source & Destination & $C_{\mathrm{nn}}$ & $n_{\mathrm{target}}$ & Mean gain & SD',
@@ -918,7 +918,8 @@ tab('tab:s-support',
     'repeated %d times at each $k$, with the folds, the fitted forest, the predictions and '
     '$d_{\\mathrm{train}}$ held identical across draws, so only novelty and the gap are '
     'recomputed. Entries are the median over draws with the central $95\\%%$ of them. The '
-    'partial correlation is small in every cell, so the conclusion that seed novelty adds little '
+    'positive partial correlations are small in every cell, while FADS shows a consistent moderate '
+    'negative association, so the conclusion that seed novelty adds little '
     'once nearest-training distance is known does not depend on which compounds start the '
     'search. FADS is the exception in sign: more novel compounds carry lower error there. The '
     'last column is the share of draws in which the high-novelty nearer-training group has the '

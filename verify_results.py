@@ -1233,6 +1233,13 @@ for _fw in ('npjDD_Reliability.tex', 'npjDD_SI.tex'):
              'positive partial correlation of any size' not in _sw,
              '12 of the 15 cells are positive')
 
+# The Methods state every reported run reached exactly the query budget. That is a checkable
+# claim about the frozen runs, not a design intention, so it is checked.
+_bud = {c for cell in L('methods_v2_results.json')['results'] for sd in cell['per_seed']
+        for k in ('calls_stga', 'calls_rt', 'calls_ga') if k in sd for c in (sd[k],)}
+cond('methods', 'every reported run consumed exactly the stated query budget',
+     _bud == {300}, f'observed evaluation counts: {sorted(_bud)}')
+
 # ---- Temporal label construction (Methods, Results, Table S23) ----
 # The primary temporal protocol rebuilds every historical label from that parent's pre-cutoff
 # records. Two alternatives are kept as diagnostics: all-record aggregation, which lets later
@@ -1260,8 +1267,23 @@ if _os.path.exists(_alr_p):
     cond('temporal/labels', 'cutoff-aware labelling keeps the historical pool of the all-record run',
          all(_t8[t]['n_train'] == _alr[t]['n_train'] and _t8[t]['n_cal'] == _alr[t]['n_cal']
              for t in _T8), 'relabelling must not drop a compound')
-    cond('temporal/labels', 'and keeps the evaluation set unchanged',
-         all(_t8[t]['n_test'] == _alr[t]['n_test'] for t in _T8), '')
+    # The evaluation set is NOT identical to the all-record run: parents whose first disclosure
+    # cannot be certified, because they carry a record with no resolved year, are dropped. That is
+    # a small, bounded difference and every dropped parent must be one of those.
+    _und = {}
+    for t in _T8:
+        _lp = _os.path.join(_HERE_DIR, 'data', 'chembl_v2', f'{t}_pre_cutoff_labels.csv')
+        if _os.path.exists(_lp):
+            import csv as _csv2
+            _und[t] = sum(1 for r in _csv2.DictReader(open(_lp))
+                          if int(r.get('n_undated', 0) or 0) > 0
+                          and r.get('pAct_pre', '') == '')
+    cond('temporal/labels', 'the evaluation set differs only by parents whose first disclosure is uncertain',
+         all(0 <= _alr[t]['n_test'] - _t8[t]['n_test'] <= 30 for t in _T8),
+         ', '.join(f"{t}: {_alr[t]['n_test']}->{_t8[t]['n_test']}" for t in _T8))
+    cond('temporal/labels', 'no evaluation compound carries a record with an unresolved year',
+         all(_t8[t]['n_test'] <= _alr[t]['n_test'] for t in _T8),
+         'an undated record could predate the cutoff, so first disclosure would not be certified')
 if _os.path.exists(_nsp_p):
     _nsp = json.load(open(_nsp_p))
     cond('temporal/labels', 'the exclusion arm really does shrink the historical pool',
@@ -1634,8 +1656,11 @@ if _os.path.exists(_m16):
     cond('SI tables', 'S16 reports standardized parents, not raw records',
          "rel[r['target']]['duplicates']['n_unique']" in _c16,
          'the frozen n_target field is a raw record count')
-    cond('SI tables', 'S16 says the compatibility score is carried over, not fitted here',
-         'carried over from the companion' in _c16, '')
+    # The claim is that C_nn was NOT fitted to these runs, so the null is not circular. Keyed on
+    # that, not on the old phrase "carried over from the companion", which named an uncited study.
+    cond('SI tables', 'S16 states the compatibility score was not fitted to these runs',
+         'rather than fitted to these runs' in _c16,
+         'a score fitted to the same runs could not test transfer')
 
 # Table S17 claimed the model predicts above threshold on four of five with SCD-1
 # underpredicted, but showed no threshold column, so neither half could be checked: 6.80 fails
@@ -2145,6 +2170,12 @@ if _os.path.exists(NUM) and _os.path.exists(_art):
         _v = _mm.group(1)
         _pre = _body[max(0, _mm.start() - 30):_mm.start()]
         if _v in _DESIGN or _r2.search(r'(P=|P\s*=|alpha|nominal)\s*$', _pre):
+            continue
+        # A figure attributed to another paper is not one of our measured values, so a numeric
+        # collision with one of our macros is a coincidence. Skip literals in a cited sentence.
+        _sent = _body[max(0, _mm.start() - 400):_mm.start() + 400]
+        _seg = _sent[max(0, _sent.rfind('.', 0, 400)):]
+        if '\\cite{' in _seg:
             continue
         if _v in _vals:
             _bad.append(f'{_v} (=\\{_vals[_v]})')

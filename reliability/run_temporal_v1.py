@@ -119,6 +119,16 @@ def load(target, endpoint=None, cut=2015, exclude_spanning=False, pre_cutoff_lab
         for i, (k, v) in enumerate(zip(keys, yr)):
             if v < cut:
                 y[i] = float(lab[k]['pAct_pre'])
+        # An evaluation compound is admitted on the strength of its FIRST disclosure, which is the
+        # earliest year among its dated records. A record carrying no resolved year could predate
+        # the cutoff, so a parent holding one cannot be certified as first disclosed after it and
+        # is dropped rather than assumed. Historical parents are unaffected: a dated pre-cutoff
+        # record already certifies them, and undated records are excluded from their median.
+        drop = {i for i, (k, v) in enumerate(zip(keys, yr))
+                if v >= cut and int(lab[k].get('n_undated', 0) or 0) > 0}
+        if drop:
+            keep = [i for i in range(len(keys)) if i not in drop]
+            smi = [smi[i] for i in keep]; y = y[keep]; yr = yr[keep]
     return (smi, y, yr, kept_type) if endpoint else (smi, y, yr)
 
 

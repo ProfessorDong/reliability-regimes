@@ -13,7 +13,7 @@ Author: **Liang Dong**.
 
 Every number in the manuscript and its Supplementary Information is produced by a frozen
 analysis script run against a frozen output file, and is re-checked by `verify_results.py`
-(354 assertions from a clean clone; 735 when the manuscript's `numbers.tex` is also present).
+(356 assertions from a clean clone; 737 when the manuscript's `numbers.tex` is also present).
 Those assertions cover semantics as well as values: which target a stated exception refers to,
 the sign of each effect, how many targets satisfy a claim, and the abstract word count, because
 a number can match its source file while the sentence around it names the wrong target. The
@@ -36,7 +36,7 @@ leads but close to the wider training set retain low error.
 **Regime 2, under temporal shift.** Four of the five targets were re-curated from ChEMBL with
 publication years. Each compound is dated by its *first* disclosure, not the median year of its
 records, so no evaluation compound carries a pre-cutoff record. Training on compounds first
-published before 2015 and testing on the 6,935 first published later, error rises from 0.71 to
+published before 2015 and testing on the 6,928 first published later, error rises from 0.71 to
 1.07 pIC50, an increase of 50% over a size-matched random control drawn from the same pool, and
 on every target the temporal value exceeds the largest of 20 control replicates. Conformal
 coverage falls to 0.842 (95% interval [0.829, 0.846]), below both the control and the nominal
@@ -110,9 +110,9 @@ python -m reliability.run_hierstats_v1         # hierarchical / target-level sta
 python verify_results.py
 ```
 
-`verify_results.py` asserts 354 claims, values and semantics alike, and exits non-zero on
+`verify_results.py` asserts 356 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
-it additionally cross-checks every macro against its source and the manuscript prose, and reports 735.
+it additionally cross-checks every macro against its source and the manuscript prose, and reports 737.
 
 ## Repository layout
 
