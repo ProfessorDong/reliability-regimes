@@ -209,6 +209,37 @@ M.update({
     'TempDrdthreeRho': f"{tmp['drd3']['spearman_sigma_err']:.3f}",
     'TempDrdthreeCtl': f"{ctl['drd3']['spearman_sigma_err']:.2f}",
 })
+# An evaluation parent that also holds a record with no resolved year cannot be certified as
+# first disclosed after the cutoff, so it is dropped rather than assumed. The dated pool is the
+# label file; the split it feeds is smaller by exactly the number dropped. Counted here rather
+# than typed, because a hand-typed exclusion goes stale the moment the curation is re-run.
+# The curated per-parent file carries the dating and is present in both the repository and the
+# workspace layout; the reconstructed-label file is not, so it must not be the source here.
+_lab_dir = None
+for _cand in (os.path.join(CW, '..', '..', 'data', 'chembl_v2'),
+              os.path.join(os.path.dirname(os.path.abspath(__file__)), 'data', 'chembl_v2')):
+    if os.path.isdir(_cand):
+        _lab_dir = _cand
+        break
+if _lab_dir:
+    import csv as _csv
+    _cert = {}
+    _TT = list(ctl)          # the temporal targets, which exclude the undated FADS panel
+    for _t in _TT:
+        _f = os.path.join(_lab_dir, f'{_t}_chembl_v2.csv')
+        if not os.path.exists(_f):
+            continue
+        _dated = sum(1 for _r in _csv.DictReader(open(_f)) if _r.get('year_min'))
+        _split = tmp[_t]['n_train'] + tmp[_t]['n_cal'] + tmp[_t]['n_test']
+        _cert[_t] = _dated - _split
+        assert _cert[_t] >= 0, f'dated pool smaller than the split it feeds for {_t}'
+    if len(_cert) == len(_TT):
+        M.update({
+            'TempCertDrop': str(sum(_cert.values())),
+            'TempCertDropDrdtwo': str(_cert['drd2']),
+            'TempCertDropDrdthree': str(_cert['drd3']),
+            'TempCertTargets': str(sum(1 for v in _cert.values() if v)),
+        })
 # The temporal cohort is a separately re-curated four-target set, so the only like-for-like
 # comparator is its own size-matched random control on the identical data. Pooled micro
 # correlations also mix targets of different error scale, so macro values are carried too.

@@ -385,11 +385,11 @@ _tnote = (r'One-sided empirical $P$ against the %d size-matched control replicat
                          _pfmt(_ep[t]['spearman'])) for t in _TT)
           + r'. Direct effect against the control mean, combining the temporal bootstrap with '
             r'the standard error of that mean rather than comparing two separate intervals: '
-          + '; '.join('%s RMSE %+.2f %s, ranking %+.2f %s'
+          + '; '.join('%s RMSE $%+.2f$ %s, ranking $%+.2f$ %s'
                       % (LAB[t], _dv[t]['rmse']['delta'],
-                         '[%+.2f, %+.2f]' % tuple(_dv[t]['rmse']['ci95']),
+                         _ci_fmt(_dv[t]['rmse']['ci95']),
                          _dv[t]['spearman']['delta'],
-                         '[%+.2f, %+.2f]' % tuple(_dv[t]['spearman']['ci95'])) for t in _TT)
+                         _ci_fmt(_dv[t]['spearman']['ci95'])) for t in _TT)
           + r'. Compounds published together are usually analogs, so the temporal interval is '
             r'also given from a bootstrap resampling Bemis-Murcko scaffold groups rather than '
             r'compounds, which is the weaker basis and the one any separation should be read '
@@ -397,7 +397,7 @@ _tnote = (r'One-sided empirical $P$ against the %d size-matched control replicat
           # Coverage belongs here too: the main text reads the coverage separation off this
           # bootstrap, so leaving it out of the note left that claim without displayed support.
           + '; '.join('%s RMSE [%.2f, %.2f] over %d scaffolds, coverage [%.3f, %.3f], '
-                      'ranking [%+.2f, %+.2f]'
+                      'ranking $[%+.2f, %+.2f]$'
                       % (LAB[t], tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][0],
                          tmp[t]['scaffold_cluster_bootstrap']['rmse_ci95'][1],
                          tmp[t]['scaffold_cluster_bootstrap']['n_scaffolds'],
@@ -458,7 +458,7 @@ for _m in ['random', 'ucb', 'lcb', 'conformal']:
     _per = [st.mean([r[_m]['hits'] - r['greedy']['hits'] for r in _pres[t]]) for t in T]
     _n = len(_per); _se = st.stdev(_per) / (_n ** 0.5)
     _tc = sps.t.ppf(0.975, _n - 1); _mu = st.mean(_per)
-    _pd[_m] = '%+.2f [%+.2f, %+.2f]' % (_mu, _mu - _tc * _se, _mu + _tc * _se)
+    _pd[_m] = '$%+.2f$ $[%+.2f, %+.2f]$' % (_mu, _mu - _tc * _se, _mu + _tc * _se)
 _note = (r'Paired against the predicted-mean rule, seed by seed, as the mean per-target '
          r'difference in compounds acquired with a 95\% $t$ interval across the five targets: '
          r'$\mu+\sigma$ ' + _pd['ucb'] + r', $\mu-\sigma$ ' + _pd['lcb'] + r', lower score ' +
@@ -764,6 +764,7 @@ tab('tab:s-indomain',
 # ---------------------------------------------------------------- S14 curation provenance
 if prov:
     rows = []
+    _cert = {}
     # Every stage the curation script records, so raw minus the drops minus the records
     # collapsed by parent grouping equals the parent count exactly. The previous version
     # showed three of the five drop categories and omitted parent grouping altogether, which
@@ -789,6 +790,15 @@ if prov:
             _rr = list(_csv.DictReader(open(_pf)))
             _dated = sum(1 for r in _rr if r.get('year_min'))
         _und = (v['n_unique_parents'] - _dated) if _dated is not None else None
+        # An evaluation parent holding a record with no resolved year cannot be certified as
+        # first disclosed after the cutoff, so it is dropped rather than assumed. That drop
+        # happens after the dated pool is formed, so the dated pool exceeds the split counts by
+        # exactly the number dropped. Asserting reconciliation without it was false on the two
+        # targets where such parents exist.
+        if _und is not None and t in tmp:
+            _split = tmp[t]['n_train'] + tmp[t]['n_cal'] + tmp[t]['n_test']
+            _cert[t] = v['n_unique_parents'] - _und - _split
+            assert _cert[t] >= 0, 'dated pool smaller than the split it feeds for ' + t
         rows.append(f"{LAB.get(t,t)} & {v['chembl_id'].replace(chr(67)+'HEMBL','')} & {v['n_raw_records']:,} & "
                     f"{_na:,} & {_inv} & {_up} & {_recs:,} & {_coll:,} & "
                     f"{v['n_unique_parents']:,} & "
@@ -802,7 +812,10 @@ if prov:
         'and for a structure RDKit '
         'cannot parse; the remainder are then grouped on the standardized parent InChIKey. '
         'Every stage is listed, so raw minus the three drop columns gives Records, and Records '
-        'minus Collapsed gives Parents, on each row. A parent carries a publication year only if at least one of its records does; those that carry none cannot be placed on either side of a temporal cutoff and are shown as Undated. Parents minus Undated is therefore the dated pool that the temporal analysis of Supplementary Table~\\ref{tab:s-temporal} splits, and it reconciles with the proper-training, calibration and test counts of that table on every row. '
+        'minus Collapsed gives Parents, on each row. A parent carries a publication year only if at least one of its records does; those that carry none cannot be placed on either side of a temporal cutoff and are shown as Undated. Parents minus Undated is the dated pool the temporal analysis of Supplementary Table~\\ref{tab:s-temporal} splits, and it reconciles with the proper-training, calibration and test counts of that table on SCD-1 and NK1R exactly. On DRD2 and DRD3 it exceeds them by %s and %s: an evaluation parent that also holds a record with no resolved year could predate the cutoff, so it cannot be certified as first disclosed after it and is dropped rather than assumed, which is what those %s parents are. '
+        % (_cert.get('drd2', 0), _cert.get('drd3', 0),
+           _cert.get('drd2', 0) + _cert.get('drd3', 0))
+        +
         'Parent grouping is the largest reduction: '
         'it removes %s records on DRD2 against %s for all the filters together. These files '
         'carry publication years and support the temporal analysis; FADS is not included '

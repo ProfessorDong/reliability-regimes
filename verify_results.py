@@ -2376,6 +2376,71 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     # The article states the verification count as a hand-typed integer, which drifted from 300
     # to a stale value once guards were added. It refers to the ARCHIVED release, not to HEAD, so
     # it must track the tag: if the archive is re-cut, this number and the DOI move together.
+    # The dated pool of the curation table exceeds the temporal split it feeds, because an
+    # evaluation parent holding an undated record cannot be certified as first disclosed after
+    # the cutoff and is dropped rather than assumed. The caption asserted blanket reconciliation
+    # "on every row", which was false on the two targets where such parents exist, and the
+    # exclusion appeared in no Methods. Both are checked here against the counted values.
+    import csv as _csv2
+    _sn = _re.sub(r'\s+', ' ', _s)
+    _cdir = None
+    for _c in (_os.path.join(OUT, '..', '..', 'data', 'chembl_v2'),
+               _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), 'data', 'chembl_v2')):
+        if _os.path.isdir(_c):
+            _cdir = _c
+            break
+    if _cdir:
+        _tmp2 = L('temporal_analysis.json')
+        _cert2 = {}
+        for _t2 in ('scd1', 'nk1r', 'drd2', 'drd3'):
+            _f2 = _os.path.join(_cdir, _t2 + '_chembl_v2.csv')
+            if not _os.path.exists(_f2):
+                continue
+            _d2 = sum(1 for _r2 in _csv2.DictReader(open(_f2)) if _r2.get('year_min'))
+            _cert2[_t2] = _d2 - (_tmp2[_t2]['n_train'] + _tmp2[_t2]['n_cal']
+                                 + _tmp2[_t2]['n_test'])
+        if len(_cert2) == 4:
+            cond('temporal', 'the certification drop is confined to DRD2 and DRD3',
+                 _cert2['scd1'] == 0 and _cert2['nk1r'] == 0
+                 and _cert2['drd2'] > 0 and _cert2['drd3'] > 0,
+                 'per-target residual %s' % _cert2)
+            cond('manuscript', 'the Methods state the evaluation-parent certification',
+                 'certification requires every one of a parent' in _sn,
+                 'npj forbids Supplementary Methods, so the exclusion belongs in Methods')
+            cond('manuscript', 'the Methods give the certified drop from macros, not literals',
+                 '\\TempCertDropDrdtwo' in _s and '\\TempCertDropDrdthree' in _s,
+                 'a hand-typed exclusion goes stale when the curation is re-run')
+            _sit = _os.path.join(_os.path.dirname(_tex), 'si_tables.tex')
+            if _os.path.exists(_sit):
+                _st9 = _re.sub(r'\s+', ' ', open(_sit, encoding='utf-8').read())
+                cond('manuscript', 'the curation caption drops the false blanket reconciliation',
+                     'on every row' not in _st9,
+                     'the dated pool does not reconcile on DRD2 or DRD3')
+                cond('manuscript', 'the curation caption explains the residual it leaves',
+                     'certified as first disclosed' in _st9,
+                     'the residual must be explained where it appears')
+    # Negative numbers set in text mode print U+002D, and the same caption then shows a
+    # math-mode U+2212 beside it. Both documents are scanned in the RENDERED text, because the
+    # source cannot show which glyph a number ends up with.
+    import subprocess as _sp2
+    for _pdfn in ('npjDD_Reliability', 'npjDD_SI'):
+        _pdfp = _os.path.join(_os.path.dirname(_tex), _pdfn + '.pdf')
+        if not _os.path.exists(_pdfp):
+            continue
+        _txt2 = _sp2.run(['pdftotext', _pdfp, '-'], capture_output=True, text=True).stdout
+        _hy2 = _re.findall(r'(?<![\w\-])\-\d+\.\d+', _txt2)
+        cond('manuscript', f'{_pdfn} renders every negative number with a real minus',
+             not _hy2, f'hyphen-minus before a decimal: {sorted(set(_hy2))[:6]}')
+    # The combined error model is a procedure, and the SI carries extended results only, so its
+    # specification belongs in the Methods rather than being implied by the Results.
+    for _need, _why in (('combined error model', 'the model is named where it is specified'),
+                        ('minimum of five samples per', 'leaf size'),
+                        ('unstandardized', 'input scaling'),
+                        ('calibration compounds alone', 'no evaluation label reaches it'),
+                        ('inside every size-matched control replicate', 'both arms refit it')):
+        cond('manuscript', 'the Methods specify the error model: ' + _why,
+             _need in _sn,
+             'a procedure reported in the Results cannot be left unspecified')
     _ARCHIVED_CLEAN_COUNT = 360
     _mcnt = _re.search(r're-checks all \$(\d+)\$ numeric claims', _re.sub(r'\s+', ' ', _s))
     cond('manuscript', 'the stated verification count matches the archived release',

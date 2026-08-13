@@ -77,7 +77,7 @@
 \newcommand{\RecGapFads}{1.19}
 \newcommand{\ConfFadsLowCov}{0.921}
 \newcommand{\TempCut}{2015}
-\newcommand{\TempN}{6{,}935}
+\newcommand{\TempN}{6{,}928}
 \newcommand{\TempRmse}{1.07}
 \newcommand{\TempRhoSigErr}{0.15}
 \newcommand{\TempPartial}{0.08}
@@ -89,6 +89,10 @@
 \newcommand{\TempCtlCovHi}{0.905}
 \newcommand{\TempDrdthreeRho}{0.049}
 \newcommand{\TempDrdthreeCtl}{0.36}
+\newcommand{\TempCertDrop}{7}
+\newcommand{\TempCertDropDrdtwo}{4}
+\newcommand{\TempCertDropDrdthree}{3}
+\newcommand{\TempCertTargets}{2}
 \newcommand{\TempNtargets}{4}
 \newcommand{\TempNtargetsWord}{four}
 \newcommand{\TempYearField}{first disclosure}
@@ -121,17 +125,17 @@
 \newcommand{\TempCtlRmseCINkone}{[0.78, 0.79]}
 \newcommand{\TempCtlCovCINkone}{[0.900, 0.904]}
 \newcommand{\TempCtlRhoCINkone}{[+0.35, +0.36]}
-\newcommand{\TempRmseCIDrdtwo}{[0.94, 0.99]}
-\newcommand{\TempCovCIDrdtwo}{[0.845, 0.866]}
+\newcommand{\TempRmseCIDrdtwo}{[0.93, 0.99]}
+\newcommand{\TempCovCIDrdtwo}{[0.844, 0.867]}
 \newcommand{\TempRhoCIDrdtwo}{[+0.11, +0.17]}
 \newcommand{\TempCtlRmseCIDrdtwo}{[0.70, 0.70]}
-\newcommand{\TempCtlCovCIDrdtwo}{[0.899, 0.900]}
+\newcommand{\TempCtlCovCIDrdtwo}{[0.900, 0.901]}
 \newcommand{\TempCtlRhoCIDrdtwo}{[+0.33, +0.33]}
 \newcommand{\TempRmseCIDrdthree}{[1.16, 1.22]}
-\newcommand{\TempCovCIDrdthree}{[0.796, 0.828]}
+\newcommand{\TempCovCIDrdthree}{[0.796, 0.826]}
 \newcommand{\TempRhoCIDrdthree}{[+0.01, +0.09]}
 \newcommand{\TempCtlRmseCIDrdthree}{[0.72, 0.72]}
-\newcommand{\TempCtlCovCIDrdthree}{[0.899, 0.900]}
+\newcommand{\TempCtlCovCIDrdthree}{[0.899, 0.901]}
 \newcommand{\TempCtlRhoCIDrdthree}{[+0.36, +0.36]}
 \newcommand{\TempRhoScd}{0.27}
 \newcommand{\TempCtlRhoScd}{0.20}
@@ -148,18 +152,20 @@
 \newcommand{\TempRhoDrdtwo}{0.14}
 \newcommand{\TempCtlRhoDrdtwo}{0.33}
 \newcommand{\TempDrhoDrdtwo}{-0.19}
-\newcommand{\TempNDrdtwo}{3{,}962}
+\newcommand{\TempNDrdtwo}{3{,}958}
 \newcommand{\TempCovDrdtwo}{0.855}
-\newcommand{\TempCtlCovDrdtwo}{0.900}
+\newcommand{\TempCtlCovDrdtwo}{0.901}
 \newcommand{\TempRhoDrdthree}{0.05}
 \newcommand{\TempCtlRhoDrdthree}{0.36}
 \newcommand{\TempDrhoDrdthree}{-0.31}
-\newcommand{\TempNDrdthree}{2{,}461}
+\newcommand{\TempNDrdthree}{2{,}458}
 \newcommand{\TempCovDrdthree}{0.811}
 \newcommand{\TempCtlCovDrdthree}{0.900}
 \newcommand{\TempPooledBelow}{2}
 \newcommand{\TempPooledBelowWord}{two}
-\newcommand{\TempPooledAboveTgt}{DRD2}
+\newcommand{\TempPooledAboveTgt}{DRD2 and DRD3}
+\newcommand{\TempPooledAboveN}{2}
+\newcommand{\TempPooledAboveWord}{the other two}
 \newcommand{\TempPfloor}{0.0010}
 \newcommand{\TempPRmseWorst}{0.0010}
 \newcommand{\TempPCovWorst}{0.3277}
@@ -194,15 +200,15 @@
 \newcommand{\TempPCovDrdtwo}{0.0010}
 \newcommand{\TempPRhoDrdtwo}{0.0010}
 \newcommand{\TempDRmseDrdtwo}{+0.27}
-\newcommand{\TempDRmseCIDrdtwo}{[+0.24, +0.29]}
+\newcommand{\TempDRmseCIDrdtwo}{[+0.24, +0.30]}
 \newcommand{\TempDRhoDrdtwo}{-0.19}
 \newcommand{\TempDRhoCIDrdtwo}{[-0.22, -0.16]}
 \newcommand{\TempDCovDrdtwo}{-0.045}
-\newcommand{\TempDCovCIDrdtwo}{[-0.055, -0.034]}
+\newcommand{\TempDCovCIDrdtwo}{[-0.057, -0.034]}
 \newcommand{\TempScafRmseCIDrdtwo}{[0.92, 1.01]}
-\newcommand{\TempScafRhoCIDrdtwo}{[+0.10, +0.18]}
-\newcommand{\TempScafCovCIDrdtwo}{[0.837, 0.873]}
-\newcommand{\TempScafNDrdtwo}{1{,}786}
+\newcommand{\TempScafRhoCIDrdtwo}{[+0.09, +0.19]}
+\newcommand{\TempScafCovCIDrdtwo}{[0.837, 0.871]}
+\newcommand{\TempScafNDrdtwo}{1{,}783}
 \newcommand{\TempPRmseDrdthree}{0.0010}
 \newcommand{\TempPCovDrdthree}{0.0010}
 \newcommand{\TempPRhoDrdthree}{0.0010}
@@ -210,13 +216,13 @@
 \newcommand{\TempDRmseCIDrdthree}{[+0.43, +0.50]}
 \newcommand{\TempDRhoDrdthree}{-0.31}
 \newcommand{\TempDRhoCIDrdthree}{[-0.35, -0.27]}
-\newcommand{\TempDCovDrdthree}{-0.088}
-\newcommand{\TempDCovCIDrdthree}{[-0.104, -0.072]}
+\newcommand{\TempDCovDrdthree}{-0.089}
+\newcommand{\TempDCovCIDrdthree}{[-0.104, -0.073]}
 \newcommand{\TempScafRmseCIDrdthree}{[1.13, 1.24]}
 \newcommand{\TempScafRhoCIDrdthree}{[-0.02, +0.11]}
-\newcommand{\TempScafCovCIDrdthree}{[0.784, 0.837]}
-\newcommand{\TempScafNDrdthree}{1{,}144}
-\newcommand{\TempScafWidenLo}{1.5}
+\newcommand{\TempScafCovCIDrdthree}{[0.786, 0.837]}
+\newcommand{\TempScafNDrdthree}{1{,}141}
+\newcommand{\TempScafWidenLo}{1.4}
 \newcommand{\TempScafWidenHi}{2.2}
 \newcommand{\TempMacroDRmse}{+0.45}
 \newcommand{\TempMacroDRmseCI}{[+0.12, +0.79]}
@@ -225,12 +231,24 @@
 \newcommand{\TempMacroDRhoCI}{[-0.38, +0.13]}
 \newcommand{\TempMacroDRhoNeg}{3}
 \newcommand{\TempMacroDCov}{-0.053}
-\newcommand{\TempMacroDCovCI}{[-0.103, -0.002]}
+\newcommand{\TempMacroDCovCI}{[-0.104, -0.002]}
 \newcommand{\TempMacroDCovNeg}{4}
 \newcommand{\TempMedRmsePct}{49}
 \newcommand{\TempMedLostSame}{yes}
 \newcommand{\TempMedRhoScd}{0.39}
 \newcommand{\TempMedCtlRhoScd}{0.20}
+\newcommand{\PreValidated}{18{,}650}
+\newcommand{\PreFailed}{0}
+\newcommand{\PreSpanning}{382}
+\newcommand{\PreMoved}{253}
+\newcommand{\PreRecords}{28{,}544}
+\newcommand{\PreSha}{13c97abcc236}
+\newcommand{\PreUndatedRec}{307}
+\newcommand{\PreMixedParents}{44}
+\newcommand{\AllRecMacroDRmse}{+0.45}
+\newcommand{\AllRecMacroDRho}{-0.13}
+\newcommand{\AllRecMacroDCov}{-0.055}
+\newcommand{\AllRecRmsePct}{50}
 \newcommand{\SpanDropped}{382}
 \newcommand{\SpanDropPctHi}{4.2}
 \newcommand{\SpanMacroDRmse}{+0.47}
@@ -240,6 +258,16 @@
 \newcommand{\SpanOutsideRmse}{4}
 \newcommand{\SpanSameLost}{yes}
 \newcommand{\SpanRmsePct}{48}
+\newcommand{\EmMacroTemp}{+0.15}
+\newcommand{\EmMacroCtl}{+0.25}
+\newcommand{\SigMacroTemp}{+0.18}
+\newcommand{\SigMacroCtl}{+0.31}
+\newcommand{\EmWeakerInDist}{4}
+\newcommand{\EmBelowOwnCtl}{3}
+\newcommand{\EmDrdthree}{+0.16}
+\newcommand{\EmDrdthreeCtl}{+0.30}
+\newcommand{\EmNcalLo}{94}
+\newcommand{\EmNcalHi}{1{,}319}
 \newcommand{\TempEpTypeScd}{\mbox{IC$_{50}$}}
 \newcommand{\TempEpRmseScd}{1.18}
 \newcommand{\TempEpCtlRmseScd}{0.84}
@@ -251,7 +279,7 @@
 \newcommand{\TempEpRmseNkone}{1.68}
 \newcommand{\TempEpCtlRmseNkone}{0.67}
 \newcommand{\TempEpDRmseNkone}{+1.01}
-\newcommand{\TempEpDRmseCINkone}{[+0.81, +1.19]}
+\newcommand{\TempEpDRmseCINkone}{[+0.82, +1.19]}
 \newcommand{\TempEpNNkone}{68}
 \newcommand{\TempEpKeptPctNkone}{55}
 \newcommand{\TempEpTypeDrdtwo}{\mbox{$K_i$}}
@@ -262,18 +290,18 @@
 \newcommand{\TempEpNDrdtwo}{3{,}085}
 \newcommand{\TempEpKeptPctDrdtwo}{78}
 \newcommand{\TempEpTypeDrdthree}{\mbox{$K_i$}}
-\newcommand{\TempEpRmseDrdthree}{1.19}
+\newcommand{\TempEpRmseDrdthree}{1.18}
 \newcommand{\TempEpCtlRmseDrdthree}{0.70}
-\newcommand{\TempEpDRmseDrdthree}{+0.49}
-\newcommand{\TempEpDRmseCIDrdthree}{[+0.46, +0.52]}
+\newcommand{\TempEpDRmseDrdthree}{+0.48}
+\newcommand{\TempEpDRmseCIDrdthree}{[+0.45, +0.51]}
 \newcommand{\TempEpNDrdthree}{2{,}084}
 \newcommand{\TempEpKeptPctDrdthree}{85}
 \newcommand{\TempEpMacroDRmse}{+0.52}
-\newcommand{\TempEpMacroDRmseCI}{[-0.02, +1.06]}
-\newcommand{\TempEpMacroDRho}{-0.16}
-\newcommand{\TempEpMacroDRhoCI}{[-0.41, +0.09]}
-\newcommand{\TempEpMacroDCov}{-0.074}
-\newcommand{\TempEpMacroDCovCI}{[-0.169, +0.021]}
+\newcommand{\TempEpMacroDRmseCI}{[-0.03, +1.06]}
+\newcommand{\TempEpMacroDRho}{-0.15}
+\newcommand{\TempEpMacroDRhoCI}{[-0.41, +0.10]}
+\newcommand{\TempEpMacroDCov}{-0.064}
+\newcommand{\TempEpMacroDCovCI}{[-0.141, +0.013]}
 \newcommand{\TempEpNworse}{4}
 \newcommand{\TempEpNrhoWorse}{3}
 \newcommand{\TempEpNcovWorse}{4}
@@ -377,6 +405,7 @@
 \newcommand{\SuppKhi}{20}
 \newcommand{\SuppCells}{15}
 \newcommand{\SuppMaxUpper}{0.17}
+\newcommand{\SuppDrdthreeMax}{+0.14}
 \newcommand{\SuppPosLo}{0.005}
 \newcommand{\SuppPosHi}{0.14}
 \newcommand{\SuppFadsMed}{-0.18}
