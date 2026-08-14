@@ -2259,8 +2259,22 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     _t = _re.sub(r'[{}$\\]', '', _t)
     _t = _re.sub(r'\s+%', '%', _t)
     _w = [w for w in _t.split() if _re.search(r'[A-Za-z0-9]', w)]
-    cond('manuscript', 'abstract is within the npj Drug Discovery 150-word limit',
-         len(_w) <= 150, f'{len(_w)} words')
+    # Venue changed to Journal of Cheminformatics after npj Drug Discovery desk-rejected the
+    # paper. npj capped abstracts at 150 words; the BMC cap is 350, so the abstract was rewritten
+    # to lead with the constructive finding rather than compressed into a list. CONFIRM 350
+    # against the journal's author instructions before relying on it.
+    _ABS_CAP = 350
+    # Journal of Cheminformatics requires a titled "Scientific Contribution" block inside the
+    # abstract, at most three sentences. It is journal-specific and easy to lose in a reformat.
+    _sc = _re.search(r'Scientific Contribution\.?\}?(.*)$', _ab, _re.S)
+    cond('manuscript', 'the abstract carries the required Scientific Contribution block',
+         _sc is not None, 'Journal of Cheminformatics mandates it for Research articles')
+    if _sc:
+        _ns = len([x for x in _re.split(r'(?<=[.!?])\s+', _sc.group(1).strip()) if len(x.split()) > 3])
+        cond('manuscript', 'the Scientific Contribution block is within three sentences',
+             _ns <= 3, f'{_ns} sentences')
+    cond('manuscript', f'abstract is within the Journal of Cheminformatics {_ABS_CAP}-word limit',
+         len(_w) <= _ABS_CAP, f'{len(_w)} words')
     # The macro-expanded count above is not the count a journal makes. Math splits "$P=0.005$"
     # into three whitespace tokens and a subscript sheds a stray comma, so the rendered abstract
     # ran three words longer than this check reported and sat over the cap while it passed.
@@ -2274,8 +2288,8 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
             _m = _re.search(r'\nAbstract\n(.*?)\nKeywords', _txt, _re.S)
             if _m:
                 _rw = len(_m.group(1).split())
-                cond('manuscript', 'rendered abstract is also within 150 words',
-                     _rw <= 150, f'{_rw} whitespace-delimited words in the compiled PDF')
+                cond('manuscript', f'rendered abstract is also within {_ABS_CAP} words',
+                     _rw <= _ABS_CAP, f'{_rw} whitespace-delimited words in the compiled PDF')
             # Figure legends have their own cap and the same source-versus-rendered gap. The
             # Figure 1 legend was trimmed to 348 words of source and shipped at 368 rendered,
             # over npj's 350, because only the abstract was being counted this way.
@@ -2285,8 +2299,8 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
                 _seg = ' '.join(l for l in _txt[_i:_j].split('\n')
                                 if l.strip() and not l.strip().isdigit())
                 _lw = len(_seg.split())
-                cond('manuscript', 'rendered Figure 1 legend is within the 350-word limit',
-                     _lw <= 350, f'{_lw} whitespace-delimited words in the compiled PDF')
+                cond('manuscript', 'rendered Figure 1 legend is within the 300-word limit',
+                     _lw <= 300, f'{_lw} whitespace-delimited words in the compiled PDF')
         except (OSError, _sp.SubprocessError):
             pass
     cond('manuscript', 'no reference to the superseded raw-record count in the text',
