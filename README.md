@@ -1,8 +1,8 @@
 # Where and when a molecular property model can be trusted
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21912178.svg)](https://doi.org/10.5281/zenodo.21912178)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21938599.svg)](https://doi.org/10.5281/zenodo.21938599)
 
-Archived at release `v1.7-npjdd-submission`: [10.5281/zenodo.21912178](https://doi.org/10.5281/zenodo.21912178). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
+Archived at release `v1.8-jcheminf-submission`: [10.5281/zenodo.21938599](https://doi.org/10.5281/zenodo.21938599). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
 
 Code, curated data, and frozen outputs for a study of when a machine-learned activity model
 can be believed, across five targets relevant to therapy and molecular imaging: **SCD-1**,
@@ -112,7 +112,7 @@ python verify_results.py
 
 `verify_results.py` asserts 360 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
-it additionally cross-checks every macro against its source and the manuscript prose, and reports 754.
+it additionally cross-checks every macro against its source and the manuscript prose, and reports 756.
 
 ## Repository layout
 

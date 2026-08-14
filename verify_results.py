@@ -2467,7 +2467,7 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
 
     # The archived snapshot is what a reader is directed to, so the DOI and the release tag in
     # the availability statements must stay together and must name the tag that was archived.
-    _ZEN_DOI, _ZEN_TAG = '10.5281/zenodo.21912178', 'v1.7-npjdd-submission'
+    _ZEN_DOI, _ZEN_TAG = '10.5281/zenodo.21938599', 'v1.8-jcheminf-submission'
     cond('manuscript', 'both availability statements cite the archived DOI',
          _s.count(_ZEN_DOI) == 2, f'found {_s.count(_ZEN_DOI)} occurrence(s), expected 2')
     cond('manuscript', 'the DOI is paired with the release tag it was minted from',
