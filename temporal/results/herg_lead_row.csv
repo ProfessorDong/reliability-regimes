@@ -1,0 +1,2 @@
+target,pre_actives,valid_draws,median_near,median_far,delta,pct025,pct975,positive,median_pairs,median_abs_seed_distance_diff,median_train_distance_diff
+hERG,111,100,0.9387042836079702,1.022989862766591,0.07659148753218614,-0.09832730096270029,0.21827891265535274,0.85,206.0,0.0036117105565787472,0.16467059843980913

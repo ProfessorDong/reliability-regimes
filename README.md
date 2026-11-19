@@ -1,13 +1,17 @@
-# Where and when a molecular property model can be trusted
+# Closer training analogs and lower bioactivity prediction error at equal distance from the starting leads
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21938599.svg)](https://doi.org/10.5281/zenodo.21938599)
 
 Archived at release `v1.8-jcheminf-submission`: [10.5281/zenodo.21938599](https://doi.org/10.5281/zenodo.21938599). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
 
-Code, curated data, and frozen outputs for a study of when a machine-learned activity model
-can be believed, across five targets relevant to therapy and molecular imaging: **SCD-1**,
-**FADS** (endoplasmic-reticulum membrane lipid desaturases) and **NK1R**, **DRD2**, **DRD3**
-(class A G-protein-coupled receptors).
+Code, curated data, and frozen outputs for a study of how far a bioactivity prediction can be
+assessed from two chemical reference sets: a compound's distance to the starting leads of a
+search, and its distance to the rest of the model's training data. The initial panel is five
+targets relevant to therapy and molecular imaging, **SCD-1** and **FADS**
+(endoplasmic-reticulum membrane lipid desaturases) and **NK1R**, **DRD2**, **DRD3** (class A
+G-protein-coupled receptors). A validation panel adds **11 further targets** spanning five
+class A GPCRs, two kinases, three other enzymes and one ion channel, and eight of the sixteen
+carry publication dates for time-split tests. See "Additional analyses" below.
 
 Author: **Liang Dong**.
 
@@ -113,6 +117,36 @@ python verify_results.py
 `verify_results.py` asserts 360 claims, values and semantics alike, and exits non-zero on
 any mismatch. It runs from a clean clone; with the manuscript's `numbers.tex` also present
 it additionally cross-checks every macro against its source and the manuscript prose, and reports 756.
+Those assertions cover the initial five-target study. The additional analyses described next
+carry their own verifiers.
+
+## Additional analyses
+
+Two panels were added after the five-target study. Both are self-contained: each holds its own
+protocol, inputs, frozen compound-level predictions and verifier, and neither needs the
+activity models of step 1 above.
+
+`validation/` is the structure-disjoint cross-validation on the 11 additional targets. For each
+target, 1,200 standardized parents are drawn without reference to activity by sorting parent
+keys on a SHA-256 hash, so every target contributes 960 training parents per fold and training
+set size is held constant across targets. Within the third of compounds most distant from the
+sampled leads, compounds are binned by lead distance and split at the median training distance
+inside each bin, which keeps lead distance comparable between the two groups.
+
+`temporal/` is the time-split test on the four additional dated targets (FAAH, COX-2, VEGFR2,
+hERG), with leads and training neighbors drawn only from the pre-2015 fitting set.
+
+```sh
+python validation/check.py    # 11 source archives, folds, scaffold resamples, panel summary
+python temporal/verify.py     # frozen checksums, cohort partitions, controls, lead draws, tables
+```
+
+Each prints a one-line summary and exits non-zero on any mismatch. `validation/requirements.txt`
+and `temporal/versions.json` record the environment each was run under; the two panels were run
+under different scikit-learn versions, which is why they are pinned separately.
+
+`figures_commschem/` holds the figure generators for these analyses and the structure-example
+data they select; rendered figures are not tracked here, as elsewhere in this repository.
 
 ## Repository layout
 
@@ -142,6 +176,21 @@ reliability/              activity model, reward, search operators, experiments
   analyze_*.py                  frozen analysis scripts for the individual experiments
 outputs/frozen/           frozen result files; the source of every reported number
 verify_results.py         asserts every reported number against those files
+validation/               11-target structure-disjoint validation (see "Additional analyses")
+  PROTOCOL.md                    pre-specified target list, sampling rules and primary contrast
+  prepare.py analyze.py          sampling/featurization and the band-matched comparison
+  overlap.py activity_sensitivity.py   exact-fingerprint and measured-activity diagnostics
+  sources/ parents/ predictions/ curated inputs and frozen compound-level predictions
+  target_results.csv summary.json frozen per-target and panel outputs
+  check.py                       verifier for this panel
+temporal/                 time-split test on the four additional dated targets
+  PROTOCOL.md snapshot.py analyze.py summarize.py   protocol and analysis path
+  records/ results/               dated records and frozen cohort outputs
+  table.tex lead_table.tex interval_table.tex  generated tables, cross-checked by the verifier
+  verify.py                      verifier for this panel
+figures_commschem/        figure generators for the additional analyses
+make_validation_tables.py make_dated_table.py   table generators for the additional analyses
+source_data/              archived numerical summaries behind the main figures
 models/ utils/            encoder and chemistry helpers
 train_pipeline_v3.py      activity-data loading and ECFP featurization
 run_moe_predictor.py      graph batching used by the latent-surrogate ablation
@@ -167,7 +216,7 @@ model exceeds the 100 MB per-file limit on GitHub. Rebuild them with
 data in this repository. The frozen JSON outputs that back the reported numbers are included,
 so `verify_results.py` runs without rebuilding the models.
 
-## Repository layout
+## Notes on the layout
 
 The four entries at the end of that listing are support modules imported by
 `reliability/oracle.py`, `dynamics.py` and `oracle_sanity_gate.py`. They are shared with

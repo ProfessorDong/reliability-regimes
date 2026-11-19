@@ -1,0 +1,94 @@
+{
+  "target": "NK1R",
+  "source": "nk1r_combined.csv",
+  "source_sha256": "4a682b39118bdb41b894bd54daaf216f875733e24240aaacbf2cc9d7ee04a9c0",
+  "source_release_doi": "10.5281/zenodo.21938599",
+  "rdkit": "2026.03.1",
+  "sklearn": "1.8.0",
+  "numpy": "1.26.4",
+  "n_parent_structures": 2952,
+  "fold_one_based": 1,
+  "n_training": 2361,
+  "n_held_out": 591,
+  "n_starting_leads": 10,
+  "starting_lead_parent_keys": [
+    "WFRTYDJMZVPQJC-JBOYQHEBSA-N",
+    "VMXIXFZELDQUJS-UHFFFAOYSA-N",
+    "QKDREOIGKWPZQZ-RRYCAANRSA-N",
+    "NNGQEROFSCIFQE-UHFFFAOYSA-N",
+    "HOFQNBZCEZYVOE-CONSDPRKSA-N",
+    "ATUPAULHDXBCOY-GBESFXJTSA-N",
+    "AIFZYHUGOXNZLJ-QCWLJUHMSA-N",
+    "IQGQQMKTQGVWKG-IBGZPJMESA-N",
+    "FLJZRDCJNZDTST-XIJQPKCWSA-N",
+    "BQQPMKLRRRAGKG-UHFFFAOYSA-N"
+  ],
+  "selection": {
+    "max_lead_similarity_upper_novelty_third": 0.25795366367365036,
+    "train_similarity_quartiles_in_upper_novelty_third": [
+      0.7368421052631579,
+      0.8148148148148148,
+      0.9056603773584906
+    ],
+    "n_heldout_upper_novelty_third": 197,
+    "n_structurally_eligible_pairs": 89,
+    "max_difference_in_lead_similarity": 0.005,
+    "max_heavy_atoms_in_any_depicted_structure": 45
+  },
+  "examples": [
+    {
+      "group": "nearer",
+      "query": {
+        "parent_key": "CUUQZADGWXMGRW-UHFFFAOYSA-N",
+        "smiles": "COc1ccccc1CN(CC(Cc1c[nH]c2ccccc12)NC(=O)CCC(=O)c1ccc(F)cc1)C(C)=O",
+        "measured_pActivity": 8.22184874961636
+      },
+      "predicted_pActivity": 7.700786436202261,
+      "absolute_error": 0.5210623134140988,
+      "tree_sd": 0.8558648097360226,
+      "nearest_lead": {
+        "parent_key": "NNGQEROFSCIFQE-UHFFFAOYSA-N",
+        "smiles": "COc1ccccc1N1CCN(C(=O)CCc2c(-c3ccccc3)[nH]c3ccc(Cl)cc23)CC1",
+        "measured_pActivity": 8.2518119729938
+      },
+      "lead_similarity": 0.23958333333333334,
+      "nearest_training": {
+        "parent_key": "ZDEIAFJLFFATFK-AREMUKBSSA-N",
+        "smiles": "COc1ccccc1CN(C[C@@H](Cc1c[nH]c2ccccc12)NC(=O)CCC(=O)c1ccccc1)C(C)=O",
+        "measured_pActivity": 7.46852108295775
+      },
+      "training_similarity": 0.90625
+    },
+    {
+      "group": "farther",
+      "query": {
+        "parent_key": "LWIVKHBGLMJTDY-UHFFFAOYSA-N",
+        "smiles": "CCCCCN(CCCCC)C(=O)N1CCN(C(=O)N(c2ccccc2)c2ccccc2)CC1",
+        "measured_pActivity": 6.30102999566398
+      },
+      "predicted_pActivity": 6.4725645451217995,
+      "absolute_error": 0.1715345494578191,
+      "tree_sd": 0.5518849177115044,
+      "nearest_lead": {
+        "parent_key": "NNGQEROFSCIFQE-UHFFFAOYSA-N",
+        "smiles": "COc1ccccc1N1CCN(C(=O)CCc2c(-c3ccccc3)[nH]c3ccc(Cl)cc23)CC1",
+        "measured_pActivity": 8.2518119729938
+      },
+      "lead_similarity": 0.24,
+      "nearest_training": {
+        "parent_key": "OCZZSQRGBFEJLE-AREMUKBSSA-N",
+        "smiles": "CCCCCN(CCCCC)C(=O)N1CCN(C(=O)N(c2ccccc2)c2ccccc2)[C@@H](C(=O)O)C1",
+        "measured_pActivity": 5.52287874528034
+      },
+      "training_similarity": 0.723404255319149
+    }
+  ],
+  "original_cohort_summary": {
+    "source": "reliability_v2_analysis.json",
+    "source_sha256": "d0f11ac18e66dce801940ad2dd58b8ea5b9c5c4be48782d4c6f4d0a3fd6ed8b4",
+    "nearer_n": 496,
+    "farther_n": 489,
+    "nearer_rmse": 0.8194072729238906,
+    "farther_rmse": 1.0056005352473305
+  }
+}

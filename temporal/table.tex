@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{Temporal validation on four additional targets.}
+\label{tab:extension-temporal}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Target & Fit/cal./test & RMSE & Error rank $\rho$ & Coverage \\
+\midrule
+FAAH & 822/274/940 & 0.91 / 1.61 & 0.25 / 0.18 & 0.897 / 0.865 \\
+COX-2 & 938/312/1,250 & 0.91 / 1.23 & 0.36 / 0.06 & 0.904 / 0.808 \\
+VEGFR2 & 938/312/1,250 & 0.89 / 1.22 & 0.36 / 0.04 & 0.895 / 0.812 \\
+hERG & 938/312/1,250 & 0.80 / 0.89 & 0.25 / 0.08 & 0.897 / 0.926 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{0.98\linewidth}\footnotesize Each pair gives the mean of 32 size-matched random splits followed by the temporal result. Activity is reported in negative log molar units. Error rank is the Spearman correlation between tree disagreement and absolute error. Coverage is the fraction of observations in the nominal 90\% interval. Earlier labels use eligible measurements published before 2015. Evaluation uses parents whose first eligible target activity was reported from 2015 onward.\end{minipage}
+\end{table}

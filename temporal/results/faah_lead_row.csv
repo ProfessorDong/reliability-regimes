@@ -1,0 +1,2 @@
+target,pre_actives,valid_draws,median_near,median_far,delta,pct025,pct975,positive,median_pairs,median_abs_seed_distance_diff,median_train_distance_diff
+FAAH,510,100,1.4913723099176477,1.760752626424357,0.27841965334056873,-0.054397267963050874,0.5300137838565696,0.94,155.0,0.0056890780877744285,0.15882359900426665

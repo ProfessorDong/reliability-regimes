@@ -1,0 +1,18 @@
+{
+  "records_total": 6429,
+  "nonhuman": 0,
+  "bad_value": 7,
+  "bad_structure": 1,
+  "records_kept": 6421,
+  "endpoint_records": {
+    "IC50": 6385,
+    "Ki": 27,
+    "Kd": 8,
+    "EC50": 1
+  },
+  "parents_total": 4533,
+  "undated_only": 13,
+  "excluded_later_with_missing_year": 0,
+  "pre_total": 2741,
+  "post_total": 1779
+}

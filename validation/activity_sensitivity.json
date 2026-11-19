@@ -1,0 +1,32 @@
+{
+  "positive_targets": 11,
+  "mean_delta": 0.13436952665932045,
+  "working_target_ci": [
+    0.09531246904276527,
+    0.17342658427587562
+  ],
+  "pooled_retained_assignments": 267767,
+  "pooled_primary_assignments": 442044,
+  "pooled_retained_fraction": 0.6057473916623685,
+  "min_retained_fraction": 0.5126533456092767,
+  "max_retained_fraction": 0.7309192062191093,
+  "equal_target_means": {
+    "primary_assignments": 40185.818181818184,
+    "retained_assignments": 24342.454545454544,
+    "retained_fraction": 0.605742075666171,
+    "unique_near": 738.4545454545455,
+    "unique_far": 625.4545454545455,
+    "near_rmse": 0.6879649913083868,
+    "far_rmse": 0.8223345179677074,
+    "delta_rmse": 0.13436952665932045,
+    "ci_low": 0.05040890564110863,
+    "ci_high": 0.2159584192755518,
+    "near_activity": 6.1057249566892215,
+    "far_activity": 6.102944028740603,
+    "near_novelty": 0.829178554882339,
+    "far_novelty": 0.8297859990867927,
+    "near_distance": 0.25009433232845707,
+    "far_distance": 0.5361071274229539,
+    "bootstrap_valid": 2000.0
+  }
+}

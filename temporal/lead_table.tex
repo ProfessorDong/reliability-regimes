@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{Training neighbors and measured errors on later compounds dissimilar to historical leads.}
+\label{tab:extension-temporal-leads}
+\small
+\begin{tabular}{lrrrrr}
+\toprule
+Target & Pairs & $\Delta$RMSE & Middle 95\% & Positive (\%) & Lead mismatch \\
+\midrule
+FAAH & 155 & +0.28 & [-0.05, +0.53] & 94 & 0.006 \\
+COX-2 & 206 & +0.08 & [-0.08, +0.19] & 82 & 0.006 \\
+VEGFR2 & 206 & +0.11 & [-0.07, +0.27] & 84 & 0.006 \\
+hERG & 206 & +0.08 & [-0.10, +0.22] & 85 & 0.004 \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{0.98\linewidth}\footnotesize Each of 100 draws uses ten active leads from the earlier proper-training set. Within the most lead-dissimilar third of the later compounds, nearer and farther training neighbors are compared within five bins of lead distance. The table gives the median number of pairs and median farther-minus-nearer RMSE, the central 95\% range across draws, the percentage of positive differences, and the median mean absolute within-pair difference in lead distance. Repeated draws use the same measured compounds and describe sensitivity to the chosen leads.\end{minipage}
+\end{table}

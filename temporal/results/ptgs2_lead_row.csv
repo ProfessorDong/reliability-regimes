@@ -1,0 +1,2 @@
+target,pre_actives,valid_draws,median_near,median_far,delta,pct025,pct975,positive,median_pairs,median_abs_seed_distance_diff,median_train_distance_diff
+PTGS2,351,100,1.313774204050684,1.3866123433611088,0.08103308749694094,-0.0769296281181919,0.1858701133684541,0.82,206.0,0.005733329330720717,0.1221921643445506

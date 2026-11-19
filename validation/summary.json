@@ -1,0 +1,65 @@
+{
+  "n_targets": 11,
+  "n_target_parent_records": 13200,
+  "n_models": 55,
+  "n_crossfamily_targets_positive": 11,
+  "delta_rmse_mean": 0.2754407469724716,
+  "working_target_ci": [
+    0.22845862848698784,
+    0.3224228654579554
+  ],
+  "target_median": 0.28668366932803113,
+  "means_by_target_class": {
+    "Class A GPCR": 0.26372026339507476,
+    "Ion channel": 0.14665455997990373,
+    "Kinase": 0.28859348478865965,
+    "Other enzyme": 0.3291351233881969
+  },
+  "counts_by_target_class": {
+    "Class A GPCR": 5,
+    "Ion channel": 1,
+    "Kinase": 2,
+    "Other enzyme": 3
+  },
+  "means": {
+    "n": 1200.0,
+    "near_rmse": 0.7733850982574694,
+    "far_rmse": 1.048825845229941,
+    "delta_rmse": 0.2754407469724716,
+    "ci_low": 0.1442194544133351,
+    "ci_high": 0.4061607008653484,
+    "near_novelty": 0.8292830481400796,
+    "far_novelty": 0.8301465762217883,
+    "near_distance": 0.24858462366826856,
+    "far_distance": 0.5415815717987957,
+    "near_activity": 6.349637435823667,
+    "far_activity": 6.057341605196029,
+    "rho_sigma_error": 0.2861107219007781,
+    "rho_distance_error": 0.19677014124154882,
+    "rho_novelty_error": 0.023513404854794098,
+    "partial_sigma": 0.22127815336670376,
+    "partial_novelty": -0.026486392449699227,
+    "rmse_all": 0.8945215680324778,
+    "rmse_low20": 0.6149025274387614,
+    "sensitivity_near_win_fraction": 0.9990909090909091,
+    "sensitivity_median_delta": 0.2935505299861983,
+    "scaffold_groups": 752.8181818181819,
+    "bootstrap_valid": 2000.0,
+    "leads_min": 368.27272727272725,
+    "leads_max": 387.6363636363636,
+    "eligible_fraction_in_valid_strata": 1.0,
+    "n_unique_near": 828.3636363636364,
+    "n_unique_far": 691.5454545454545
+  },
+  "median_partial_sigma": 0.2246468936549555,
+  "median_partial_novelty": -0.034763907317973936,
+  "max_absolute_novelty_imbalance": 0.0018508117216512465,
+  "versions": {
+    "python": "3.12.13",
+    "numpy": "1.26.4",
+    "scipy": "1.17.1",
+    "sklearn": "1.8.0",
+    "pandas": "3.0.2",
+    "rdkit": "2026.03.1"
+  }
+}

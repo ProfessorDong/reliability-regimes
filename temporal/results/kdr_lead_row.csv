@@ -1,0 +1,2 @@
+target,pre_actives,valid_draws,median_near,median_far,delta,pct025,pct975,positive,median_pairs,median_abs_seed_distance_diff,median_train_distance_diff
+KDR,544,100,1.266073412360916,1.3866479544890038,0.10659990061940494,-0.06713835601657171,0.272316926328174,0.84,206.0,0.005875807476982506,0.16557568499259168

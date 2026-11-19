@@ -1,5 +1,5 @@
 {
-  "title": "reliability-regimes: code, curated data and frozen outputs for \"Where and when a molecular property model can be trusted\"",
+  "title": "reliability-regimes: code, curated data and frozen outputs for \"Closer training analogs and lower bioactivity prediction error at equal distance from the starting leads\"",
   "upload_type": "software",
   "license": "MIT",
   "creators": [
@@ -8,7 +8,7 @@
       "affiliation": "Department of Electrical and Computer Engineering, Baylor University, Waco, TX, USA"
     }
   ],
-  "description": "Code, curated data and frozen analysis outputs for a study of when a machine-learned molecular activity model can be believed, across five targets relevant to therapy and molecular imaging: SCD-1 and FADS (endoplasmic-reticulum membrane lipid desaturases) and NK1R, DRD2 and DRD3 (class A G-protein-coupled receptors). The study measures reliability across four regimes: within the pool the model was fitted from, under novelty-driven optimization, under temporal shift to chemistry published after the model was fitted, and under acquisition against measured activity. Every number reported in the accompanying manuscript and its Supplementary Information is produced by a frozen analysis script run against a frozen output file and re-checked by verify_results.py.",
+  "description": "Code, curated data and frozen analysis outputs for a study of how far a bioactivity prediction can be assessed from two chemical reference sets: a compound's distance to the starting leads of a search, and its distance to the rest of the model's training data. An initial five-target panel relevant to therapy and molecular imaging (SCD-1 and FADS, endoplasmic-reticulum membrane lipid desaturases, and NK1R, DRD2 and DRD3, class A G-protein-coupled receptors) is followed by a validation on 11 additional protein targets spanning five class A GPCRs, two kinases, three other enzymes and one ion channel, and by time-split tests on eight dated targets. The study measures reliability within the pool the model was fitted from, under novelty-driven optimization, under temporal shift to chemistry published after the model was fitted, and under acquisition against measured activity. Every reported number is produced by a frozen analysis script run against a frozen output file and re-checked by verify_results.py, validation/check.py and temporal/verify.py, each of which exits non-zero on any mismatch.",
   "keywords": [
     "cheminformatics",
     "drug discovery",

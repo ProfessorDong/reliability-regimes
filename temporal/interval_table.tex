@@ -1,0 +1,18 @@
+\begin{table}[htbp]
+\centering
+\caption{Scaffold bootstrap intervals for the four additional temporal targets.}
+\label{tab:extension-temporal-intervals}
+\small
+\begin{tabular}{lrrrr}
+\toprule
+Target & Scaffold groups & RMSE & Error rank $\rho$ & Coverage \\
+\midrule
+FAAH & 417 & [1.42, 1.82] & [0.06, 0.28] & [0.818, 0.910] \\
+COX-2 & 510 & [1.15, 1.31] & [-0.04, 0.16] & [0.765, 0.846] \\
+VEGFR2 & 738 & [1.14, 1.31] & [-0.06, 0.14] & [0.771, 0.850] \\
+hERG & 875 & [0.78, 1.01] & [0.01, 0.15] & [0.899, 0.949] \\
+\bottomrule
+\end{tabular}
+\par\smallskip
+\begin{minipage}{0.98\linewidth}\footnotesize Intervals are the 2.5th and 97.5th percentiles of 2,000 test-set bootstrap samples, resampling complete Bemis--Murcko scaffolds. Acyclic structures are separate groups. The historical model and calibration quantile are fixed. These intervals describe sampling of later scaffolds, conditional on the retained historical sample.\end{minipage}
+\end{table}
