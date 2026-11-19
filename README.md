@@ -1,8 +1,8 @@
 # Closer training analogs and lower bioactivity prediction error at equal distance from the starting leads
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.21938599.svg)](https://doi.org/10.5281/zenodo.21938599)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24375804.svg)](https://doi.org/10.5281/zenodo.24375804)
 
-Archived at release `v1.8-jcheminf-submission`: [10.5281/zenodo.21938599](https://doi.org/10.5281/zenodo.21938599). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
+Archived at release `v1.9-commschem-submission`: [10.5281/zenodo.24375804](https://doi.org/10.5281/zenodo.24375804). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
 
 Code, curated data, and frozen outputs for a study of how far a bioactivity prediction can be
 assessed from two chemical reference sets: a compound's distance to the starting leads of a
