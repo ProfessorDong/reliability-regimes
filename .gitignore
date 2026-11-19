@@ -4,3 +4,8 @@ __pycache__/
 !outputs/frozen/**
 *.log
 .ipynb_checkpoints/
+# rendered figures are build artifacts; this repository tracks generators only
+fig2_frontier.png
+fig3_forest.png
+figS1_calibration.png
+figures/

@@ -1,4 +1,4 @@
-# Closer training analogs and lower bioactivity prediction error at equal distance from the starting leads
+# Bioactivity prediction error for compounds unlike their starting leads but close to measured analogs
 
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24375804.svg)](https://doi.org/10.5281/zenodo.24375804)
 

@@ -1,5 +1,5 @@
 {
-  "title": "reliability-regimes: code, curated data and frozen outputs for \"Closer training analogs and lower bioactivity prediction error at equal distance from the starting leads\"",
+  "title": "reliability-regimes: code, curated data and frozen outputs for \"Bioactivity prediction error for compounds unlike their starting leads but close to measured analogs\"",
   "upload_type": "software",
   "license": "MIT",
   "creators": [

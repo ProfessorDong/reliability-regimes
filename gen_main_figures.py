@@ -98,7 +98,7 @@ for ax, (y, lab, col), tag in zip(axes, series, 'abc'):
     ax.plot(bc, m, '-', color=col, lw=1.4, zorder=2)
     ax.scatter(bc, m, s=8 + 42 * np.sqrt(nb / nb.max()), color=col, zorder=3,
                edgecolor='white', lw=0.5)
-    ax.set_xlabel('Generated-set novelty')
+    ax.set_xlabel('Distance to the starting leads')
     ax.set_ylabel(lab, fontsize=8)
     ax.grid(alpha=0.22, lw=0.6)
     ax.set_title(tag, loc='left', pad=5, fontsize=10.5, fontweight='bold')
