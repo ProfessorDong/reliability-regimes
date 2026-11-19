@@ -2481,14 +2481,29 @@ if _os.path.exists(_tex) and _os.path.exists(NUM):
     # and its make_si_tables.py was missing a table, so a reader cloning the release would have
     # regenerated a different Figure 1 and a short Supplementary set. Worse, the checks above
     # read the repository copy, so they were validating a file nobody used. Assert they match.
+    # _wsdir is the npjDD manuscript directory, which is now a record of a superseded
+    # submission. The repository serves the Communications Chemistry paper, which renamed the
+    # sweep's horizontal axis from "Generated-set novelty" to "Distance to the starting leads":
+    # separating those two references is that paper's subject, so a figure calling one by the
+    # other's name contradicted it. The npjDD caption still reads "Achieved generated-set
+    # novelty", so its copy is deliberately NOT updated. Permit exactly that one line to differ
+    # and require every other line to match, which still catches accidental drift.
+    _KNOWN_DIVERGENCE = {
+        'gen_main_figures.py': [("    ax.set_xlabel('Generated-set novelty')",
+                                 "    ax.set_xlabel('Distance to the starting leads')")],
+    }
     _wsdir = _os.path.dirname(_tex_audit)
     for _gen in ('gen_fig1.py', 'gen_main_figures.py', 'gen_si_figures.py',
                  'make_numbers.py', 'make_si_tables.py'):
         _a = _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), _gen)
         _b = _os.path.join(_wsdir, _gen)
         if _os.path.exists(_a) and _os.path.exists(_b):
+            _ra = open(_a, encoding='utf-8').read()
+            _rb = open(_b, encoding='utf-8').read()
+            for _old, _new in _KNOWN_DIVERGENCE.get(_gen, ()):
+                _rb = _rb.replace(_old, _new)
             cond('repo sync', f'{_gen} in the repository matches the one that builds the paper',
-                 open(_a, encoding='utf-8').read() == open(_b, encoding='utf-8').read(),
+                 _ra == _rb,
                  'a reader regenerating from the release would not reproduce the figures shown')
 
     # American spelling throughout the article and the SI (user instruction). Check the RENDERED
