@@ -1,8 +1,8 @@
 # Bioactivity prediction error for compounds unlike their starting leads but close to measured analogs
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24375804.svg)](https://doi.org/10.5281/zenodo.24375804)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.24378988.svg)](https://doi.org/10.5281/zenodo.24378988)
 
-Archived at release `v1.9-commschem-submission`: [10.5281/zenodo.24375804](https://doi.org/10.5281/zenodo.24375804). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
+Archived at release `v1.10-commschem-submission`: [10.5281/zenodo.24378988](https://doi.org/10.5281/zenodo.24378988). Cite that DOI rather than the repository URL, which is mutable. [10.5281/zenodo.21864875](https://doi.org/10.5281/zenodo.21864875) resolves to all versions.
 
 Code, curated data, and frozen outputs for a study of how far a bioactivity prediction can be
 assessed from two chemical reference sets: a compound's distance to the starting leads of a
